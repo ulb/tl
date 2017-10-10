@@ -1,0 +1,32 @@
+
+
+- install nauty, available at http://pallini.di.uniroma1.it/#howtogetit 
+
+- insert the absolute path to the folder /nauty26r7 into the NAUTYHOME variable in the makefile
+
+- run make into the main directory of the code
+
+- the executable takes in input from 1 to 4 arguments:
+	
+	./2level-enum D first_base last_base verbose_flag
+
+	* the first argument is mandatory and is the dimension D you want to enumerate
+	* the second and the third arguments (optional) first_base and last_base are the first and the last (D-1)-dimensional bases that you want to assign: in this way the program will enumerate all 2-level D-polytopes with bases betweet the first and the last base.
+	By default, this parameters are set to include all (D-1)-dimensional 2-level polytopes. 
+	* the fourth and last argument is optional and determines the verbose depth. It goes from 0 to 2 with 0 = minimal output, 2 = list of all closed sets and points in the embeddings of the ground set. By default verbose_flag = 0
+
+	Examples of valid arguments:
+	./2level-enum 3
+	enumerates all 3-dimensional 2-level polytopes. It uses the default values for the remaining arguments.
+
+	./2level-enum 3 - - 2
+	enumerates all 3-dimensional 2-level polytopes. It uses the default values for first_base and last_base and provides maximal verbosity in the output.
+
+	./2level-enum 3 0 0 2
+	enumerates all 3-dimensional 2-level polytopes with the simplex as base (and with facets having less than or equal to 3 vertices)
+
+The program outputs a list of 2-level D-polytopes in a txt file.
+
+Notice that the code takes in input the list of (D-1)-polytopes in a txt file. The list for dimension 2 in provided in the repo.
+
+
