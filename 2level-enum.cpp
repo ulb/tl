@@ -7,6 +7,9 @@
 #include <vector>
 #include <chrono>
 
+#include <cstring> // std::equal
+#include <algorithm> // std::find
+
 //#include "my_lin_algebra_lib.h"
 //#include "closure_operators.h"
 //#include "closure_operators.h"
@@ -29,251 +32,178 @@ int n_polar = 0; // Polar 2L polytopes
 
 // check equality of T * arrays
 template <class T>
-bool is_equal(T *& array1,T *& array2, const int length) {
-    bool test = true;
-    for (int i = 0; i < length && test; i++)
-        test = (array1[i] == array2[i]);
-    return test;
+bool is_equal(T * array1,T * array2, const int length) {
+    for (int i = 0; i < length; ++i) if (array1[i] != array2[i]) return false;
+    return true;
+}
+
+template <class T>
+bool is_all_ones(T * pt, const int length) {
+    T* end = pt + length;
+    while (pt != end) {
+        if (*pt == 0) return false;
+        ++pt;
+    }
+    return true;
 }
 
 // assign int * array to another: array2 to array1
+
 template <class T>
-void assign_array(T *& array1,T *& array2, const int & length) {
-    for (int i = 0; i < length; i++)
-        array1[i] = array2[i];
+void assign_array(T * array1,T * array2, const int length) {
+    std::memcpy(array1,array2,length * sizeof(T));
 }
 
 // check if val occurs in array
-bool is_in_array(int *& array, int & val, const int & length) {
-    for (int i = 0; i < length; i++) {
-        if (array[i] == val)
-            return true;
-    }
-    return false;
+template <class T>
+bool is_in_array(T * array, T val, const int length) {
+    return std::find(array,array+length,val) != array+length;
 }
 
 // y = Mx
-void my_matrix_prod(int **& M, int *& x, int *& y, const int & num_rows, const int & num_cols) {
+void my_matrix_prod(int ** M, int * x, int * y, const int num_rows, const int num_cols) {
     int i, j;
     for (i = 0; i < num_rows; i++) {
         y[i] = 0;
-        for (j = 0; j < num_cols; j++) {
-            if (M[i][j] != 0)
-                y[i] += M[i][j]*x[j];
-        }
+        for (j = 0; j < num_cols; j++) y[i] += M[i][j]*x[j];
     }
 }
 
 // <x,y> = out
-void my_inner_prod(int *& x, int *& y, int & out, const int & length) {
+void my_inner_prod(int * x, int * y, int & out, const int length) {
     out = 0;
-    for (int i = 0; i < length; i++)
-        out += x[i]*y[i];
+    for (int i = 0; i < length; i++) out += x[i]*y[i];
 }
 
 // Check if A \preccurlyeq B
-bool preccurlyeq(int *& A, int *& B, const int & length) {
-    int i;
-    bool test = true;
-    // compute the symmetric difference of A and B
-    
-    if (is_equal(A,B,length))
-        return test;
-    
-    bool found = false;
-    int last_one = 0;
-    i = length - 1;
-    while (i >= 0 and !(found)) {
-        found = (((A[i] == 1) and (B[i] == 0)) or ((A[i] == 0) and (B[i] == 1)));
-        if (found)
-            last_one = i;
+bool preccurlyeq(int * A, int * B, const int length) {
+    if (is_equal(A,B,length)) return true;
+    int i = length - 1;
+    while (i > 0) {
+        if (((A[i] == 1) && (B[i] == 0)) || ((A[i] == 0) && (B[i] == 1))) return B[i] == 1;
         i--;
     }
-    test = (B[last_one] == 1);
-    
-    return test;
+    return B[0] == 1;
+}
+
+// Check if A is a subset of B
+bool is_subseteq(int * A, int * B, const int length) {
+    for (int i = 0; i < length; i++) if (A[i] == 1 && B[i] == 0) return false;
+    return true;
+}
+
+int min_A_idx(int * A, const int length) {
+    for (int i = 0; i < length; i++) if (A[i] == 1) return i;
+    return length;
 }
 
 // Check if A \sqsubseteq B
-bool is_sqsubseteq(int *& A, int *& B, const int & length) {
-    int i;
-    int first_one_A_idx = 0;
-    bool first_A_met = false;
-    
-    bool is_subset = true;
-    // Check if A is a subset of B
-    for (i = 0; i < length && is_subset; i++) {
-        if (A[i] == 1) {
-            is_subset = (B[i] == 1);
-            if (!first_A_met) {
-                first_one_A_idx = i;
-                first_A_met = true;
-            }
-        }
-    }
-    
-    if (is_subset) {
-        int * C;
-        alloc(C,length,int);
-        bool output_test;
-        // find first bit set to 1 in B
-        // Skip all bits that are set to 0 in A and to 1 in B, and delete them from B
-        // until a bit is found that is 1 in A and 1 in B. At that point, compare A to B
-        for (i = 0; i < length; i++) {
-            if (i < first_one_A_idx)
-                C[i] = 0;
-            else
-                C[i] = B[i];
-        }
-        output_test = is_equal(A,C,length);
-        free(C);
-        return output_test;
-    }
-    else
-        return false;
+bool is_sqsubseteq(int * A, int * B, const int length) {
+    int min_A = min_A_idx(A,length);
+    if (is_subseteq(A,B,length)) return is_equal(B+min_A,A+min_A,length-min_A);
+    else return false;
 }
 
-void inc(int *& A, const int & i, int *& I, const int & length) {
-    for (int j = 0; j < length; j++) {
-        if (j < i)
-            I[j] = 0;
-        else if (j == i)
-            I[j] = 1;
-        else
-            I[j] = A[j];
-    }
+// I = inc(A,i)
+void inc(int* A, const int i, int* I, const int length) {
+    std::memset(I,0,i * sizeof(int));
+    I[i] = 1;
+    std::memcpy(I+i+1, A+i+1,(length-i-1) * sizeof(int));
 }
 
 // Compute the discrete convex hull of a point set A
-void discreteconvexhull_cl(int *& A,int *& B,int *& dchcl,int **& slab_points_sat, const int & length_A, const int & length_B) {
+void discreteconvexhull_cl(int *& A,int *& B,int *& dchcl,int **& slab_points_sat, const int length_A, const int length_B) {
     int i, j;
     
     // Set all bits of B to 1
-    for (j = 0; j < length_B; j++)
-        B[j] = 1;
+    std::fill(B,B+length_B,1);
     
     // Intersect all sets of slabs belonging to elements of A
     for (i = 0; i < length_A; i++) {
         if (A[i] == 1) {
-            for (j = 0; j < length_B; j++) {
-                if ((B[j] == 1) && (slab_points_sat[i][j] == 1))
-                    B[j] = 1;
-                else
-                    B[j] = 0;
-            }
+            for (j = 0; j < length_B; j++)
+                if (slab_points_sat[i][j] == 0)  B[j] = 0;
         }
-    }
-    
+    }    
     // Set all bits of dchcl to 1
-    for (j = 0; j < length_A; j++)
-        dchcl[j] = 1;
+    std::fill(dchcl,dchcl+length_A,1);
     
     // Intersect all sets of points belonging to elements of B
     for (i = 0; i < length_B; i++) {
         if (B[i] == 1) {
-            for (j = 0; j < length_A; j++) {
-                if ((dchcl[j] == 1) && (slab_points_sat[j][i] == 1))
-                    dchcl[j] = 1;
-                else
-                    dchcl[j] = 0;
-            }
+            for (j = 0; j < length_A; j++)
+                if (slab_points_sat[j][i] == 0) dchcl[j] = 0;
         }
     }
+}
+
+// test for incompatibility
+bool is_incompatible(int * A,int ** incompatibility_adjM,const int length_A) {
+    for (int i = 0; i < length_A; ++i) {
+        if (A[i] == 0) continue;
+        for (int j = 0; j < i; ++j) if (A[j] == 1 && incompatibility_adjM[i][j] == 1) return false;
+    }
+    return true;
 }
 
 // incompatibility closure operator
-void incompatibility_cl(int *& A,int *& inccl, int **& incompatibility_adjM,const int & length_A) {
-    int i, j;
-    bool accept = true;
-    for (i = 0; i < length_A && accept; i++) {
-        if (A[i] == 1) {
-            for (j = 0; j < i && accept; j++) {
-                if (A[j] == 1) {
-                    accept = (incompatibility_adjM[i][j] == 0);
-                }
-            }
-        }
-    }
-    if (accept) {
-        for (i = 0; i < length_A; i++)
-            inccl[i] = A[i];
-    }
-    else {
-        for (i = 0; i < length_A; i++)
-            inccl[i] = 1;
-    }
+void incompatibility_cl(int * A,int * inccl, int ** incompatibility_adjM,const int length_A) { 
+    if (is_incompatible(A,incompatibility_adjM,length_A))
+        std::memcpy(inccl,A,length_A * sizeof(int));
+    else
+        std::fill(inccl,inccl+length_A,1);
 }
 
-void lexmax_symmetric(int *& A,int *& symcl,int **& ground_set_H,int *& all_ones,const int & length_A,int ***& orbits,const int & num_autom_base,const int & D) {
+void lexmax_symmetric(int *& A,int *& symcl,int **& ground_set_H,const int length_A,int ***& orbits,const int num_autom_base,const int D) {
     int i,j,k;
     
-    assign_array(symcl,A,length_A);
+    std::memcpy(symcl,A,length_A * sizeof(int));
     
-    //for (k = 0; k < length_A; k++)
-    //    printf("%d",A[k]);
-    //printf("\n");
-    
-    if (!(is_equal(A,all_ones,length_A))) {
+    if (!(is_all_ones(A,length_A))) {
         bool found, is_outside_X;
         int * A_sym;
         alloc(A_sym,length_A,int);
         
         A_sym[0] = 1;
-        for (j = 1; j < length_A; j++)
-            A_sym[j] = 0;
+        std::memset(A_sym+1,0,(length_A-1) * sizeof(int));
         
         if (!(is_equal(A,A_sym,length_A))) {
             for (i = 0; i < num_autom_base; i++) {
-                for (j = 1; j < length_A; j++)
-                    A_sym[j] = 0;
+                std::memset(A_sym+1,0,(length_A-1) * sizeof(int));
                 is_outside_X = false;
                 for (j = 1; j < length_A && !(is_outside_X); j++) {
                     if (A[j] == 1) {
-                        if (orbits[j][i][0] == 0)
-                            is_outside_X = true;
+                        if (orbits[j][i][0] == 0) is_outside_X = true;
                         else {
                             found = false;
                             for (k = 1; k < length_A && !found; k++) {
                                 found = is_equal(ground_set_H[k],orbits[j][i],D);
-                                if (found)
-                                    A_sym[k] = 1;
+                                if (found) A_sym[k] = 1;
                             }
                         }
                     }
                 }
                 if (!(is_outside_X)) {
-                    // printf("     A_sym = ");
-                    // for (k = 0; k < length_A; k++)
-                    //     printf("%d",A_sym[k]);
-                    // printf("\n");
                     if (preccurlyeq(symcl,A_sym,length_A))
-                        assign_array(symcl,A_sym,length_A);
+                        std::memcpy(symcl,A_sym,length_A * sizeof(int));
                 }
             }
         }
-        else
-            assign_array(symcl,A_sym,length_A);
+        else std::memcpy(symcl,A_sym,length_A * sizeof(int));
         free(A_sym);
     }
-    
-    //for (k = 0; k < length_A; k++)
-    //    printf("%d",symcl[k]);
-    //printf("\n");
 }
 
-void generate_id_matrix(const int & k,int **& Id) {
-    int i,j;
+void generate_id_matrix(const int k,int ** Id) {
+    int i;
     for (i = 0; i < k; i++) {
-        for (j = 0; j < k; j++) {
-            if (i == j)
-                Id[i][j] = 1;
-            else
-                Id[i][j] = 0;
-        }
+        std::memset(Id[i],0,i * sizeof(int));
+        Id[i][i] = 1;
+        std::memset(Id[i]+i+1,0,(k-i-1) * sizeof(int));
     }
 }
 
-void slack_matrix_free_sum(int **& P,int **& Q,const int & m1,const int & n1,const int & m2,const int & n2,int **& P_oplus_Q,int & num_rows,int & num_cols) {
+void slack_matrix_free_sum(int **& P,int **& Q,const int m1,const int n1,const int m2,const int n2,int **& P_oplus_Q,int & num_rows,int & num_cols) {
     int i,j,k;
     int offset;
     num_rows = m1 * m2;
@@ -303,7 +233,7 @@ void slack_matrix_free_sum(int **& P,int **& Q,const int & m1,const int & n1,con
     }
 }
 
-void slack_matrix_simplicial_2L(const int & h, const int & n, int **& M, int & num_r_M, int & num_c_M) {
+void slack_matrix_simplicial_2L(const int h, const int n, int **& M, int & num_r_M, int & num_c_M) {
     int i,j,k;
     int ** Id;
     alloc(Id,h+1,int*);
@@ -345,7 +275,7 @@ void slack_matrix_simplicial_2L(const int & h, const int & n, int **& M, int & n
     free(Id);
 }
 
-void push_simplicial_core(int **& M,const int & num_rows_M,const int & num_cols_M,int **& Id,const int & D) {
+void push_simplicial_core(int **& M,const int num_rows_M,const int num_cols_M,int **& Id,const int D) {
     int i,j,k;
     bool accept;
     // rearrange the columns in such a way that the first row begins with [1,0,...,0,...] (D zeros)
@@ -402,7 +332,7 @@ void push_simplicial_core(int **& M,const int & num_rows_M,const int & num_cols_
 }
 
 // slack matrix construction
-void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& B,int **& slabs,int **& S,int **& S_new,const int & size_ground_H, const int & num_slabs,const int & length_A,const int & length_B,const int & num_rows_S,const int & num_cols_S, int & num_rows_S_new, int & num_cols_S_new,const int & D) {
+void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& B,int **& slabs,int **& S,int **& S_new,const int size_ground_H, const int num_slabs,const int length_A,const int length_B,const int num_rows_S,const int num_cols_S, int & num_rows_S_new, int & num_cols_S_new,const int D) {
     int i, j, k, h;
     int ** all_rows;
     alloc(all_rows,2*num_slabs,int*);
@@ -413,7 +343,7 @@ void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& 
     bool accept;
     
     k = 0;
-    for (i = 0; i < num_slabs; i++) {
+    for (i = 0; i < num_slabs; ++i) {
         if (B[i] == 1) {
             my_inner_prod(ground_set_H[0],slabs[i],s,D);
             if (s != 0)
@@ -421,7 +351,7 @@ void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& 
             else
                 temp_row[0] = 0;
             
-            for (j = 0; j < num_cols_S; j++) {
+            for (j = 0; j < num_cols_S; ++j) {
                 my_inner_prod(base_H[j],slabs[i],s,D);
                 if (s != 0)
                     temp_row[1+j] = 1;
@@ -429,7 +359,7 @@ void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& 
                     temp_row[1+j] = 0;
             }
             h = 1;
-            for (j = 1; j < size_ground_H; j++) {
+            for (j = 1; j < size_ground_H; ++j) {
                 if (A[j] == 1) {
                     my_inner_prod(ground_set_H[j],slabs[i],s,D);
                     if (s != 0)
@@ -441,51 +371,42 @@ void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& 
             }
             
             int num_vertices = 0;
-            for (j = 0; j < num_cols_S_new; j++) {
-                if (temp_row[j] == 0)
-                    num_vertices += 1;
+            for (j = 0; j < num_cols_S_new; ++j) {
+                if (temp_row[j] == 0) num_vertices += 1;
             }
             
             if (num_vertices >= D) {
                 alloc(all_rows[k],num_cols_S_new,int);
-                for (j = 0; j < num_cols_S_new; j++)
+                for (j = 0; j < num_cols_S_new; ++j)
                     all_rows[k][j] = temp_row[j];
-                k++;
+                ++k;
             }
             
             if ((num_cols_S_new - num_vertices) >= D) {
                 alloc(all_rows[k],num_cols_S_new,int);
-                for (j = 0; j < num_cols_S_new; j++)
+                for (j = 0; j < num_cols_S_new; ++j)
                     all_rows[k][j] = 1-temp_row[j];
-                k++;
+                ++k;
             }
         }
     }
     free(temp_row);
     int temp_num_all_rows = k;
     
-    /*printf("\n");
-     for (i = 0; i < temp_num_all_rows; i++){
-     printf("       ");
-     for (j = 0; j < num_cols_S_new; j++)
-     printf("%d",all_rows[i][j]);
-     printf("\n");
-     }*/
-    
-    for (i = 0; i < 2*length_B; i++)
+    for (i = 0; i < 2*length_B; ++i)
         alloc(S_new[i],num_cols_S_new,int);
     
     num_rows_S_new = 0;
     // check maximality of rows
     bool is_maximal, is_subset;
-    for (i = 0; i < temp_num_all_rows; i++) {
+    for (i = 0; i < temp_num_all_rows; ++i) {
         //alloc(S_new[i],num_cols_S_new,int);
         is_maximal = true;
-        for (j = 0; j < temp_num_all_rows && is_maximal; j++) {
+        for (j = 0; j < temp_num_all_rows && is_maximal; ++j) {
             if (j != i) {
                 is_subset = true;
                 // Check if the indices of zeros in all_rows[i] is a subset of all_rows[j]
-                for (k = 0; k < num_cols_S_new && is_subset; k++) {
+                for (k = 0; k < num_cols_S_new && is_subset; ++k) {
                     if (all_rows[i][k] == 0)
                         is_subset = (all_rows[j][k] == 0);
                 }
@@ -498,60 +419,37 @@ void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& 
         }
     }
     
-    for (i = 0; i < temp_num_all_rows; i++)
+    for (i = 0; i < temp_num_all_rows; ++i)
         free(all_rows[i]);
     free(all_rows);
     
     // rearranging rows of S_new
     int n_row = 0;
     alloc(temp_row,num_cols_S_new,int);
-    for (i = n_row+1; i < num_rows_S_new && n_row < D; i++) {
+    for (i = n_row+1; i < num_rows_S_new && n_row < D; ++i) {
         accept = true;
-        for (j = 0; j < num_cols_S && accept; j++)
+        for (j = 0; j < num_cols_S && accept; ++j)
             accept = (S_new[i][j+1] == S[n_row][j]);
-        
         if (accept) {
-            /*printf("(%d,%d)\n",n_row+1,i);
-             for (k = 0; k < num_rows_S_new; k++){
-             printf("   ");
-             for (j = 0; j < num_cols_S_new; j++)
-             printf("%d",S_new[k][j]);
-             printf("\n");
-             }*/
-            
-            
             assign_array(temp_row,S_new[i],num_cols_S_new);
             assign_array(S_new[i],S_new[n_row+1],num_cols_S_new);
             assign_array(S_new[n_row+1],temp_row,num_cols_S_new);
             n_row++;
-            
-            /*printf("\n\n");
-             for (k = 0; k < num_rows_S_new; k++){
-             printf("   ");
-             for (j = 0; j < num_cols_S_new; j++)
-             printf("%d",S_new[k][j]);
-             printf("\n");
-             }*/
         }
     }
     free(temp_row);
 }
 
 
-bool checksimplicialcore(int **& S, const int & D) { //const int**
-    bool test = true;
-    for (int i=0; i < D && test; ++i) {
-        for (int j=i; j < D && test; ++j) {
-            if (i == j)
-                test = (S[i][j] == 1);
-            else if (i < j)
-                test = (S[i][j] == 0);
-        }
+bool checksimplicialcore(int ** S, const int D) {
+    for (int i = 0; i < D; ++i) {
+        if (S[i][i] != 1) return false;
+        for (int j = i+1; j < D; ++j) if (S[i][j] != 0) return false;
     }
-    return test;
+    return true;
 }
 
-void extractM(int **& S, int **& M, const int & D) {
+void extractM(int ** S, int ** M, const int D) {
     for (int i=0; i<D; i++) {
         for (int j=0; j<D; j++)
             if (i == 0 && j == 0)
@@ -564,7 +462,7 @@ void extractM(int **& S, int **& M, const int & D) {
 }
 
 // invert the DxD matrix M
-void invertM(int **& M, int **& Minv, const int & D) {
+void invertM(int ** M, int ** Minv, const int D) {
     int i,j,k;
     
     int ** W = M;
@@ -578,7 +476,7 @@ void invertM(int **& M, int **& Minv, const int & D) {
     for (i=0; i<D; i++) {
         for (j=0; j<D; j++) {
             if (i == j)
-                Minv[i][j] = 1;
+                Minv[i][i] = 1;
             else
                 Minv[i][j] = 0;
         }
@@ -602,12 +500,12 @@ void invertM(int **& M, int **& Minv, const int & D) {
     free(W);
 }
 
-void hash2size(const int & S_hash,int & num_rows,int & num_cols, const int & D) {
+void hash2size(const int S_hash,int & num_rows,int & num_cols, const int D) {
     num_rows = 1 + (((1 << D) - 1) & S_hash);
     num_cols = 1 + (((1 << D) - 1) & (S_hash >> D));
 }
 
-void canonicize(int **& S,const int & num_rows,const int & num_cols, const int & n, const int & m, setword *& cg_vec) {
+void canonicize(int ** S,const int num_rows,const int num_cols, const int n, const int m, setword * cg_vec) {
     // Initializations for Nauty
     DYNALLSTAT(int,lab,lab_sz);
     DYNALLSTAT(int,ptn,ptn_sz);
@@ -649,17 +547,14 @@ void canonicize(int **& S,const int & num_rows,const int & num_cols, const int &
     // Build the edges of the nonincidence graph
     // Loop through all the entries of the slack matrix and add an edge when there is a one
     for (int i = 0; i < num_rows; i++) {
-        for (int j = 0; j < num_cols; j++) {
-            if (S[i][j] == 1)
-                ADDONEEDGE(g,i,j+num_rows,m);
-        }
+        for (int j = 0; j < num_cols; j++)
+            if (S[i][j] == 1) ADDONEEDGE(g,i,j+num_rows,m);
     }
     
     // Obtain canonical graph from Nauty
     densenauty(g,lab,ptn,orbits,&options,&stats,m,n,cg);
     
-    for (size_t k = 0; k < m*(size_t)n; ++k)
-        cg_vec[k] = cg[k];
+    for (size_t k = 0; k < m*(size_t)n; ++k) cg_vec[k] = cg[k];
     
     // Clean up
     DYNFREE(lab,lab_sz);
@@ -672,7 +567,7 @@ void canonicize(int **& S,const int & num_rows,const int & num_cols, const int &
 
 // Checks whether a given 0-1 matrix is the slack matrix of a D-dimensional 2-level polytope,
 // by using the list of (D-1)-dimensional 2-level polytopes.
-bool istwolevelpolytope(int **& S_new,const int & num_rows_S_new,const int & num_cols_S_new,int *& atoms_hash,setword **& atoms_cg,const int & n_atoms, const int & D) {
+bool istwolevelpolytope(int ** S_new,const int num_rows_S_new,const int num_cols_S_new,int * atoms_hash,setword ** atoms_cg,const int n_atoms, const int D) {
     int i, j, k, h, l, it;
     // First test: check that every column contains at least D zeros
     // by construction, every row of S contains at least D zeros
@@ -680,39 +575,30 @@ bool istwolevelpolytope(int **& S_new,const int & num_rows_S_new,const int & num
     bool accept = true;
     for (j = 0; j < num_cols_S_new && accept; j++) {
         num_facets_contain = 0;
-        for (i = 0; i < num_rows_S_new; i++) {
-            if (S_new[i][j] == 0)
-                num_facets_contain += 1;
-        }
+        for (i = 0; i < num_rows_S_new; i++)
+            if (S_new[i][j] == 0) num_facets_contain += 1;
+
         accept = (num_facets_contain >= D);
     }
-    if (!accept)
-        return false;
+    if (!accept) return false;
     
     int ** zero_indices;
     int * num_zero_indices;
     alloc(zero_indices,num_rows_S_new,int*);
     alloc(num_zero_indices,num_rows_S_new,int);
     
-    for (i = 0; i < num_rows_S_new; i++) {
+    for (i = 0; i < num_rows_S_new; ++i) {
         k = 0;
         alloc(zero_indices[i],num_cols_S_new,int);
         zero_indices[i][0] = 0;
-        for (j = 0; j < num_cols_S_new; j++){
+        for (j = 0; j < num_cols_S_new; ++j){
             if (S_new[i][j] == 0){
                 zero_indices[i][k] = j;
-                k++;
+                ++k;
             }
         }
         num_zero_indices[i] = k;
     }
-    
-    /*for (i = 0; i < num_rows_S_new; i++){
-     printf("    %d: ",num_zero_indices[i]);
-     for (j = 0; j < num_zero_indices[i]; j++)
-     printf("%d ",zero_indices[i][j]);
-     printf("\n");
-     }*/
     
     int ** rows_S_Fi;
     int * num_rows_S_Fi;
@@ -748,14 +634,6 @@ bool istwolevelpolytope(int **& S_new,const int & num_rows_S_new,const int & num
         num_rows_S_Fi[i] = l;
     }
     
-    /*printf("\n");
-     for (i = 0; i < num_rows_S_new; i++){
-     printf("    %d: ",num_rows_S_Fi[i]);
-     for (j = 0; j < num_rows_S_Fi[i]; j++)
-     printf("%d ",rows_S_Fi[i][j]);
-     printf("\n");
-     }*/
-    
     // Go through all the rows and build the corresponding submatrix for each of them. If the input is a slack matrix,
     // this will compute the slack matrix of the corresponding facet and test is it appears in the list L_{D-1}
     int ** S_Fi;
@@ -774,14 +652,14 @@ bool istwolevelpolytope(int **& S_new,const int & num_rows_S_new,const int & num
         setword * canonical_S_Fi;
         n = num_rows_S_Fi[i] + num_zero_indices[i];
         m = SETWORDSNEEDED(n);
-        alloc(canonical_S_Fi,m*n,setword);
+        alloc(canonical_S_Fi,m*(size_t)n,setword);
         canonicize(S_Fi,num_rows_S_Fi[i],num_zero_indices[i],n,m,canonical_S_Fi);
         
         found = false;
         for (it = 0; it < n_atoms && !found; it++) {
             hash2size(atoms_hash[it],num_rows_atom,num_cols_atom,D);
             if ((num_rows_S_Fi[i] == num_rows_atom) && (num_zero_indices[i] == num_cols_atom))
-                found = is_equal(canonical_S_Fi,atoms_cg[it],m*n);
+                found = is_equal(canonical_S_Fi,atoms_cg[it],m*(size_t)n);
         }
         
         free(canonical_S_Fi);
@@ -880,7 +758,7 @@ void writeautom(int *p, int n,std::vector<std::vector<int>>& automorphism_base, 
     num_tot++;
 }
 
-void construct_automorphism_base(int **& S,const int & num_rows,const int & num_cols, const int & n, const int & m, std::vector<std::vector<int>>& automorphism_base, int & num_autom_base) {
+void construct_automorphism_base(int **& S,const int num_rows,const int num_cols, const int n, const int m, std::vector<std::vector<int>>& automorphism_base, int & num_autom_base) {
     
     int i,j;
     // Initializations for Nauty
@@ -980,78 +858,78 @@ bool is_susp(int **& S_new,int & num_rows_S_new,int & num_cols_S_new) {
     printf("\n");
 
     for (i = 0; i < num_rows_S_new; i++) {
-	   int * zeros_idx, * ones_idx;
-	    alloc(zeros_idx,num_cols_S_new,int); 
-	    alloc(ones_idx,num_cols_S_new,int);
+       int * zeros_idx, * ones_idx;
+        alloc(zeros_idx,num_cols_S_new,int); 
+        alloc(ones_idx,num_cols_S_new,int);
         int num_zeros, num_ones;
         num_zeros = 0;
-	    num_ones = 0;
+        num_ones = 0;
         // Count zeroes and ones in the row and record their positions
-    	for (j = 0; j < num_cols_S_new; j++) {
-    		if (S_new[i][j] == 1) {
-    			ones_idx[num_ones] = j;
-    			num_ones++;
-    		}
-    		else {
-    			zeros_idx[num_zeros] = j;
+        for (j = 0; j < num_cols_S_new; j++) {
+            if (S_new[i][j] == 1) {
+                ones_idx[num_ones] = j;
+                num_ones++;
+            }
+            else {
+                zeros_idx[num_zeros] = j;
                 num_zeros++;
             }
-    	}
+        }
 
-    	for (j = 0; j < num_ones; j++) {
-    		for (k = 0; k < num_zeros; k++) {
+        for (j = 0; j < num_ones; j++) {
+            for (k = 0; k < num_zeros; k++) {
                 int * char_F1;
                 alloc(char_F1,num_cols_S_new,int);
                 for (l = 0; l < num_cols_S_new; l++)
                     char_F1[l] = 1;
-    			is_contained = true;
-    			for (l = 0; l < num_ones && is_contained; l++) {
+                is_contained = true;
+                for (l = 0; l < num_ones && is_contained; l++) {
                     int * translated_F1_point;
                     alloc(translated_F1_point,num_rows_S_new,int);
-    				for (h = 0; h < num_rows_S_new; h++)
-    					translated_F1_point[h] = S_new[h][ones_idx[l]] + S_new[h][zeros_idx[k]] - S_new[h][ones_idx[j]];
+                    for (h = 0; h < num_rows_S_new; h++)
+                        translated_F1_point[h] = S_new[h][ones_idx[l]] + S_new[h][zeros_idx[k]] - S_new[h][ones_idx[j]];
                     found = false;
                     for (h = 0; h < num_zeros && !found; h++) {
                         int * F0_point;
                         alloc(F0_point,num_rows_S_new,int);
-                    	for (t = 0; t < num_rows_S_new; t++)
-                    		F0_point[t] = S_new[t][zeros_idx[h]];
-                    	found = is_equal(translated_F1_point,F0_point,num_rows_S_new);
+                        for (t = 0; t < num_rows_S_new; t++)
+                            F0_point[t] = S_new[t][zeros_idx[h]];
+                        found = is_equal(translated_F1_point,F0_point,num_rows_S_new);
                         free(F0_point);
                         if (found)
                             char_F1[zeros_idx[h]] = 0;
                     }
                     free(translated_F1_point);
-                    is_contained &= found;	
-    			}
+                    is_contained &= found;  
+                }
                 //free(idx_translated_F1);
                 
                 if (is_contained) {
                     int * intersect_rows_containing_F1;
                     alloc(intersect_rows_containing_F1,num_cols_S_new,int);
                     for (l = 0; l < num_cols_S_new; l++)
-                    	intersect_rows_containing_F1[l] = 0;
+                        intersect_rows_containing_F1[l] = 0;
                     for (h = 0; h < num_rows_S_new; h++) {
-                    	is_subset = true;
-                    	for (l = 0; l < num_cols_S_new && is_subset; l++) {
-            		        if (S_new[h][l] == 1)
-            					is_subset = (char_F1[l] == 1);
-                    	}
-                    	if (is_subset) {
-                    		for (l = 0; l < num_cols_S_new; l++) {
-                    			if ((S_new[h][l] == 1) || (intersect_rows_containing_F1[l] == 1))
-                    				intersect_rows_containing_F1[l] = 1;
-                    			else
-                    				intersect_rows_containing_F1[l] = 0;
-                    		}
-                    	}
+                        is_subset = true;
+                        for (l = 0; l < num_cols_S_new && is_subset; l++) {
+                            if (S_new[h][l] == 1)
+                                is_subset = (char_F1[l] == 1);
+                        }
+                        if (is_subset) {
+                            for (l = 0; l < num_cols_S_new; l++) {
+                                if ((S_new[h][l] == 1) || (intersect_rows_containing_F1[l] == 1))
+                                    intersect_rows_containing_F1[l] = 1;
+                                else
+                                    intersect_rows_containing_F1[l] = 0;
+                            }
+                        }
                     }
                     flag = is_equal(intersect_rows_containing_F1,char_F1,num_cols_S_new);
                     free(intersect_rows_containing_F1);  
                 }
                 free(char_F1);
             }
-    	}
+        }
         free(zeros_idx);
         free(ones_idx);
     }
@@ -1060,14 +938,14 @@ bool is_susp(int **& S_new,int & num_rows_S_new,int & num_cols_S_new) {
 
 
 // Test if the polar of the 2-level polytope having slack-matrix S_new is a still 2_level
-int is_polar(int **& S_new,int & hash_S_new, setword *& canonical_S_new, int & num_rows_S_new,int & num_cols_S_new,int *& LD_hash,setword **& LD,int & current_LD,const int & D) {
+int is_polar(int **& S_new,int & hash_S_new, setword *& canonical_S_new, int & num_rows_S_new,int & num_cols_S_new,int *& LD_hash,setword **& LD,int & current_LD,const int D) {
     int i,j;
     int ** S_T;
     alloc(S_T,num_cols_S_new,int*);
     for (i = 0; i < num_cols_S_new; i++) {
-    	alloc(S_T[i],num_rows_S_new,int);
-    	for (j = 0; j < num_rows_S_new; j++)
-    		S_T[i][j] = S_new[j][i];
+        alloc(S_T[i],num_rows_S_new,int);
+        for (j = 0; j < num_rows_S_new; j++)
+            S_T[i][j] = S_new[j][i];
     }
 
     int amount_polar = 0;
@@ -1078,29 +956,29 @@ int is_polar(int **& S_new,int & hash_S_new, setword *& canonical_S_new, int & n
     m = SETWORDSNEEDED(n);
     setword * canonical_S_T;
 
-    alloc(canonical_S_T,m*n,setword);
+    alloc(canonical_S_T,m*(size_t)n,setword);
     canonicize(S_T,num_cols_S_new,num_rows_S_new,n,m,canonical_S_T);
 
 
     if (hash_S_new == hash_S_T) {
-        if (is_equal(canonical_S_T,canonical_S_new,m*n))
+        if (is_equal(canonical_S_T,canonical_S_new,m*(size_t)n))
             amount_polar = 1; // self-polar
     }
     else {
-    	bool is_isomorphic = false;
+        bool is_isomorphic = false;
 
-    	// Browse through all nonincidence graphs that have the same hash to see if one of them
+        // Browse through all nonincidence graphs that have the same hash to see if one of them
         // is isomorphic to the current nonincidence graph
-	    for (i = 0; i < current_LD && !is_isomorphic; i++) {
-	        if (LD_hash[i] == hash_S_T)
-	            is_isomorphic = is_equal(canonical_S_T,LD[i],m*n);
-	    }
+        for (i = 0; i < current_LD && !is_isomorphic; i++) {
+            if (LD_hash[i] == hash_S_T)
+                is_isomorphic = is_equal(canonical_S_T,LD[i],m*(size_t)n);
+        }
         if (is_isomorphic)
             amount_polar = 2;
     }
     
     for (i = 0; i < num_cols_S_new; i++)
-    	free(S_T[i]);
+        free(S_T[i]);
     free(S_T);
 
     return amount_polar;
@@ -1108,7 +986,7 @@ int is_polar(int **& S_new,int & hash_S_new, setword *& canonical_S_new, int & n
 
 
 // check if the slack matrix S is already listed in LD; if not, add it to LD //int *& LD_hash, setword **& LD
-void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_outputfile,int *& LD_hash,setword **& LD,int & current_LD, const int & D, int & verbose) {
+void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_outputfile,int *& LD_hash,setword **& LD,int & current_LD, const int D, int & verbose) {
     int i, j;
     int n, m;
     int hash_S_new = ((num_cols_S_new-1) << D) + num_rows_S_new - 1;
@@ -1116,7 +994,7 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
     setword * canonical_S_new;
     n = num_rows_S_new + num_cols_S_new;
     m = SETWORDSNEEDED(n);
-    alloc(canonical_S_new,m*n,setword);
+    alloc(canonical_S_new,m*(size_t)n,setword);
     canonicize(S_new,num_rows_S_new,num_cols_S_new,n,m,canonical_S_new);
     
     bool is_isomorphic = false;
@@ -1133,7 +1011,7 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
     // is isomorphic to the current nonincidence graph
     for (i = 0; i < current_LD && !is_isomorphic; i++){
         if (LD_hash[i] == hash_S_new)
-            is_isomorphic = is_equal(canonical_S_new,LD[i],m*n);
+            is_isomorphic = is_equal(canonical_S_new,LD[i],m*(size_t)n);
     }
     //is_isomorphic = false;
     
@@ -1146,8 +1024,8 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
         //         printf("%d",S_new[i][j]);
         //     printf("\n");
         // }
-        alloc(LD[current_LD],m*n,setword);
-        assign_array(LD[current_LD],canonical_S_new,m*n);
+        alloc(LD[current_LD],m*(size_t)n,setword);
+        assign_array(LD[current_LD],canonical_S_new,m*(size_t)n);
         LD_hash[current_LD] = hash_S_new;
         current_LD++;
         
@@ -1165,24 +1043,24 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
             bool has_simplicial = false;
             int num_zeros;
             for (i = 0; i < num_rows_S_new && !has_simplicial; i++) {
-            	num_zeros = 0;
-            	for (j = 0; j < num_cols_S_new; j++) {
-            		if (S_new[i][j] == 0)
-            			num_zeros++;
-            	}
-            	has_simplicial = (num_zeros == D);
+                num_zeros = 0;
+                for (j = 0; j < num_cols_S_new; j++) {
+                    if (S_new[i][j] == 0)
+                        num_zeros++;
+                }
+                has_simplicial = (num_zeros == D);
             }
             if (has_simplicial)
                 simplicial_facet++;
             
             bool STAB = false;
             for (i = 0; i < num_cols_S_new && !STAB; i++) {
-            	num_zeros = 0;
-            	for (j = 0; j < num_rows_S_new; j++) {
-            		if (S_new[j][i] == 0)
-            			num_zeros++;
-            	}
-            	STAB = (num_zeros == D);
+                num_zeros = 0;
+                for (j = 0; j < num_rows_S_new; j++) {
+                    if (S_new[j][i] == 0)
+                        num_zeros++;
+                }
+                STAB = (num_zeros == D);
             }
             if (STAB)
                 stab++;
@@ -1190,12 +1068,12 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
             bool CS = true;
             int num_ones;
             for (i = 0; i < num_rows_S_new && CS; i++) {
-            	num_ones = 0;
-            	for (j = 0; j < num_cols_S_new; j++) {
-            		if (S_new[i][j] == 1)
-            			num_ones++;
-            	}
-            	CS = (num_ones == num_cols_S_new/2);
+                num_ones = 0;
+                for (j = 0; j < num_cols_S_new; j++) {
+                    if (S_new[i][j] == 1)
+                        num_ones++;
+                }
+                CS = (num_ones == num_cols_S_new/2);
             }
             if (CS)
                 cs++;
@@ -1411,7 +1289,7 @@ int main (int argc, const char* argv[]) {
         hash2size(atoms_hash[i],num_rows,num_cols,D);
         n = num_rows + num_cols;
         m = SETWORDSNEEDED(n);
-        alloc(atoms_cg[i],m*n,setword);
+        alloc(atoms_cg[i],m*(size_t)n,setword);
         canonicize(atoms[i],num_rows,num_cols,n,m,atoms_cg[i]);
     }
     printf("OK\n");
@@ -2034,11 +1912,6 @@ int main (int argc, const char* argv[]) {
         for (i = 0; i < size_ground_H; i++)
             A[i] = 0;
         
-        int * all_ones;
-        alloc(all_ones,size_ground_H,int);
-        for (i = 0; i < size_ground_H; i++)
-            all_ones[i] = 1;
-        
         int * dchcl, * inccl, * I, * CI;
         alloc(dchcl,size_ground_H,int);
         alloc(inccl,size_ground_H,int);
@@ -2047,32 +1920,16 @@ int main (int argc, const char* argv[]) {
         int * B;
         alloc(B,num_slabs,int);
         
-        while (!is_equal(A,all_ones,size_ground_H)) {
+        while (!is_all_ones(A,size_ground_H)) {
             i = 0;
             begin_nextcl = my_clock::now();
             do {
                 while(A[i] == 1)
                     i++;
                 inc(A,i,I,size_ground_H); // I = inc(A,i)
-                // printf("-->  I = ");
-                // for (k = 0; k < size_ground_H; k++)
-                //     printf("%d",I[k]);
-                // printf("\n");
                 discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
-                // printf("-->  dchcl = ");
-                // for (k = 0; k < size_ground_H; k++)
-                //     printf("%d",dchcl[k]);
-                // printf("\n");
                 incompatibility_cl(dchcl,inccl,incompatibility_adjM,size_ground_H);
-                // printf("-->  inccl = ");
-                // for (k = 0; k < size_ground_H; k++)
-                //     printf("%d",inccl[k]);
-                // printf("\n");
-                lexmax_symmetric(inccl,CI,ground_H,all_ones,size_ground_H,orbits,num_autom_base,D);
-                // printf("-->  CI = ");
-                // for (k = 0; k < size_ground_H; k++)
-                //     printf("%d",CI[k]);
-                // printf("\n");
+                lexmax_symmetric(inccl,CI,ground_H,size_ground_H,orbits,num_autom_base,D);
                 i++;
             } while (!is_sqsubseteq(I,CI,size_ground_H));
             end_nextcl = my_clock::now();
@@ -2168,14 +2025,6 @@ int main (int argc, const char* argv[]) {
                 printf("\n");
             }
             
-            /*printf("\n");
-             for (i = 0; i < num_rows_S_new; i++){
-             printf("   ");
-             for (j = 0; j < num_cols_S_new; j++)
-             printf("%d",S_new[i][j]);
-             printf("\n");
-             }*/
-            
             if (istwolevel) {
                 to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
                 N_2level_current_base++;
@@ -2192,7 +2041,6 @@ int main (int argc, const char* argv[]) {
         free(CI);
         free(I);
         free(B);
-        free(all_ones);
         free(A);
         
         for (i = 0; i < size_ground_H; i++)
@@ -2271,13 +2119,13 @@ int main (int argc, const char* argv[]) {
     //printf("Total elapsed time(sum)= %lfs\n", tot_elapsed_time_sum);
 
     if (verbose != 0) {
-    	printf("\nD       | %d\n",D);
-    	printf("Delta-f | %d\n",simplicial_facet);
-    	printf("CS      | %d\n",cs);
-    	printf("STAB    | %d\n",stab);
-    	printf("polar   | %d\n",n_polar);
-    	printf("susp    | %d\n",n_suspensions);
-    	printf("2L      | %d\n\n",current_LD);
+        printf("\nD       | %d\n",D);
+        printf("Delta-f | %d\n",simplicial_facet);
+        printf("CS      | %d\n",cs);
+        printf("STAB    | %d\n",stab);
+        printf("polar   | %d\n",n_polar);
+        printf("susp    | %d\n",n_suspensions);
+        printf("2L      | %d\n\n",current_LD);
     }
 
     fclose(my_outputfile);
