@@ -577,7 +577,6 @@ bool istwolevelpolytope(int ** S_new,const int num_rows_S_new,const int num_cols
         num_facets_contain = 0;
         for (i = 0; i < num_rows_S_new; i++)
             if (S_new[i][j] == 0) num_facets_contain += 1;
-
         accept = (num_facets_contain >= D);
     }
     if (!accept) return false;
@@ -685,21 +684,12 @@ bool istwolevelpolytope(int ** S_new,const int num_rows_S_new,const int num_cols
 // compute the power of an int, x base, p exponent
 int my_pow(int x, unsigned int p) {
     int tot = 1;
-    for (int i = 1; i <= p; i++)
-        tot *= x;
-    return tot;
-}
-
-unsigned int my_factorial(int n) {
-    int tot = 1;
-    for (int i = n; i >= 2; i--)
-        tot *= i;
+    for (int i = 1; i <= p; i++) tot *= x;
     return tot;
 }
 
 DYNALLSTAT(int,allp,allp_sz);
 DYNALLSTAT(int,id,id_sz);
-
 
 // Recursive routine used by allgroup.
 static void my_groupelts(levelrec *lr, int n, int level, void (*action)(int*,int,std::vector<std::vector<int>>&,int &),int *before, int *after, int *id,std::vector<std::vector<int>>& automorphism_base, int & num_tot) {
@@ -802,13 +792,10 @@ void construct_automorphism_base(int **& S,const int num_rows,const int num_cols
     }
     
     // Build the edges of the nonincidence graph
-    
     // Loop through all the entries of the slack matrix and add an edge when there is a one
     for (i = 0; i < num_rows; i++) {
-        for (j = 0; j < num_cols; j++) {
-            if (S[i][j] == 1)
-                ADDONEEDGE(g,i,j+num_rows,m);
-        }
+        for (j = 0; j < num_cols; j++)
+            if (S[i][j] == 1) ADDONEEDGE(g,i,j+num_rows,m);
     }
     
     //determine the automorphism group of the graph with nauty
@@ -839,7 +826,7 @@ void construct_automorphism_base(int **& S,const int num_rows,const int num_cols
 }
 
 // test if the 2-level polytope having slack-matrix S_new is a suspension
-bool is_susp(int **& S_new,int & num_rows_S_new,int & num_cols_S_new) {
+bool is_susp(int ** S_new,const int num_rows_S_new,const int num_cols_S_new) {
     // For all rows i of the slack matrix M
     // Partition the columns into F_0 = {j : M(i,j) = 0} and F_1 = {j : M(i,j) = 1}
     // For all translation vectors t such that the vertices of F_1 - t are a subset of those of F_0
@@ -848,21 +835,11 @@ bool is_susp(int **& S_new,int & num_rows_S_new,int & num_cols_S_new) {
     bool flag = false;
     bool is_contained,found,is_subset;
 
-    printf("   (%d,%d)\n",num_rows_S_new,num_cols_S_new);
-    for (i = 0; i < num_rows_S_new; i++){
-        printf("   ");
-        for (j = 0; j < num_cols_S_new; j++)
-            printf("%d",S_new[i][j]);
-        printf("\n");
-    }
-    printf("\n");
-
     for (i = 0; i < num_rows_S_new; i++) {
-       int * zeros_idx, * ones_idx;
+        int * zeros_idx, * ones_idx;
         alloc(zeros_idx,num_cols_S_new,int); 
         alloc(ones_idx,num_cols_S_new,int);
         int num_zeros, num_ones;
-        num_zeros = 0;
         num_ones = 0;
         // Count zeroes and ones in the row and record their positions
         for (j = 0; j < num_cols_S_new; j++) {
@@ -870,11 +847,10 @@ bool is_susp(int **& S_new,int & num_rows_S_new,int & num_cols_S_new) {
                 ones_idx[num_ones] = j;
                 num_ones++;
             }
-            else {
+            else
                 zeros_idx[num_zeros] = j;
-                num_zeros++;
-            }
         }
+        num_zeros = num_cols_S_new - num_ones;
 
         for (j = 0; j < num_ones; j++) {
             for (k = 0; k < num_zeros; k++) {
@@ -999,38 +975,19 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
     
     bool is_isomorphic = false;
     
-    // printf("\n   (%d,%d)\n",num_rows_S_new,num_cols_S_new);
-    // for (i = 0; i < num_rows_S_new; i++){
-    //     printf("   ");
-    //     for (j = 0; j < num_cols_S_new; j++)
-    //         printf("%d",S_new[i][j]);
-    //     printf("\n");
-    // }
-    
     // Browse through all nonincidence graphs that have the same hash to see if one of them
     // is isomorphic to the current nonincidence graph
-    for (i = 0; i < current_LD && !is_isomorphic; i++){
-        if (LD_hash[i] == hash_S_new)
-            is_isomorphic = is_equal(canonical_S_new,LD[i],m*(size_t)n);
+    for (i = 0; i < current_LD && !is_isomorphic; ++i) {
+        if (LD_hash[i] == hash_S_new) is_isomorphic = is_equal(canonical_S_new,LD[i],m*(size_t)n);
     }
     //is_isomorphic = false;
     
     if (!(is_isomorphic)) {
-        
-        // printf("   (%d,%d)\n",num_rows_S_new,num_cols_S_new);
-        // for (i = 0; i < num_rows_S_new; i++){
-        //     printf("   ");
-        //     for (j = 0; j < num_cols_S_new; j++)
-        //         printf("%d",S_new[i][j]);
-        //     printf("\n");
-        // }
         alloc(LD[current_LD],m*(size_t)n,setword);
         assign_array(LD[current_LD],canonical_S_new,m*(size_t)n);
         LD_hash[current_LD] = hash_S_new;
         current_LD++;
-        
-        //printf("\n--> current_LD = %d\n",current_LD);
-        
+
         for (i = 0; i < num_rows_S_new; i++){
             for (j = 0; j < num_cols_S_new; j++)
                 fprintf(my_outputfile,"%d",S_new[i][j]);
@@ -1038,7 +995,7 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
         }
         fprintf(my_outputfile,"-\n");
 
-        ////////////
+        // tests for subclasses of 2-level polytopes
         if (verbose != 0) {
             bool has_simplicial = false;
             int num_zeros;
@@ -1106,43 +1063,30 @@ int main (int argc, const char* argv[]) {
         n_atoms = 2;
         n_LD = 5;
     }
-    else {
-        if (D == 4) {
-            n_atoms = 5;
-            n_LD = 19;
-        }
-        else {
-            if (D == 5) {
-                n_atoms = 19;
-                n_LD = 106;
-            }
-            else {
-                if (D == 6) {
-                    n_atoms = 106;
-                    n_LD = 1150;
-                }
-                else {
-                    if (D == 7) {
-                        n_atoms = 1150;
-                        n_LD = 27292;
-                    }
-                    else {
-                        if (D == 8) {
-                            n_atoms = 27292;
-                            n_LD = 2000000;
-                        }
-                        else {
-                            printf("ERROR: D out of bounds.\n");
-                            return 1;
-                        }
-                    }
-                }
-            }
-        }
+    else if (D == 4) {
+        n_atoms = 5;
+        n_LD = 19;
     }
-
-    // unsigned int first_base = 0;
-    // unsigned int last_base = 3;
+    else if (D == 5) {
+        n_atoms = 19;
+        n_LD = 106;
+    }
+    else if (D == 6) {
+        n_atoms = 106;
+        n_LD = 1150;
+    }
+    else if (D == 7) {
+        n_atoms = 1150;
+        n_LD = 27292;
+    }
+    else if (D == 8) {
+        n_atoms = 27292;
+        n_LD = 2000000;
+    }
+    else {
+        printf("ERROR: D out of bounds.\n");
+        return 1;
+    }
 
     unsigned int first_base, last_base;
     if (argc > 2) {
