@@ -24,11 +24,11 @@ exit(1); \
 } while(0);
 
 // Counters for the classes of 2L polytopes
-int simplicial_facet = 0; // 2L polytopes with a simplicial facet
-int cs = 0; // Centrally-symmetric 2L polytopes
-int stab = 0; // Stable set polytopes of a perfect graph
-int n_suspensions = 0; // 2L suspensions
-int n_polar = 0; // Polar 2L polytopes
+unsigned int simplicial_facet = 0; // 2L polytopes with a simplicial facet
+unsigned int cs = 0; // Centrally-symmetric 2L polytopes
+unsigned int stab = 0; // Stable set polytopes of a perfect graph
+unsigned int n_suspensions = 0; // 2L suspensions
+unsigned int n_polar = 0; // Polar 2L polytopes
 
 // check equality of T * arrays
 template <class T>
@@ -172,11 +172,11 @@ void lexmax_symmetric(int *& A,int *& symcl,int **& ground_set_H,const int lengt
         A_sym[0] = 1;
         std::memset(A_sym+1,0,(length_A-1) * sizeof(int));
         
-        if (!(is_equal(A,A_sym,length_A))) {
-            for (i = 0; i < num_autom_base; i++) {
+        if (!is_equal(A,A_sym,length_A)) {
+            for (i = 0; i < num_autom_base; ++i) {
                 std::memset(A_sym+1,0,(length_A-1) * sizeof(int));
                 is_outside_X = false;
-                for (j = 1; j < length_A && !(is_outside_X); j++) {
+                for (j = 1; j < length_A && !(is_outside_X); ++j) {
                     if (A[j] == 1) {
                         if (orbits[j][i][0] == 0) is_outside_X = true;
                         else {
@@ -205,7 +205,7 @@ void generate_id_matrix(const int k,int ** Id) {
     }
 }
 
-void slack_matrix_free_sum(int **& P,int **& Q,const int m1,const int n1,const int m2,const int n2,int **& P_oplus_Q,int & num_rows,int & num_cols) {
+void slack_matrix_free_sum(int ** P,int ** Q,const int m1,const int n1,const int m2,const int n2,int **& P_oplus_Q,int & num_rows,int & num_cols) {
     int i,j,k;
     int offset;
     num_rows = m1 * m2;
@@ -714,7 +714,7 @@ void writeautom(int *p, int n,std::vector<std::vector<int>>& automorphism_base, 
     num_tot++;
 }
 
-void construct_automorphism_base(int **& S,const int num_rows,const int num_cols, const int n, const int m, std::vector<std::vector<int>>& automorphism_base, int & num_autom_base) {
+void construct_automorphism_base(int ** S,const int num_rows,const int num_cols, const int n, const int m, std::vector<std::vector<int>>& automorphism_base, int & num_autom_base) {
     
     int i,j;
     // Initializations for Nauty
@@ -790,7 +790,7 @@ void construct_automorphism_base(int **& S,const int num_rows,const int num_cols
 }
 
 // test if the 2-level polytope having slack-matrix S_new is a suspension
-bool is_susp(int ** S_new,const int num_rows_S_new,const int num_cols_S_new) {
+bool is_susp(int ** S_new,int num_rows_S_new,int num_cols_S_new) {
     // For all rows i of the slack matrix M
     // Partition the columns into F_0 = {j : M(i,j) = 0} and F_1 = {j : M(i,j) = 1}
     // For all translation vectors t such that the vertices of F_1 - t are a subset of those of F_0
@@ -799,11 +799,21 @@ bool is_susp(int ** S_new,const int num_rows_S_new,const int num_cols_S_new) {
     bool flag = false;
     bool is_contained,found,is_subset;
 
+    /*printf("   (%d,%d)\n",num_rows_S_new,num_cols_S_new);
+    for (i = 0; i < num_rows_S_new; i++){
+        printf("   ");
+        for (j = 0; j < num_cols_S_new; j++)
+            printf("%d",S_new[i][j]);
+        printf("\n");
+    }
+    printf("\n");*/
+
     for (i = 0; i < num_rows_S_new; i++) {
-        int * zeros_idx, * ones_idx;
+       int * zeros_idx, * ones_idx;
         alloc(zeros_idx,num_cols_S_new,int); 
         alloc(ones_idx,num_cols_S_new,int);
         int num_zeros, num_ones;
+        num_zeros = 0;
         num_ones = 0;
         // Count zeroes and ones in the row and record their positions
         for (j = 0; j < num_cols_S_new; j++) {
@@ -811,15 +821,18 @@ bool is_susp(int ** S_new,const int num_rows_S_new,const int num_cols_S_new) {
                 ones_idx[num_ones] = j;
                 num_ones++;
             }
-            else zeros_idx[num_zeros] = j;
+            else {
+                zeros_idx[num_zeros] = j;
+                num_zeros++;
+            }
         }
-        num_zeros = num_cols_S_new - num_ones;
 
         for (j = 0; j < num_ones; j++) {
             for (k = 0; k < num_zeros; k++) {
                 int * char_F1;
                 alloc(char_F1,num_cols_S_new,int);
-                std::fill(char_F1,char_F1+num_cols_S_new,1);
+                for (l = 0; l < num_cols_S_new; l++)
+                    char_F1[l] = 1;
                 is_contained = true;
                 for (l = 0; l < num_ones && is_contained; l++) {
                     int * translated_F1_point;
@@ -834,7 +847,8 @@ bool is_susp(int ** S_new,const int num_rows_S_new,const int num_cols_S_new) {
                             F0_point[t] = S_new[t][zeros_idx[h]];
                         found = is_equal(translated_F1_point,F0_point,num_rows_S_new);
                         free(F0_point);
-                        if (found) char_F1[zeros_idx[h]] = 0;
+                        if (found)
+                            char_F1[zeros_idx[h]] = 0;
                     }
                     free(translated_F1_point);
                     is_contained &= found;  
@@ -844,16 +858,20 @@ bool is_susp(int ** S_new,const int num_rows_S_new,const int num_cols_S_new) {
                 if (is_contained) {
                     int * intersect_rows_containing_F1;
                     alloc(intersect_rows_containing_F1,num_cols_S_new,int);
-                    for (l = 0; l < num_cols_S_new; l++) intersect_rows_containing_F1[l] = 0;
+                    for (l = 0; l < num_cols_S_new; l++)
+                        intersect_rows_containing_F1[l] = 0;
                     for (h = 0; h < num_rows_S_new; h++) {
                         is_subset = true;
                         for (l = 0; l < num_cols_S_new && is_subset; l++) {
-                            if (S_new[h][l] == 1) is_subset = (char_F1[l] == 1);
+                            if (S_new[h][l] == 1)
+                                is_subset = (char_F1[l] == 1);
                         }
                         if (is_subset) {
                             for (l = 0; l < num_cols_S_new; l++) {
-                                if (S_new[h][l] == 0) intersect_rows_containing_F1[l] = 0;
-                                else intersect_rows_containing_F1[l] = 1;
+                                if ((S_new[h][l] == 1) || (intersect_rows_containing_F1[l] == 1))
+                                    intersect_rows_containing_F1[l] = 1;
+                                else
+                                    intersect_rows_containing_F1[l] = 0;
                             }
                         }
                     }
@@ -869,8 +887,9 @@ bool is_susp(int ** S_new,const int num_rows_S_new,const int num_cols_S_new) {
     return flag;
 }
 
+
 // Test if the polar of the 2-level polytope having slack-matrix S_new is a still 2_level
-int is_polar(int ** S_new,const int hash_S_new, setword * canonical_S_new,const int num_rows_S_new,const int num_cols_S_new,int * LD_hash,setword ** LD,const int current_LD,const int D) {
+void is_polar(int ** S_new,int hash_S_new, setword * canonical_S_new, int num_rows_S_new,int num_cols_S_new,const int n, const size_t m,int * LD_hash,setword ** LD,int current_LD,const int D) {
     int i,j;
     int ** S_T;
     alloc(S_T,num_cols_S_new,int*);
@@ -878,33 +897,27 @@ int is_polar(int ** S_new,const int hash_S_new, setword * canonical_S_new,const 
         alloc(S_T[i],num_rows_S_new,int);
         for (j = 0; j < num_rows_S_new; j++) S_T[i][j] = S_new[j][i];
     }
-    int amount_polar = 0;
 
-    int n, m;
     int hash_S_T = ((num_rows_S_new-1) << D) + num_cols_S_new - 1;
-    n = num_rows_S_new + num_cols_S_new;
-    m = SETWORDSNEEDED(n);
     setword * canonical_S_T;
 
     alloc(canonical_S_T,m*(size_t)n,setword);
     canonicize(S_T,num_cols_S_new,num_rows_S_new,n,m,canonical_S_T);
 
-    if (hash_S_new == hash_S_T)
-        if (is_equal(canonical_S_T,canonical_S_new,m*(size_t)n)) amount_polar = 1; // self-polar
-    else {
-        // Browse through all nonincidence graphs that have the same hash to see if one of them
-        // is isomorphic to the current nonincidence graph
-        if (is_listed(LD,LD_hash,current_LD,canonical_S_T,hash_S_T,m*(size_t)n)) amount_polar = 2;
-    }
     for (i = 0; i < num_cols_S_new; i++) free(S_T[i]);
     free(S_T);
-    return amount_polar;
+
+    if (hash_S_new == hash_S_T) {
+        if (is_equal(canonical_S_T,canonical_S_new,m*(size_t)n)) n_polar += 1; // self-polar
+    }
+    else if (is_listed(LD,LD_hash,current_LD,canonical_S_T,hash_S_T,m*(size_t)n))
+        n_polar += 2;
 }
 
 
 // check if the slack matrix S is already listed in LD; if not, add it to LD //int *& LD_hash, setword **& LD
 void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_outputfile,int *& LD_hash,setword **& LD,int & current_LD, const int D, int & verbose) {
-    int i, j;
+    unsigned int i, j;
     int n, m;
     int hash_S_new = ((num_cols_S_new-1) << D) + num_rows_S_new - 1;
     
@@ -960,7 +973,7 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
             
             if (is_susp(S_new,num_rows_S_new,num_cols_S_new)) n_suspensions++;
             
-            n_polar+=is_polar(S_new,hash_S_new,canonical_S_new,num_rows_S_new,num_cols_S_new,LD_hash,LD,current_LD,D);
+            is_polar(S_new,hash_S_new,canonical_S_new,num_rows_S_new,num_cols_S_new,n,m,LD_hash,LD,current_LD,D);
         }
     }
     free(canonical_S_new);
