@@ -1,0 +1,10 @@
+#replace with the absolute path to the folder /nauty26r7
+#download from http://pallini.di.uniroma1.it/#howtogetit 
+#and install
+NAUTYHOME = /Applications/pynauty-0.6.0/nauty26r7
+CXX = clang++
+CXXFLAGS = -std=c++11 -Wall -Wno-c++11-extensions
+
+OBJS = $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)
+2level-enum: 2level-enum.cpp $(OBJS) $(NAUTYHOME)
+	$(CXX) $(CXXFLAGS) -g 2level-enum.cpp -o 2level-enum -O3 $(OBJS) -I$(NAUTYHOME)

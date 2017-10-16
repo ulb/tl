@@ -69,16 +69,16 @@ bool is_in_array(T * array, T val, const int length) {
 // y = Mx
 void my_matrix_prod(int ** M, int * x, int * y, const int num_rows, const int num_cols) {
     int i, j;
-    for (i = 0; i < num_rows; i++) {
+    for (i = 0; i < num_rows; ++i) {
         y[i] = 0;
-        for (j = 0; j < num_cols; j++) y[i] += M[i][j]*x[j];
+        for (j = 0; j < num_cols; ++j) y[i] += M[i][j]*x[j];
     }
 }
 
 // <x,y> = out
 void my_inner_prod(int * x, int * y, int & out, const int length) {
     out = 0;
-    for (int i = 0; i < length; i++) out += x[i]*y[i];
+    for (int i = 0; i < length; ++i) out += x[i]*y[i];
 }
 
 // Check if A \preccurlyeq B
@@ -94,12 +94,12 @@ bool preccurlyeq(int * A, int * B, const int length) {
 
 // Check if A is a subset of B
 bool is_subseteq(int * A, int * B, const int length) {
-    for (int i = 0; i < length; i++) if (A[i] == 1 && B[i] == 0) return false;
+    for (int i = 0; i < length; ++i) if (A[i] == 1 && B[i] == 0) return false;
     return true;
 }
 
 int min_A_idx(int * A, const int length) {
-    for (int i = 0; i < length; i++) if (A[i] == 1) return i;
+    for (int i = 0; i < length; ++i) if (A[i] == 1) return i;
     return length;
 }
 
@@ -125,9 +125,9 @@ void discreteconvexhull_cl(int *& A,int *& B,int *& dchcl,int **& slab_points_sa
     std::fill(B,B+length_B,1);
     
     // Intersect all sets of slabs belonging to elements of A
-    for (i = 0; i < length_A; i++) {
+    for (i = 0; i < length_A; ++i) {
         if (A[i] == 1) {
-            for (j = 0; j < length_B; j++)
+            for (j = 0; j < length_B; ++j)
                 if (slab_points_sat[i][j] == 0)  B[j] = 0;
         }
     }    
@@ -135,9 +135,9 @@ void discreteconvexhull_cl(int *& A,int *& B,int *& dchcl,int **& slab_points_sa
     std::fill(dchcl,dchcl+length_A,1);
     
     // Intersect all sets of points belonging to elements of B
-    for (i = 0; i < length_B; i++) {
+    for (i = 0; i < length_B; ++i) {
         if (B[i] == 1) {
-            for (j = 0; j < length_A; j++)
+            for (j = 0; j < length_A; ++j)
                 if (slab_points_sat[j][i] == 0) dchcl[j] = 0;
         }
     }
@@ -153,19 +153,19 @@ bool is_incompatible(int * A,int ** incompatibility_adjM,const int length_A) {
 }
 
 // incompatibility closure operator
-void incompatibility_cl(int * A,int * inccl, int ** incompatibility_adjM,const int length_A) { 
+void incompatibility_cl(int * A,int * inccl,int ** incompatibility_adjM,const int length_A) { 
     if (is_incompatible(A,incompatibility_adjM,length_A))
         std::memcpy(inccl,A,length_A * sizeof(int));
     else std::fill(inccl,inccl+length_A,1);
 }
 
 void lexmax_symmetric(int *& A,int *& symcl,int **& ground_set_H,const int length_A,int ***& orbits,const int num_autom_base,const int D) {
-    int i,j,k;
+    int i,j;
     
     std::memcpy(symcl,A,length_A * sizeof(int));
     
     if (!(is_all_ones(A,length_A))) {
-        bool found, is_outside_X;
+        bool is_outside_X;
         int * A_sym;
         alloc(A_sym,length_A,int);
         
@@ -179,10 +179,7 @@ void lexmax_symmetric(int *& A,int *& symcl,int **& ground_set_H,const int lengt
                 for (j = 1; j < length_A && !(is_outside_X); ++j) {
                     if (A[j] == 1) {
                         if (orbits[j][i][0] == 0) is_outside_X = true;
-                        else {
-                            k = index_in_collection(ground_set_H,orbits[j][i],length_A,D);
-                            A_sym[k] = 1;
-                        }
+                        else A_sym[index_in_collection(ground_set_H,orbits[j][i],length_A,D)] = 1;
                     }
                 }
                 if (!(is_outside_X)) {
@@ -198,7 +195,7 @@ void lexmax_symmetric(int *& A,int *& symcl,int **& ground_set_H,const int lengt
 
 void generate_id_matrix(const int k,int ** Id) {
     int i;
-    for (i = 0; i < k; i++) {
+    for (i = 0; i < k; ++i) {
         std::memset(Id[i],0,i * sizeof(int));
         Id[i][i] = 1;
         std::memset(Id[i]+i+1,0,(k-i-1) * sizeof(int));
@@ -212,36 +209,36 @@ void slack_matrix_free_sum(int ** P,int ** Q,const int m1,const int n1,const int
     num_cols = n1 + n2;
     
     alloc(P_oplus_Q,num_rows,int*);
-    for (i = 0; i < num_rows; i++) alloc(P_oplus_Q[i],num_cols,int);
+    for (i = 0; i < num_rows; ++i) alloc(P_oplus_Q[i],num_cols,int);
     
     offset = 0;
-    for (i = 0; i < m2; i++) {
-        for (j = 0; j < m1; j++)
-            for (k = 0; k < n1; k++) P_oplus_Q[j + offset][k] = P[j][k];
+    for (i = 0; i < m2; ++i) {
+        for (j = 0; j < m1; ++j)
+            for (k = 0; k < n1; ++k) P_oplus_Q[j + offset][k] = P[j][k];
         offset += m1;
     }
     
     offset = 0;
-    for (j = 0; j < m2; j++) {
-        for (i = 0; i < m1; i++) {
-            for (k = 0; k < n2; k++) P_oplus_Q[offset][n1 + k] = Q[j][k];
+    for (j = 0; j < m2; ++j) {
+        for (i = 0; i < m1; ++i) {
+            for (k = 0; k < n2; ++k) P_oplus_Q[offset][n1 + k] = Q[j][k];
             offset += 1;
         }
     }
 }
 
 void slack_matrix_simplicial_2L(const int h, const int n, int **& M, int & num_r_M, int & num_c_M) {
-    int i,j,k;
+    int i,j;
     int ** Id;
     alloc(Id,h+1,int*);
-    for (i = 0; i < h+1; i++) alloc(Id[i],h+1,int);
+    for (i = 0; i < h+1; ++i) alloc(Id[i],h+1,int);
     
     generate_id_matrix(h+1,Id); // Id(k+1) is the slack matrix of the k-simplex Delta_k
     
     num_r_M = h+1;
     num_c_M = h+1;
     alloc(M,num_r_M,int*);
-    for (i = 0; i < num_r_M; i++) {
+    for (i = 0; i < num_r_M; ++i) {
         alloc(M[i],num_c_M,int);
         std::memcpy(M[i],Id[i],num_c_M * sizeof(int));
     }
@@ -249,20 +246,20 @@ void slack_matrix_simplicial_2L(const int h, const int n, int **& M, int & num_r
     int ** M_oplus;
     int num_r_M_oplus,num_c_M_oplus;
     
-    for (i = 0; i < n-1; i++) {
+    for (i = 0; i < n-1; ++i) {
         slack_matrix_free_sum(M,Id,num_r_M,num_c_M,h+1,h+1,M_oplus,num_r_M_oplus,num_c_M_oplus);
         num_r_M = num_r_M_oplus;
         num_c_M = num_c_M_oplus;
         alloc(M,num_r_M,int*);
-        for (j = 0; j < num_r_M_oplus; j++) {
+        for (j = 0; j < num_r_M_oplus; ++j) {
             alloc(M[j],num_c_M,int);
             std::memcpy(M[j],M_oplus[j],num_c_M_oplus * sizeof(int));
         }
-        for (j = 0; j < num_r_M_oplus; j++) free(M_oplus[j]);
+        for (j = 0; j < num_r_M_oplus; ++j) free(M_oplus[j]);
         free(M_oplus);
     }
     
-    for (i = 0; i < h+1; i++) free(Id[i]);
+    for (i = 0; i < h+1; ++i) free(Id[i]);
     free(Id);
 }
 
@@ -275,10 +272,10 @@ void push_simplicial_core(int **& M,const int num_rows_M,const int num_cols_M,in
     alloc(temp_col,num_rows_M,int);
     bool found = false;
     if (M[0][0] != 1) {
-        for (j = 1; j < num_cols_M && !found; j++) {
+        for (j = 1; j < num_cols_M && !found; ++j) {
             if (M[0][j] == 1) {
                 found = true;
-                for (i = 0; i < num_rows_M; i++) {
+                for (i = 0; i < num_rows_M; ++i) {
                     temp_col[i] = M[i][j];
                     M[i][j] = M[i][0];
                     M[i][0] = temp_col[i];
@@ -286,13 +283,13 @@ void push_simplicial_core(int **& M,const int num_rows_M,const int num_cols_M,in
             }
         }
     }
-    for (k = 1; k < D+1; k++) {
+    for (k = 1; k < D+1; ++k) {
         found = false;
         if (M[0][k] != 0) {
-            for (j = k+1; j < num_cols_M && !found; j++) {
+            for (j = k+1; j < num_cols_M && !found; ++j) {
                 if (M[0][j] == 0) {
                     found = true;
-                    for (i = 0; i < num_rows_M; i++) {
+                    for (i = 0; i < num_rows_M; ++i) {
                         temp_col[i] = M[i][j];
                         M[i][j] = M[i][k];
                         M[i][k] = temp_col[i];
@@ -307,9 +304,9 @@ void push_simplicial_core(int **& M,const int num_rows_M,const int num_cols_M,in
     int * temp_row;
     alloc(temp_row,num_cols_M,int);
     int temp_idx = 0;
-    for (i = temp_idx+1; i < num_rows_M && temp_idx < D; i++) {
+    for (i = temp_idx+1; i < num_rows_M && temp_idx < D; ++i) {
         accept = true;
-        for (j = 0; j < D && accept; j++) accept = (M[i][j+1] == Id[temp_idx][j]);
+        for (j = 0; j < D && accept; ++j) accept = (M[i][j+1] == Id[temp_idx][j]);
         
         if (accept) {
             assign_array(temp_row,M[i],num_cols_M);
@@ -350,7 +347,7 @@ void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& 
                     my_inner_prod(ground_set_H[j],slabs[i],s,D);
                     if (s != 0) temp_row[num_cols_S+h] = 1;
                     else temp_row[num_cols_S+h] = 0;
-                    h++;
+                    ++h;
                 }
             }
             
@@ -441,7 +438,7 @@ void invertM(int ** M, int ** Minv, const int D) {
     
     int ** W = M;
     alloc(W,D,int*);
-    for (i = 0; i < D; i++) {
+    for (i = 0; i < D; ++i) {
         alloc(W[i],D,int);
         std::memcpy(W[i],M[i],D * sizeof(int));
     }
@@ -502,7 +499,7 @@ void canonicize(int ** S,const int num_rows,const int num_cols, const int n, con
     EMPTYGRAPH(g,m,n);
     
     // Build the custom partition for the graph
-    for (int i = 0; i < num_rows+num_cols; i++) {
+    for (int i = 0; i < num_rows+num_cols; ++i) {
         lab[i] = i;
         if (i != num_rows-1 && i != num_rows+num_cols-1)
             ptn[i] = 1;
@@ -511,15 +508,15 @@ void canonicize(int ** S,const int num_rows,const int num_cols, const int n, con
     
     // Build the edges of the nonincidence graph
     // Loop through all the entries of the slack matrix and add an edge when there is a one
-    for (int i = 0; i < num_rows; i++) {
-        for (int j = 0; j < num_cols; j++)
+    for (int i = 0; i < num_rows; ++i) {
+        for (int j = 0; j < num_cols; ++j)
             if (S[i][j] == 1) ADDONEEDGE(g,i,j+num_rows,m);
     }
     
     // Obtain canonical graph from Nauty
     densenauty(g,lab,ptn,orbits,&options,&stats,m,n,cg);
     
-    for (size_t k = 0; k < m*(size_t)n; ++k) cg_vec[k] = cg[k];
+    for (size_t k = 0; k < m*n; ++k) cg_vec[k] = cg[k];
     
     // Clean up
     DYNFREE(lab,lab_sz);
@@ -541,13 +538,13 @@ bool is_listed(setword ** list_2L,int * list_hash,const int list_length,setword 
 // Checks whether a given 0-1 matrix is the slack matrix of a D-dimensional 2-level polytope,
 // by using the list of (D-1)-dimensional 2-level polytopes.
 bool istwolevelpolytope(int ** S_new,const int num_rows_S_new,const int num_cols_S_new,int * atoms_hash,setword ** atoms_cg,const int n_atoms, const int D) {
-    int i, j, k, h, l, it;
+    int i, j, k, h, l;
     // First test: check that every column contains at least D zeros
     // by construction, every row of S contains at least D zeros
     int num_facets_contain;
-    for (j = 0; j < num_cols_S_new; j++) {
+    for (j = 0; j < num_cols_S_new; ++j) {
         num_facets_contain = 0;
-        for (i = 0; i < num_rows_S_new; i++) if (S_new[i][j] == 0) num_facets_contain += 1;
+        for (i = 0; i < num_rows_S_new; ++i) if (S_new[i][j] == 0) num_facets_contain += 1;
         if (num_facets_contain < D) return false;
     }
     
@@ -575,19 +572,19 @@ bool istwolevelpolytope(int ** S_new,const int num_rows_S_new,const int num_cols
     alloc(num_rows_S_Fi,num_rows_S_new,int);
     
     bool is_maximal, is_subset;
-    for (i = 0; i < num_rows_S_new; i++) {
+    for (i = 0; i < num_rows_S_new; ++i) {
         alloc(rows_S_Fi[i],num_rows_S_new,int);
         l = 0; // current number of rows of S_Fi
-        for (j = 0; j < num_rows_S_new; j++) {
+        for (j = 0; j < num_rows_S_new; ++j) {
             if (j != i) {
                 // the only rows in S_Fi are the one containing the maximal sets of zeros
                 is_maximal = true;
-                for (k = 0; k < num_rows_S_new && is_maximal; k++) {
+                for (k = 0; k < num_rows_S_new && is_maximal; ++k) {
                     if ((k != j) && (k != i)) {
                         // Check if the set of zeros of S_new[j][.] intersected with the one of S_new[i][.]
                         // is a subset of the one S_new[k][.] intersected with the one of S_new[i][.]
                         is_subset = true;
-                        for (h = 0; h < num_zero_indices[i] && is_subset; h++) {
+                        for (h = 0; h < num_zero_indices[i] && is_subset; ++h) {
                             if (is_in_array(zero_indices[j],zero_indices[i][h],num_zero_indices[j]))
                                 is_subset = is_in_array(zero_indices[k],zero_indices[i][h],num_zero_indices[k]);
                         }
@@ -596,7 +593,7 @@ bool istwolevelpolytope(int ** S_new,const int num_rows_S_new,const int num_cols
                 }
                 if (is_maximal) {
                     rows_S_Fi[i][l] = j;
-                    l++;
+                    ++l;
                 }
             }
         }
@@ -607,43 +604,42 @@ bool istwolevelpolytope(int ** S_new,const int num_rows_S_new,const int num_cols
     // this will compute the slack matrix of the corresponding facet and test is it appears in the list L_{D-1}
     int ** S_Fi;
     bool found = true;
-    int n, m;
-    int num_rows_atom, num_cols_atom;
-    
-    for (i = 0; i < num_rows_S_new && found; i++) {
+    int n,m;
+
+    for (i = 0; i < num_rows_S_new && found; ++i) {
         alloc(S_Fi,num_rows_S_Fi[i],int *);
-        for (j = 0; j < num_rows_S_Fi[i]; j++) {
+        for (j = 0; j < num_rows_S_Fi[i]; ++j) {
             alloc(S_Fi[j],num_zero_indices[i],int);
-            for (k = 0; k < num_zero_indices[i]; k++)
+            for (k = 0; k < num_zero_indices[i]; ++k)
                 S_Fi[j][k] = S_new[rows_S_Fi[i][j]][zero_indices[i][k]];
         }
         
         setword * canonical_S_Fi;
         n = num_rows_S_Fi[i] + num_zero_indices[i];
         m = SETWORDSNEEDED(n);
-        alloc(canonical_S_Fi,m*(size_t)n,setword);
+        alloc(canonical_S_Fi,m*n,setword);
         canonicize(S_Fi,num_rows_S_Fi[i],num_zero_indices[i],n,m,canonical_S_Fi);
         int hash_S_Fi = ((num_zero_indices[i]-1) << D) + num_rows_S_Fi[i] - 1;
         
-        found = is_listed(atoms_cg,atoms_hash,n_atoms,canonical_S_Fi,hash_S_Fi,m*(size_t)n);
+        found = is_listed(atoms_cg,atoms_hash,n_atoms,canonical_S_Fi,hash_S_Fi,m*n);
 
         // found = false;
         // for (it = 0; it < n_atoms && !found; it++) {
         //     hash2size(atoms_hash[it],num_rows_atom,num_cols_atom,D);
         //     if ((num_rows_S_Fi[i] == num_rows_atom) && (num_zero_indices[i] == num_cols_atom))
-        //         found = is_equal(canonical_S_Fi,atoms_cg[it],m*(size_t)n);
+        //         found = is_equal(canonical_S_Fi,atoms_cg[it],m*n);
         // }
         
         free(canonical_S_Fi);
-        for (j = 0; j < num_rows_S_Fi[i]; j++) free(S_Fi[j]);
+        for (j = 0; j < num_rows_S_Fi[i]; ++j) free(S_Fi[j]);
         free(S_Fi);
     }
     
-    for (i = 0; i < num_rows_S_new; i++) free(rows_S_Fi[i]);
+    for (i = 0; i < num_rows_S_new; ++i) free(rows_S_Fi[i]);
     free(rows_S_Fi);
     free(num_rows_S_Fi);
     
-    for (i = 0; i < num_rows_S_new; i++) free(zero_indices[i]);
+    for (i = 0; i < num_rows_S_new; ++i) free(zero_indices[i]);
     free(zero_indices);
     free(num_zero_indices);
     
@@ -654,7 +650,7 @@ bool istwolevelpolytope(int ** S_new,const int num_rows_S_new,const int num_cols
 // compute the power of an int, x base, p exponent
 int my_pow(int x, unsigned int p) {
     int tot = 1;
-    for (int i = 1; i <= p; i++) tot *= x;
+    for (int i = 1; i <= p; ++i) tot *= x;
     return tot;
 }
 
@@ -662,7 +658,7 @@ DYNALLSTAT(int,allp,allp_sz);
 DYNALLSTAT(int,id,id_sz);
 
 // Recursive routine used by allgroup.
-static void my_groupelts(levelrec *lr, int n, int level, void (*action)(int*,int,std::vector<std::vector<int>>&,int &),int *before, int *after, int *id,std::vector<std::vector<int>>& automorphism_base, int & num_tot) {
+static void my_groupelts(levelrec *lr, int n, int level, void (*action)(int*,int,std::vector<std::vector<int> >&,int &),int *before, int *after, int *id,std::vector<std::vector<int> >& automorphism_base, int & num_tot) {
     int i,j,orbsize;
     int *p,*cr;
     cosetrec *coset;
@@ -686,7 +682,7 @@ static void my_groupelts(levelrec *lr, int n, int level, void (*action)(int*,int
 }
 
 // Call action(p,n) for every element of the group, including the identity.
-void my_allgroup(grouprec *grp, void (*action)(int*,int,std::vector<std::vector<int>>&,int &),std::vector<std::vector<int>>& automorphism_base, int & num_tot) {
+void my_allgroup(grouprec *grp, void (*action)(int*,int,std::vector<std::vector<int> >&,int &),std::vector<std::vector<int> >& automorphism_base, int & num_tot) {
     int i,depth,n;
     
     depth = grp->depth;
@@ -706,7 +702,7 @@ void my_allgroup(grouprec *grp, void (*action)(int*,int,std::vector<std::vector<
 }
 
 
-void writeautom(int *p, int n,std::vector<std::vector<int>>& automorphism_base, int & num_tot) {
+void writeautom(int *p, int n,std::vector<std::vector<int> >& automorphism_base, int & num_tot) {
     std::vector<int> permutation(n);
     for (int i = 0; i < n; ++i) permutation[i] = p[i];
     automorphism_base.push_back(permutation);
@@ -714,7 +710,7 @@ void writeautom(int *p, int n,std::vector<std::vector<int>>& automorphism_base, 
     num_tot++;
 }
 
-void construct_automorphism_base(int ** S,const int num_rows,const int num_cols, const int n, const int m, std::vector<std::vector<int>>& automorphism_base, int & num_autom_base) {
+void construct_automorphism_base(int ** S,const int num_rows,const int num_cols, const int n, const int m, std::vector<std::vector<int> >& automorphism_base, int & num_autom_base) {
     
     int i,j;
     // Initializations for Nauty
@@ -748,7 +744,7 @@ void construct_automorphism_base(int ** S,const int num_rows,const int num_cols,
     EMPTYGRAPH(g,m,n);
     
     // Build the custom partition for the graph
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; ++i) {
         lab[i] = i;
         if (i != num_rows-1 && i != n-1)
             ptn[i] = 1;
@@ -757,8 +753,8 @@ void construct_automorphism_base(int ** S,const int num_rows,const int num_cols,
     
     // Build the edges of the nonincidence graph
     // Loop through all the entries of the slack matrix and add an edge when there is a one
-    for (i = 0; i < num_rows; i++) {
-        for (j = 0; j < num_cols; j++)
+    for (i = 0; i < num_rows; ++i) {
+        for (j = 0; j < num_cols; ++j)
             if (S[i][j] == 1) ADDONEEDGE(g,i,j+num_rows,m);
     }
     
@@ -800,15 +796,15 @@ bool is_susp(int ** S_new,int num_rows_S_new,int num_cols_S_new) {
     bool is_contained,found,is_subset;
 
     /*printf("   (%d,%d)\n",num_rows_S_new,num_cols_S_new);
-    for (i = 0; i < num_rows_S_new; i++){
+    for (i = 0; i < num_rows_S_new; ++i){
         printf("   ");
-        for (j = 0; j < num_cols_S_new; j++)
+        for (j = 0; j < num_cols_S_new; ++j)
             printf("%d",S_new[i][j]);
         printf("\n");
     }
     printf("\n");*/
 
-    for (i = 0; i < num_rows_S_new; i++) {
+    for (i = 0; i < num_rows_S_new; ++i) {
        int * zeros_idx, * ones_idx;
         alloc(zeros_idx,num_cols_S_new,int); 
         alloc(ones_idx,num_cols_S_new,int);
@@ -816,7 +812,7 @@ bool is_susp(int ** S_new,int num_rows_S_new,int num_cols_S_new) {
         num_zeros = 0;
         num_ones = 0;
         // Count zeroes and ones in the row and record their positions
-        for (j = 0; j < num_cols_S_new; j++) {
+        for (j = 0; j < num_cols_S_new; ++j) {
             if (S_new[i][j] == 1) {
                 ones_idx[num_ones] = j;
                 num_ones++;
@@ -827,20 +823,20 @@ bool is_susp(int ** S_new,int num_rows_S_new,int num_cols_S_new) {
             }
         }
 
-        for (j = 0; j < num_ones; j++) {
-            for (k = 0; k < num_zeros; k++) {
+        for (j = 0; j < num_ones; ++j) {
+            for (k = 0; k < num_zeros; ++k) {
                 int * char_F1;
                 alloc(char_F1,num_cols_S_new,int);
-                for (l = 0; l < num_cols_S_new; l++)
+                for (l = 0; l < num_cols_S_new; ++l)
                     char_F1[l] = 1;
                 is_contained = true;
-                for (l = 0; l < num_ones && is_contained; l++) {
+                for (l = 0; l < num_ones && is_contained; ++l) {
                     int * translated_F1_point;
                     alloc(translated_F1_point,num_rows_S_new,int);
-                    for (h = 0; h < num_rows_S_new; h++)
+                    for (h = 0; h < num_rows_S_new; ++h)
                         translated_F1_point[h] = S_new[h][ones_idx[l]] + S_new[h][zeros_idx[k]] - S_new[h][ones_idx[j]];
                     found = false;
-                    for (h = 0; h < num_zeros && !found; h++) {
+                    for (h = 0; h < num_zeros && !found; ++h) {
                         int * F0_point;
                         alloc(F0_point,num_rows_S_new,int);
                         for (t = 0; t < num_rows_S_new; t++)
@@ -853,25 +849,23 @@ bool is_susp(int ** S_new,int num_rows_S_new,int num_cols_S_new) {
                     free(translated_F1_point);
                     is_contained &= found;  
                 }
-                //free(idx_translated_F1);
                 
                 if (is_contained) {
                     int * intersect_rows_containing_F1;
                     alloc(intersect_rows_containing_F1,num_cols_S_new,int);
-                    for (l = 0; l < num_cols_S_new; l++)
+                    for (l = 0; l < num_cols_S_new; ++l)
                         intersect_rows_containing_F1[l] = 0;
-                    for (h = 0; h < num_rows_S_new; h++) {
+                    for (h = 0; h < num_rows_S_new; ++h) {
                         is_subset = true;
-                        for (l = 0; l < num_cols_S_new && is_subset; l++) {
+                        for (l = 0; l < num_cols_S_new && is_subset; ++l) {
                             if (S_new[h][l] == 1)
                                 is_subset = (char_F1[l] == 1);
                         }
                         if (is_subset) {
-                            for (l = 0; l < num_cols_S_new; l++) {
+                            for (l = 0; l < num_cols_S_new; ++l) {
                                 if ((S_new[h][l] == 1) || (intersect_rows_containing_F1[l] == 1))
                                     intersect_rows_containing_F1[l] = 1;
-                                else
-                                    intersect_rows_containing_F1[l] = 0;
+                                else intersect_rows_containing_F1[l] = 0;
                             }
                         }
                     }
@@ -889,28 +883,28 @@ bool is_susp(int ** S_new,int num_rows_S_new,int num_cols_S_new) {
 
 
 // Test if the polar of the 2-level polytope having slack-matrix S_new is a still 2_level
-void is_polar(int ** S_new,int hash_S_new, setword * canonical_S_new, int num_rows_S_new,int num_cols_S_new,const int n, const size_t m,int * LD_hash,setword ** LD,int current_LD,const int D) {
+void is_polar(int ** S_new,int hash_S_new, setword * canonical_S_new, int num_rows_S_new,int num_cols_S_new,const int n, const int m,int * LD_hash,setword ** LD,int current_LD,const int D) {
     int i,j;
     int ** S_T;
     alloc(S_T,num_cols_S_new,int*);
-    for (i = 0; i < num_cols_S_new; i++) {
+    for (i = 0; i < num_cols_S_new; ++i) {
         alloc(S_T[i],num_rows_S_new,int);
-        for (j = 0; j < num_rows_S_new; j++) S_T[i][j] = S_new[j][i];
+        for (j = 0; j < num_rows_S_new; ++j) S_T[i][j] = S_new[j][i];
     }
 
     int hash_S_T = ((num_rows_S_new-1) << D) + num_cols_S_new - 1;
     setword * canonical_S_T;
 
-    alloc(canonical_S_T,m*(size_t)n,setword);
+    alloc(canonical_S_T,m*n,setword);
     canonicize(S_T,num_cols_S_new,num_rows_S_new,n,m,canonical_S_T);
 
-    for (i = 0; i < num_cols_S_new; i++) free(S_T[i]);
+    for (i = 0; i < num_cols_S_new; ++i) free(S_T[i]);
     free(S_T);
 
     if (hash_S_new == hash_S_T) {
-        if (is_equal(canonical_S_T,canonical_S_new,m*(size_t)n)) n_polar += 1; // self-polar
+        if (is_equal(canonical_S_T,canonical_S_new,m*n)) n_polar += 1; // self-polar
     }
-    else if (is_listed(LD,LD_hash,current_LD,canonical_S_T,hash_S_T,m*(size_t)n))
+    else if (is_listed(LD,LD_hash,current_LD,canonical_S_T,hash_S_T,m*n))
         n_polar += 2;
 }
 
@@ -924,19 +918,19 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
     setword * canonical_S_new;
     n = num_rows_S_new + num_cols_S_new;
     m = SETWORDSNEEDED(n);
-    alloc(canonical_S_new,m*(size_t)n,setword);
+    alloc(canonical_S_new,m*n,setword);
     canonicize(S_new,num_rows_S_new,num_cols_S_new,n,m,canonical_S_new);
 
     // Browse through all nonincidence graphs that have the same hash to see if one of them
     // is isomorphic to the current nonincidence graph
-    if (!is_listed(LD,LD_hash,current_LD,canonical_S_new,hash_S_new,m*(size_t)n)) {
-        alloc(LD[current_LD],m*(size_t)n,setword);
-        assign_array(LD[current_LD],canonical_S_new,m*(size_t)n);
+    if (!is_listed(LD,LD_hash,current_LD,canonical_S_new,hash_S_new,m*n)) {
+        alloc(LD[current_LD],m*n,setword);
+        assign_array(LD[current_LD],canonical_S_new,m*n);
         LD_hash[current_LD] = hash_S_new;
         current_LD++;
 
-        for (i = 0; i < num_rows_S_new; i++){
-            for (j = 0; j < num_cols_S_new; j++) fprintf(my_outputfile,"%d",S_new[i][j]);
+        for (i = 0; i < num_rows_S_new; ++i){
+            for (j = 0; j < num_cols_S_new; ++j) fprintf(my_outputfile,"%d",S_new[i][j]);
             fprintf(my_outputfile,"\n");
         }
         fprintf(my_outputfile,"-\n");
@@ -945,17 +939,17 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
         if (verbose != 0) {
             bool has_simplicial = false;
             int num_zeros;
-            for (i = 0; i < num_rows_S_new && !has_simplicial; i++) {
+            for (i = 0; i < num_rows_S_new && !has_simplicial; ++i) {
                 num_zeros = 0;
-                for (j = 0; j < num_cols_S_new; j++) if (S_new[i][j] == 0) num_zeros++;
+                for (j = 0; j < num_cols_S_new; ++j) if (S_new[i][j] == 0) num_zeros++;
                 has_simplicial = (num_zeros == D);
             }
             if (has_simplicial) simplicial_facet++;
             
             bool STAB = false;
-            for (i = 0; i < num_cols_S_new && !STAB; i++) {
+            for (i = 0; i < num_cols_S_new && !STAB; ++i) {
                 num_zeros = 0;
-                for (j = 0; j < num_rows_S_new; j++)
+                for (j = 0; j < num_rows_S_new; ++j)
                     if (S_new[j][i] == 0) num_zeros++;
                 STAB = (num_zeros == D);
             }
@@ -963,9 +957,9 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
             
             bool CS = true;
             int num_ones;
-            for (i = 0; i < num_rows_S_new && CS; i++) {
+            for (i = 0; i < num_rows_S_new && CS; ++i) {
                 num_ones = 0;
-                for (j = 0; j < num_cols_S_new; j++)
+                for (j = 0; j < num_cols_S_new; ++j)
                     if (S_new[i][j] == 1) num_ones++;
                 CS = (num_ones == num_cols_S_new/2);
             }
@@ -978,6 +972,7 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
     }
     free(canonical_S_new);
 }
+
 
 
 // Main function
@@ -1052,8 +1047,8 @@ int main (int argc, const char* argv[]) {
     clock_type begin_per_base,end_per_base;
     clock_type begin_tot_time,end_tot_time;
     clock_type begin_simplicial,end_simplicial;
-    std::chrono::duration<double> time_nextcl,time_slack_matrix,time_2L_test,time_skip_test,time_per_base,time_simplicial,tot_elapsed_time;
-    //double tot_elapsed_time_sum = 0;
+    std::chrono::duration<double> time_nextcl,time_slack_matrix,time_2L_test,time_skip_test;
+    std::chrono::duration<double> time_per_base,time_simplicial,tot_elapsed_time;
     double tot_nextcl = 0;
     double tot_slack_matrix = 0;
     double tot_2L_test = 0;
@@ -1090,10 +1085,10 @@ int main (int argc, const char* argv[]) {
     j = 0;
     char temp_s;
     while ((fscanf(my_inputfile, "%c", &temp_s) != EOF)) {
-        if ((temp_s == '0') || (temp_s == '1')) j++;
+        if ((temp_s == '0') || (temp_s == '1')) ++j;
         else if (temp_s == '\n') {
             if (i == 1) atoms_hash[it] = (j-1) << D;
-            i++;
+            ++i;
             j = 0;
         }
         else {
@@ -1108,10 +1103,10 @@ int main (int argc, const char* argv[]) {
     
     int num_rows, num_cols;
     // allocating exact memory for each slack matrix of 2-level (D-1)-polytope
-    for (i = 0; i < n_atoms; i++) {
+    for (i = 0; i < n_atoms; ++i) {
         hash2size(atoms_hash[i],num_rows,num_cols,D);
         alloc(atoms[i],num_rows,int*);
-        for (j = 0; j < num_rows; j++) alloc(atoms[i][j],num_cols,int);
+        for (j = 0; j < num_rows; ++j) alloc(atoms[i][j],num_cols,int);
     }
     
     printf("Reading all %d-dimensional 2-level polytopes... ",D-1);
@@ -1123,11 +1118,11 @@ int main (int argc, const char* argv[]) {
         if ((temp_s == '0') || (temp_s == '1')){
             atoms[it][i][j] = temp_s - '0';
             if (verbose == 2) printf("%d",atoms[it][i][j]);
-            j++;
+            ++j;
         }
         else if (temp_s == '\n'){
             if (verbose == 2) printf("\n");
-            i++;
+            ++i;
             j = 0;
         }
         else {
@@ -1144,13 +1139,13 @@ int main (int argc, const char* argv[]) {
     setword ** atoms_cg;
     alloc(atoms_cg,n_atoms,setword *);
     
-    int n, m;
-    for (i = 0; i < n_atoms; i++) {
+    int n,m;
+    for (i = 0; i < n_atoms; ++i) {
         // Get the number of rows and columns of current atom
         hash2size(atoms_hash[i],num_rows,num_cols,D);
         n = num_rows + num_cols;
         m = SETWORDSNEEDED(n);
-        alloc(atoms_cg[i],m*(size_t)n,setword);
+        alloc(atoms_cg[i],m*n,setword);
         canonicize(atoms[i],num_rows,num_cols,n,m,atoms_cg[i]);
     }
     printf("OK\n");
@@ -1174,90 +1169,79 @@ int main (int argc, const char* argv[]) {
         // D-simplex
         num_rows_S_new = D+1;
         num_cols_S_new = D+1;
-        
         int ** S_new;
         alloc(S_new,num_rows_S_new,int*);
-        for (i = 0; i < num_rows_S_new; i++) alloc(S_new[i],num_cols_S_new,int);
+        for (i = 0; i < num_rows_S_new; ++i) alloc(S_new[i],num_cols_S_new,int);
         
         generate_id_matrix(D+1,S_new);
         to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
         n_simplicial++;
-        for (i = 0; i < num_rows_S_new; i++) free(S_new[i]);
+        for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
         free(S_new);
         
         // D-cross-polytope
         K = 1;
         N = D;
-        
         slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
         push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
         to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
         n_simplicial++;
-        for (i = 0; i < num_rows_S_new; i++) free(S_new[i]);
+        for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
         free(S_new);
         
         if (D == 4) {
             // generate the slack-matrix of the free sum of N copies of Delta_K
             K = 2;
             N = 2;
-            
             slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
             push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
             to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
             n_simplicial++;
-            for (i = 0; i < num_rows_S_new; i++) free(S_new[i]);
+            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
             free(S_new);
             
         }
-        else {
-            if (D == 6) {
-                // generate the slack-matrix of the free sum of N copies of Delta_K
-                K = 2;
-                N = 3;
-                
-                slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-                push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-                to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-                n_simplicial++;
-                for (i = 0; i < num_rows_S_new; i++) free(S_new[i]);
-                free(S_new);
-                
-                // generate the slack-matrix of the free sum of N copies of Delta_K
-                K = 3;
-                N = 2;
-                
-                slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-                push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-                to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-                n_simplicial++;
-                for (i = 0; i < num_rows_S_new; i++) free(S_new[i]);
-                free(S_new);
-            }
-            else {
-                if (D == 8) {
-                    // generate the slack-matrix of the free sum of N copies of Delta_K
-                    K = 2;
-                    N = 4;
-                    
-                    slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-                    push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-                    to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-                    n_simplicial++;
-                    for (i = 0; i < num_rows_S_new; i++) free(S_new[i]);
-                    free(S_new);
-                    
-                    // generate the slack-matrix of the free sum of N copies of Delta_K
-                    K = 4;
-                    N = 2;
-                    
-                    slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-                    push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-                    to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-                    n_simplicial++;
-                    for (i = 0; i < num_rows_S_new; i++) free(S_new[i]);
-                    free(S_new);
-                }
-            }
+        else if (D == 6) {
+            // generate the slack-matrix of the free sum of N copies of Delta_K
+            K = 2;
+            N = 3;
+            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
+            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
+            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
+            n_simplicial++;
+            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
+            free(S_new);
+            
+            // generate the slack-matrix of the free sum of N copies of Delta_K
+            K = 3;
+            N = 2;
+            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
+            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
+            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
+            n_simplicial++;
+            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
+            free(S_new);
+        }
+        else if (D == 8) {
+            // generate the slack-matrix of the free sum of N copies of Delta_K
+            K = 2;
+            N = 4;
+            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
+            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
+            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
+            n_simplicial++;
+            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
+            free(S_new);
+            
+            // generate the slack-matrix of the free sum of N copies of Delta_K
+            K = 4;
+            N = 2;
+            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
+            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
+            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
+            n_simplicial++;
+            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
+            free(S_new);
         }
         end_simplicial = my_clock::now();
         time_simplicial = end_simplicial - begin_simplicial;
@@ -1266,6 +1250,7 @@ int main (int argc, const char* argv[]) {
         printf("Elapsed time for base #1 = %lfs\n", time_simplicial.count());
     }
     else first_base -= 1;
+
     it = 0;
     int n_base;
     // Main loop: loop through all the bases (except the simplex)
@@ -1287,16 +1272,16 @@ int main (int argc, const char* argv[]) {
         // Extract embedding transformation matrix M_d(0)
         int ** M, ** Minv;
         alloc(M,D,int*);
-        for (i = 0; i < D; i++) alloc(M[i],D,int);
+        for (i = 0; i < D; ++i) alloc(M[i],D,int);
         
         // extract the top (D-1)x(D-1) matrix M_{d-1} and extend it to M_d(0)
         extractM(atoms[it],M,D);
         
         if (verbose == 2) {
             printf("M_d(0) = \n");
-            for (i = 0; i < D; i++) {
+            for (i = 0; i < D; ++i) {
                 printf("[");
-                for (j = 0; j < D; j++) {
+                for (j = 0; j < D; ++j) {
                     printf("%d", M[i][j]);
                     if (j != D-1) printf(" ");
                 }
@@ -1306,15 +1291,15 @@ int main (int argc, const char* argv[]) {
         //printf("OK\n");
         
         alloc(Minv,D,int*);
-        for (i = 0; i < D; i++) alloc(Minv[i],D,int);
+        for (i = 0; i < D; ++i) alloc(Minv[i],D,int);
         
         invertM(M,Minv,D);
         
         if (verbose == 2) {
             printf("M_d^{-1}(0) = \n");
-            for (i = 0; i < D; i++) {
+            for (i = 0; i < D; ++i) {
                 printf("[");
-                for (j = 0; j < D; j++) {
+                for (j = 0; j < D; ++j) {
                     printf("%d", Minv[i][j]);
                     if (j != D-1) printf(" ");
                 }
@@ -1328,17 +1313,17 @@ int main (int argc, const char* argv[]) {
         alloc(E,D,int);
         alloc(facets_base,num_rows_S,int*);
         int num_facets_base = 0; // number of element currently in facets_base
-        for (i = 0; i < num_rows_S; i++) {
+        for (i = 0; i < num_rows_S; ++i) {
             alloc(facets_base[i],D,int);
-            if (atoms[it][i][D-1] == 1) for (j = 0; j < D-1; j++) E[j+1] = 1-atoms[it][i][j];
-            else for (j = 0; j < D-1; j++) E[j+1] = atoms[it][i][j];
+            if (atoms[it][i][D-1] == 1) for (j = 0; j < D-1; ++j) E[j+1] = 1-atoms[it][i][j];
+            else for (j = 0; j < D-1; ++j) E[j+1] = atoms[it][i][j];
             
             bool found = false;
-            for  (j = 0; j < num_facets_base && !found; j++)
+            for  (j = 0; j < num_facets_base && !found; ++j)
                 found = is_equal(facets_base[j],E,D);
             if (!found) {
                 if (verbose != 0) {
-                    for (j = 0; j < D; j++) printf("%d",E[j]);
+                    for (j = 0; j < D; ++j) printf("%d",E[j]);
                     printf(" ");
                 }
                 assign_array(facets_base[num_facets_base],E,D);
@@ -1351,11 +1336,8 @@ int main (int argc, const char* argv[]) {
         n = num_rows_S + num_cols_S;
         m = SETWORDSNEEDED(n);
         //int ** automorphism_base;
-        std::vector<std::vector<int>> automorphism_base;
+        std::vector<std::vector<int> > automorphism_base;
         int num_autom_base = 0;
-        
-        //unsigned int max_num_autom_base = my_factorial(num_cols_S);
-        //alloc(automorphism_base,max_num_autom_base,int *);
         
         construct_automorphism_base(atoms[it],num_rows_S,num_cols_S,n,m,automorphism_base,num_autom_base);
 
@@ -1363,9 +1345,9 @@ int main (int argc, const char* argv[]) {
         alloc(d_aut_collection,num_autom_base,int *);
         
         //printf("\n");
-        for (i = 0; i < num_autom_base; i++) {
+        for (i = 0; i < num_autom_base; ++i) {
             alloc(d_aut_collection[i],D,int);
-            for  (j = num_rows_S; j < num_rows_S + D; j++) {
+            for  (j = num_rows_S; j < num_rows_S + D; ++j) {
                 d_aut_collection[i][j- num_rows_S] = automorphism_base[i][j] - num_rows_S;
                 //printf("%d",d_aut_collection[i][j- num_rows_S]);
             }
@@ -1380,17 +1362,17 @@ int main (int argc, const char* argv[]) {
         alloc(base_V,num_cols_S,int *);
         
         // Loop through all vertices
-        for (i = 0; i < num_cols_S; i++) {
+        for (i = 0; i < num_cols_S; ++i) {
             alloc(base_V[i],D,int);
             // Create a point whose first coordinate is 0, and the others are the D-1 first bits
             // of the jth column of the slack matrix S
             base_V[i][0] = 0;
-            for (j = 0; j < D-1; j++) base_V[i][j+1] = atoms[it][j][i];
+            for (j = 0; j < D-1; ++j) base_V[i][j+1] = atoms[it][j][i];
             
             if (verbose != 0) {
                 // Print point
                 printf("[");
-                for (j = 0; j < D; j++){
+                for (j = 0; j < D; ++j){
                     printf("%d",base_V[i][j]);
                     if (j != D-1) printf(",");
                 }
@@ -1404,13 +1386,13 @@ int main (int argc, const char* argv[]) {
         int ** base_H;
         alloc(base_H,num_cols_S,int *);
         
-        for (i = 0; i < num_cols_S; i++) {
+        for (i = 0; i < num_cols_S; ++i) {
             alloc(base_H[i],D,int);
             my_matrix_prod(Minv,base_V[i],base_H[i],D,D);
             if (verbose != 0) {
                 // Print point
                 printf("[");
-                for (j = 0; j < D; j++) {
+                for (j = 0; j < D; ++j) {
                     printf("%d",base_H[i][j]);
                     if (j != D-1) printf(",");
                 }
@@ -1438,7 +1420,7 @@ int main (int argc, const char* argv[]) {
         if (verbose != 0) {
             // Print point
             printf("[");
-            for (i = 0; i < D; i++){
+            for (i = 0; i < D; ++i){
                 printf("%d",ground_V[0][i]);
                 if (i != D-1) printf(",");
             }
@@ -1468,7 +1450,7 @@ int main (int argc, const char* argv[]) {
                     }
                     printf("] ");//
                 }
-                k++;
+                ++k;
                 // Increase counter, by performing mod-3 computation
                 j = D-1;
                 do {
@@ -1488,7 +1470,7 @@ int main (int argc, const char* argv[]) {
         bool accept;
         int xE;
         
-        for (i = 0; i < size_ground_V; i++) {
+        for (i = 0; i < size_ground_V; ++i) {
             int * point;
             alloc(point,D,int);
             alloc(ground_H[i],D,int);
@@ -1498,9 +1480,9 @@ int main (int argc, const char* argv[]) {
             // we can throw away all the points x of the ground set where we do not have x(E) in {-1,0,1}
             // for x(E) >= 0, x(E) <= 1 facet of the base, E subset of {2,...,d}
             accept = true;
-            for (j = 0; j < num_facets_base && accept; j++) {
+            for (j = 0; j < num_facets_base && accept; ++j) {
                 xE = 0;
-                for (k = 1; k < D; k++)
+                for (k = 1; k < D; ++k)
                     if (facets_base[j][k] != 0) xE += point[k];
                 accept = ((xE == -1) || (xE == 0) || (xE == 1));
             }
@@ -1509,7 +1491,7 @@ int main (int argc, const char* argv[]) {
                 if (verbose != 0) {
                     // Print
                     printf("[");
-                    for (j = 0; j < D; j++) {
+                    for (j = 0; j < D; ++j) {
                         printf("%d",point[j]);
                         if (j != D-1) printf(",");
                     }
@@ -1523,10 +1505,10 @@ int main (int argc, const char* argv[]) {
         printf("OK\n");
         
         // It is possible to free the base_V and ground_V, we will use the H-embedding
-        for (i = 0; i < size_ground_V; i++) free(ground_V[i]);
+        for (i = 0; i < size_ground_V; ++i) free(ground_V[i]);
         free(ground_V);
         
-        for (i = 0; i < num_cols_S; i++) free(base_V[i]);
+        for (i = 0; i < num_cols_S; ++i) free(base_V[i]);
         free(base_V);
         
         printf("-> Size of the ground set = %d\n",size_ground_V);
@@ -1545,7 +1527,7 @@ int main (int argc, const char* argv[]) {
             alloc(orbits[0][j],D,int);
             assign_array(orbits[0][j],ground_H[0],D);
             // printf("[");
-            // for (k = 0; k < D; k++) {
+            // for (k = 0; k < D; ++k) {
             //     printf("%d",orbits[0][j][k]);
             //     if (k != D-1)
             //         printf(",");
@@ -1562,7 +1544,7 @@ int main (int argc, const char* argv[]) {
             assign_array(orbits[i][0],ground_H[i],D);
             
             // printf("[");
-            // for (k = 0; k < D; k++) {
+            // for (k = 0; k < D; ++k) {
             //     printf("%d",orbits[i][0][k]);
             //     if (k != D-1)
             //         printf(",");
@@ -1585,7 +1567,7 @@ int main (int argc, const char* argv[]) {
                 }
                 if (reject) std::memset(orbits[i][j],0,D * sizeof(int));
                 // printf("[");
-                // for (k = 0; k < D; k++) {
+                // for (k = 0; k < D; ++k) {
                 //     printf("%d",orbits[i][j][k]);
                 //     if (k != D-1)
                 //         printf(",");
@@ -1613,7 +1595,7 @@ int main (int argc, const char* argv[]) {
             std::memcpy(normal_vector, count, D * sizeof(int));
             
             accept = true;
-            for (j = 0; j < num_cols_S && accept; j++) {
+            for (j = 0; j < num_cols_S && accept; ++j) {
                 my_inner_prod(normal_vector,base_H[j],s,D);
                 accept = ((s == 0) || (s == 1));
             }
@@ -1622,7 +1604,7 @@ int main (int argc, const char* argv[]) {
             if (accept) {
                 if (verbose != 0) {
                     // Print normal vector
-                    for (j = 0; j < D; j++) printf("%d",normal_vector[j]);
+                    for (j = 0; j < D; ++j) printf("%d",normal_vector[j]);
                     printf(" ");
                 }
                 alloc(slabs[num_slabs],D,int);
@@ -1635,7 +1617,7 @@ int main (int argc, const char* argv[]) {
             do {
                 carry = (count[i] == 1);
                 count[i] = (count[i] + 1) % 2;
-                i++;
+                ++i;
             } while (carry && i <= D);
         }
         printf("OK\n");
@@ -1646,9 +1628,9 @@ int main (int argc, const char* argv[]) {
         
         printf("Building incidences between points and slabs... ");
         // Check points versus slabs incidence (for each point, list the slabs containing it)
-        for (i = 0; i < size_ground_H; i++) {
+        for (i = 0; i < size_ground_H; ++i) {
             alloc(slab_points_sat[i],num_slabs,int);
-            for (j = 0; j < num_slabs; j++) {
+            for (j = 0; j < num_slabs; ++j) {
                 my_inner_prod(ground_H[i],slabs[j],s,D);
                 if ((s == 0) || (s == 1)) slab_points_sat[i][j] = 1;
                 else slab_points_sat[i][j] = 0;
@@ -1666,14 +1648,14 @@ int main (int argc, const char* argv[]) {
         bool is_incompat;
         int s_i, s_j;
         
-        for (i = 0; i < size_ground_H; i++) {
+        for (i = 0; i < size_ground_H; ++i) {
             alloc(incompatibility_adjM[i],i,int);
-            for (j = 0; j < i; j++) {
+            for (j = 0; j < i; ++j) {
                 is_incompat = false;
-                for (k = 0; k < num_facets_base && !is_incompat; k++) {
+                for (k = 0; k < num_facets_base && !is_incompat; ++k) {
                     s_i = 0;
                     s_j = 0;
-                    for (h = 1; h < D; h++) {
+                    for (h = 1; h < D; ++h) {
                         if (facets_base[k][h] != 0) {
                             s_i += ground_H[i][h];
                             s_j += ground_H[j][h];
@@ -1714,12 +1696,12 @@ int main (int argc, const char* argv[]) {
             i = 0;
             if (verbose != 0) begin_nextcl = my_clock::now();
             do {
-                while(A[i] == 1) i++;
+                while(A[i] == 1) ++i;
                 inc(A,i,I,size_ground_H); // I = inc(A,i)
                 discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
                 incompatibility_cl(dchcl,inccl,incompatibility_adjM,size_ground_H);
                 lexmax_symmetric(inccl,CI,ground_H,size_ground_H,orbits,num_autom_base,D);
-                i++;
+                ++i;
             } while (!is_sqsubseteq(I,CI,size_ground_H));
             if (verbose != 0) {
                 end_nextcl = my_clock::now();
@@ -1730,7 +1712,7 @@ int main (int argc, const char* argv[]) {
             N_closed_sets_current_base++;
             
             if (verbose != 0) {
-                for (j = 0; j < size_ground_H; j++) printf("%d",A[j]);
+                for (j = 0; j < size_ground_H; ++j) printf("%d",A[j]);
                 printf(" ");
             }
             else {
@@ -1739,10 +1721,10 @@ int main (int argc, const char* argv[]) {
             }
             
             int length_A = 0;
-            for (i = 0; i < size_ground_H; i++) if (A[i] == 1) length_A++;
+            for (i = 0; i < size_ground_H; ++i) if (A[i] == 1) length_A++;
             
             int length_B = 0;
-            for (i = 0; i < num_slabs; i++) if (B[i] == 1) length_B++;
+            for (i = 0; i < num_slabs; ++i) if (B[i] == 1) length_B++;
             
             // construct the slack matrix S with embedding transformation matrix in top left position
             int ** S_new;
@@ -1763,9 +1745,9 @@ int main (int argc, const char* argv[]) {
             accept = true;
             int num_vertices_Fi;
             if (verbose != 0) begin_skip_test = my_clock::now();
-            for (i = 0; i < num_rows_S_new && accept; i++) {
+            for (i = 0; i < num_rows_S_new && accept; ++i) {
                 num_vertices_Fi = 0;
-                for (j = 0; j < num_cols_S_new; j++)
+                for (j = 0; j < num_cols_S_new; ++j)
                     if (S_new[i][j] == 0) num_vertices_Fi++;
                 accept = (num_vertices_Fi <= num_cols_S);
             }
@@ -1808,7 +1790,7 @@ int main (int argc, const char* argv[]) {
                 total_2level++;
             }
             
-            for (i = 0; i < 2*length_B; i++) free(S_new[i]);
+            for (i = 0; i < 2*length_B; ++i) free(S_new[i]);
             free(S_new);
         }
         
@@ -1819,34 +1801,34 @@ int main (int argc, const char* argv[]) {
         free(B);
         free(A);
         
-        for (i = 0; i < size_ground_H; i++) free(incompatibility_adjM[i]);
+        for (i = 0; i < size_ground_H; ++i) free(incompatibility_adjM[i]);
         free(incompatibility_adjM);
         
-        for (i = 0; i < size_ground_H; i++) free(slab_points_sat[i]);
+        for (i = 0; i < size_ground_H; ++i) free(slab_points_sat[i]);
         free(slab_points_sat);
         
-        for (i = 0; i < num_slabs; i++) free(slabs[i]);
+        for (i = 0; i < num_slabs; ++i) free(slabs[i]);
         free(slabs);
         
-        for (i = 0; i < size_ground_H; i++) {
-            for (j = 0; j < num_autom_base; j++) free(orbits[i][j]);
+        for (i = 0; i < size_ground_H; ++i) {
+            for (j = 0; j < num_autom_base; ++j) free(orbits[i][j]);
             free(orbits[i]);
         }
         free(orbits);
         
-        for (i = 0; i < size_ground_V; i++) free(ground_H[i]);
+        for (i = 0; i < size_ground_V; ++i) free(ground_H[i]);
         free(ground_H);
         
-        for (i = 0; i < num_cols_S; i++) free(base_H[i]);
+        for (i = 0; i < num_cols_S; ++i) free(base_H[i]);
         free(base_H);
         
-        for (i = 0; i < num_autom_base; i++) free(d_aut_collection[i]);
+        for (i = 0; i < num_autom_base; ++i) free(d_aut_collection[i]);
         free(d_aut_collection);
         
-        for (i = 0; i < num_rows_S; i++) free(facets_base[i]);
+        for (i = 0; i < num_rows_S; ++i) free(facets_base[i]);
         free(facets_base);
         
-        for (i = 0; i < D; i++) {
+        for (i = 0; i < D; ++i) {
             free(Minv[i]);
             free(M[i]);
         }
@@ -1897,9 +1879,9 @@ int main (int argc, const char* argv[]) {
 
     fclose(my_outputfile);
     
-    for (i = 0; i < n_atoms; i++) {
+    for (i = 0; i < n_atoms; ++i) {
         hash2size(atoms_hash[i],num_rows,num_cols,D);
-        for (j = 0; j < num_rows; j++) free(atoms[i][j]);
+        for (j = 0; j < num_rows; ++j) free(atoms[i][j]);
         free(atoms[i]);
         free(atoms_cg[i]);
     }
@@ -1907,7 +1889,7 @@ int main (int argc, const char* argv[]) {
     free(atoms);
     free(atoms_hash);
     
-    for (i = 0; i < current_LD; i++) free(LD[i]);
+    for (i = 0; i < current_LD; ++i) free(LD[i]);
     free(LD);
     free(LD_hash);
     
