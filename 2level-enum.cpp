@@ -1166,7 +1166,7 @@ int main (int argc, const char* argv[]) {
         printf("\nBase #1:\n");
         printf("Constructing slack-matrices of simplicial 2-level polytopes... ");
         begin_simplicial = my_clock::now();
-        int K,N;
+        int K;
         int ** S_new;
         int num_rows_S_new,num_cols_S_new;
 
