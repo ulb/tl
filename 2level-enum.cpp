@@ -38,13 +38,6 @@ bool is_equal(T * array1,T * array2, const int length) {
 }
 
 template <class T>
-std::vector<T> factor(T n) {
-    std::vector<T> factors;
-    for (T d = 1; d <= n; ++d) if ( n % d == 0 ) factors.push_back(d);
-    return factors;
-}
-
-template <class T>
 int index_in_collection(T ** collection,T * vect, const int length_collection, const int length_vect) {
     for (int i = 0; i < length_collection; ++i) if (is_equal(collection[i],vect,length_vect)) return i;
     return length_collection;
@@ -61,7 +54,6 @@ bool is_all_ones(T * pt, const int length) {
 }
 
 // assign int * array to another: array2 to array1
-
 template <class T>
 void assign_array(T * array1,T * array2, const int length) {
     std::memcpy(array1,array2,length * sizeof(T));
@@ -71,6 +63,14 @@ void assign_array(T * array1,T * array2, const int length) {
 template <class T>
 bool is_in_array(T * array, T val, const int length) {
     return std::find(array,array+length,val) != array+length;
+}
+
+// factor an integer
+template <class T>
+std::vector<T> factor(T n) {
+    std::vector<T> factors;   
+    for (T d = 1; d <= n; ++d) if (n % d == 0) factors.push_back(d);
+    return factors;
 }
 
 // y = Mx
@@ -1167,85 +1167,20 @@ int main (int argc, const char* argv[]) {
         printf("Constructing slack-matrices of simplicial 2-level polytopes... ");
         begin_simplicial = my_clock::now();
         int K,N;
-        int num_rows_S_new,num_cols_S_new;
-        
-        // D-simplex
-        num_rows_S_new = D+1;
-        num_cols_S_new = D+1;
         int ** S_new;
-        alloc(S_new,num_rows_S_new,int*);
-        for (i = 0; i < num_rows_S_new; ++i) alloc(S_new[i],num_cols_S_new,int);
+        int num_rows_S_new,num_cols_S_new;
+
+        for (auto N : factor(D)) {
+            printf("%d ",K);
+            K = D/N;
+            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
+            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
+            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
+            n_simplicial++;
+            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
+            free(S_new);
+        } 
         
-        generate_id_matrix(D+1,S_new);
-        to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-        n_simplicial++;
-        for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-        free(S_new);
-        
-        // D-cross-polytope
-        K = 1;
-        N = D;
-        slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-        push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-        to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-        n_simplicial++;
-        for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-        free(S_new);
-        
-        if (D == 4) {
-            // generate the slack-matrix of the free sum of N copies of Delta_K
-            K = 2;
-            N = 2;
-            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-            n_simplicial++;
-            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-            free(S_new);
-            
-        }
-        else if (D == 6) {
-            // generate the slack-matrix of the free sum of N copies of Delta_K
-            K = 2;
-            N = 3;
-            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-            n_simplicial++;
-            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-            free(S_new);
-            
-            // generate the slack-matrix of the free sum of N copies of Delta_K
-            K = 3;
-            N = 2;
-            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-            n_simplicial++;
-            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-            free(S_new);
-        }
-        else if (D == 8) {
-            // generate the slack-matrix of the free sum of N copies of Delta_K
-            K = 2;
-            N = 4;
-            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-            n_simplicial++;
-            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-            free(S_new);
-            
-            // generate the slack-matrix of the free sum of N copies of Delta_K
-            K = 4;
-            N = 2;
-            slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
-            push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
-            to_list(S_new,num_rows_S_new,num_cols_S_new,my_outputfile,LD_hash,LD,current_LD,D,verbose);
-            n_simplicial++;
-            for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-            free(S_new);
-        }
         end_simplicial = my_clock::now();
         time_simplicial = end_simplicial - begin_simplicial;
         printf("OK\n");
