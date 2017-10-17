@@ -1261,13 +1261,13 @@ int main (int argc, const char* argv[]) {
                 num_facets_base++;
             }
         }
+        free(E);
         printf("OK\n");
         
         printf("Constructing automorphism group of the base and extending it to R^D... ");
         n = num_rows_S + num_cols_S;
         m = SETWORDSNEEDED(n);
-        //int ** automorphism_base;
-        std::vector<std::vector<int> > automorphism_base;
+        std::vector< std::vector<int> > automorphism_base;
         int num_autom_base = 0;
         
         construct_automorphism_base(atoms[it],num_rows_S,num_cols_S,n,m,automorphism_base,num_autom_base);
@@ -1446,7 +1446,6 @@ int main (int argc, const char* argv[]) {
         printf("-> Size of the reduced ground set = %d\n",size_ground_H);
         printf("-> Size of the automorphism group of the base = %d\n",num_autom_base);
         
-        
         printf("Generating orbits of point of the ground set... ");
         
         int *** orbits;
@@ -1551,6 +1550,7 @@ int main (int argc, const char* argv[]) {
                 ++i;
             } while (carry && i <= D);
         }
+        free(normal_vector);
         printf("OK\n");
         free(count);
         
@@ -1592,7 +1592,7 @@ int main (int argc, const char* argv[]) {
                             s_j += ground_H[j][h];
                         }
                     }
-                    is_incompat = (s_i*s_j == -1);
+                    is_incompat = (s_i * s_j == -1);
                 }
                 if (is_incompat) incompatibility_adjM[i][j] = 1;
                 else incompatibility_adjM[i][j] = 0;
@@ -1614,14 +1614,16 @@ int main (int argc, const char* argv[]) {
         int * A;
         alloc(A,size_ground_H,int);
         std::memset(A,0,size_ground_H * sizeof(int));
-        
+
+        int * B;
+        alloc(B,num_slabs,int);
+
         int * dchcl, * inccl, * I, * CI;
         alloc(dchcl,size_ground_H,int);
         alloc(inccl,size_ground_H,int);
         alloc(I,size_ground_H,int);
         alloc(CI,size_ground_H,int);
-        int * B;
-        alloc(B,num_slabs,int);
+
         
         while (!is_all_ones(A,size_ground_H)) {
             i = 0;
@@ -1724,10 +1726,10 @@ int main (int argc, const char* argv[]) {
             free(S_new);
         }
         
-        free(inccl);
-        free(dchcl);
         free(CI);
         free(I);
+        free(inccl);
+        free(dchcl);
         free(B);
         free(A);
         
