@@ -1171,7 +1171,6 @@ int main (int argc, const char* argv[]) {
         int num_rows_S_new,num_cols_S_new;
 
         for (auto N : factor(D)) {
-            printf("%d ",K);
             K = D/N;
             slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
             push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,atoms[0],D);
@@ -1180,7 +1179,7 @@ int main (int argc, const char* argv[]) {
             for (i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
             free(S_new);
         } 
-        
+
         end_simplicial = my_clock::now();
         time_simplicial = end_simplicial - begin_simplicial;
         printf("OK\n");
