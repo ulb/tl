@@ -53,12 +53,6 @@ bool is_all_ones(T * pt, const int length) {
     return true;
 }
 
-// assign int * array to another: array2 to array1
-template <class T>
-void assign_array(T * array1,T * array2, const int length) {
-    std::memcpy(array1,array2,length * sizeof(T));
-}
-
 // check if val occurs in array
 template <class T>
 bool is_in_array(T * array, T val, const int length) {
@@ -312,9 +306,9 @@ void push_simplicial_core(int **& M,const int num_rows_M,const int num_cols_M,in
         for (j = 0; j < D && accept; ++j) accept = (M[i][j+1] == Id[temp_idx][j]);
         
         if (accept) {
-            assign_array(temp_row,M[i],num_cols_M);
-            assign_array(M[i],M[temp_idx+1],num_cols_M);
-            assign_array(M[temp_idx+1],temp_row,num_cols_M);
+            std::memcpy(temp_row,M[i],num_cols_M * sizeof(int));
+            std::memcpy(M[i],M[temp_idx+1],num_cols_M * sizeof(int));
+            std::memcpy(M[temp_idx+1],temp_row,num_cols_M * sizeof(int));
             temp_idx++;
         }
     }
@@ -392,7 +386,7 @@ void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& 
             }
         }
         if (is_maximal) {
-            assign_array(S_new[num_rows_S_new],all_rows[i],num_cols_S_new);
+            std::memcpy(S_new[num_rows_S_new],all_rows[i],num_cols_S_new * sizeof(int));
             num_rows_S_new++;
         }
     }
@@ -408,9 +402,9 @@ void construct_slack_matrix(int **& base_H,int **& ground_set_H,int *& A,int *& 
         for (j = 0; j < num_cols_S && accept; ++j)
             accept = (S_new[i][j+1] == S[n_row][j]);
         if (accept) {
-            assign_array(temp_row,S_new[i],num_cols_S_new);
-            assign_array(S_new[i],S_new[n_row+1],num_cols_S_new);
-            assign_array(S_new[n_row+1],temp_row,num_cols_S_new);
+            std::memcpy(temp_row,S_new[i],num_cols_S_new * sizeof(int));
+            std::memcpy(S_new[i],S_new[n_row+1],num_cols_S_new * sizeof(int));
+            std::memcpy(S_new[n_row+1],temp_row,num_cols_S_new * sizeof(int));
             n_row++;
         }
     }
@@ -928,7 +922,7 @@ void to_list(int **& S_new,int & num_rows_S_new,int & num_cols_S_new,FILE * my_o
     // is isomorphic to the current nonincidence graph
     if (!is_listed(LD,LD_hash,current_LD,canonical_S_new,hash_S_new,m*n)) {
         alloc(LD[current_LD],m*n,setword);
-        assign_array(LD[current_LD],canonical_S_new,m*n);
+        std::memcpy(LD[current_LD],canonical_S_new,m*n * sizeof(setword));
         LD_hash[current_LD] = hash_S_new;
         current_LD++;
 
@@ -1252,7 +1246,7 @@ int main (int argc, const char* argv[]) {
         int num_facets_base = 0; // number of element currently in facets_base
         for (i = 0; i < num_rows_S; ++i) {
             alloc(facets_base[i],D,int);
-            if (atoms[it][i][D-1] == 1) for (j = 0; j < D-1; ++j) E[j+1] = 1-atoms[it][i][j];
+            if (atoms[it][i][D-1] == 1) for (j = 0; j < D-1; ++j) E[j+1] = 1 - atoms[it][i][j];
             else for (j = 0; j < D-1; ++j) E[j+1] = atoms[it][i][j];
             
             bool found = false;
@@ -1263,7 +1257,7 @@ int main (int argc, const char* argv[]) {
                     for (j = 0; j < D; ++j) printf("%d",E[j]);
                     printf(" ");
                 }
-                assign_array(facets_base[num_facets_base],E,D);
+                std::memcpy(facets_base[num_facets_base],E,D * sizeof(int));
                 num_facets_base++;
             }
         }
@@ -1285,7 +1279,7 @@ int main (int argc, const char* argv[]) {
         for (i = 0; i < num_autom_base; ++i) {
             alloc(d_aut_collection[i],D,int);
             for  (j = num_rows_S; j < num_rows_S + D; ++j) {
-                d_aut_collection[i][j- num_rows_S] = automorphism_base[i][j] - num_rows_S;
+                d_aut_collection[i][j - num_rows_S] = automorphism_base[i][j] - num_rows_S;
                 //printf("%d",d_aut_collection[i][j- num_rows_S]);
             }
             //printf("\n");
@@ -1434,7 +1428,7 @@ int main (int argc, const char* argv[]) {
                     }
                     printf("] ");//
                 }
-                assign_array(ground_H[size_ground_H],point,D);
+                std::memcpy(ground_H[size_ground_H],point,D * sizeof(int));
                 size_ground_H++;
             }
             free(point);
@@ -1462,7 +1456,7 @@ int main (int argc, const char* argv[]) {
         alloc(orbits[0],num_autom_base,int*);
         for (j = 0; j < num_autom_base; ++j) {
             alloc(orbits[0][j],D,int);
-            assign_array(orbits[0][j],ground_H[0],D);
+            std::memcpy(orbits[0][j],ground_H[0],D * sizeof(int));
             // printf("[");
             // for (k = 0; k < D; ++k) {
             //     printf("%d",orbits[0][j][k]);
@@ -1478,7 +1472,7 @@ int main (int argc, const char* argv[]) {
         for (i = 1; i < size_ground_H; ++i) {
             alloc(orbits[i],num_autom_base,int*);
             alloc(orbits[i][0],D,int);
-            assign_array(orbits[i][0],ground_H[i],D);
+            std::memcpy(orbits[i][0],ground_H[i],D * sizeof(int));
             
             // printf("[");
             // for (k = 0; k < D; ++k) {
@@ -1545,7 +1539,7 @@ int main (int argc, const char* argv[]) {
                     printf(" ");
                 }
                 alloc(slabs[num_slabs],D,int);
-                assign_array(slabs[num_slabs],normal_vector,D);
+                std::memcpy(slabs[num_slabs],normal_vector,D * sizeof(int));
                 num_slabs++;
             }
             
@@ -1644,8 +1638,7 @@ int main (int argc, const char* argv[]) {
                 end_nextcl = my_clock::now();
                 time_nextcl = end_nextcl-begin_nextcl;
             }
-            
-            assign_array(A,CI,size_ground_H);
+            std::memcpy(A,CI,size_ground_H * sizeof(int));
             N_closed_sets_current_base++;
             
             if (verbose != 0) {
