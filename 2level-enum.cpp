@@ -38,6 +38,13 @@ bool is_equal(T * array1,T * array2, const int length) {
 }
 
 template <class T>
+std::vector<T> factor(T n) {
+    std::vector<T> factors;
+    for (T d = 1; d <= n; ++d) if ( n % d == 0 ) factors.push_back(d);
+    return factors;
+}
+
+template <class T>
 int index_in_collection(T ** collection,T * vect, const int length_collection, const int length_vect) {
     for (int i = 0; i < length_collection; ++i) if (is_equal(collection[i],vect,length_vect)) return i;
     return length_collection;
@@ -248,15 +255,11 @@ void slack_matrix_simplicial_2L(const int h, const int n, int **& M, int & num_r
     
     for (i = 0; i < n-1; ++i) {
         slack_matrix_free_sum(M,Id,num_r_M,num_c_M,h+1,h+1,M_oplus,num_r_M_oplus,num_c_M_oplus);
+        for (j = 0; j < num_r_M; ++j) free(M[j]);
+        free(M);
+        M = M_oplus;
         num_r_M = num_r_M_oplus;
         num_c_M = num_c_M_oplus;
-        alloc(M,num_r_M,int*);
-        for (j = 0; j < num_r_M_oplus; ++j) {
-            alloc(M[j],num_c_M,int);
-            std::memcpy(M[j],M_oplus[j],num_c_M_oplus * sizeof(int));
-        }
-        for (j = 0; j < num_r_M_oplus; ++j) free(M_oplus[j]);
-        free(M_oplus);
     }
     
     for (i = 0; i < h+1; ++i) free(Id[i]);
