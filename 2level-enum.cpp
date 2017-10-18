@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <iostream>
 #include <cstring> // std::memcpy, std::memset, std::fill
-//#include <vector>
 #include <chrono>
 
 #include "alloc.hpp"

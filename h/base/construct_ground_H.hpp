@@ -29,7 +29,6 @@ namespace base {
 	void construct_ground_H(T ** ground_H,SIZE & size_ground_H,T ** ground_V,const SIZE size_ground_V,T ** facets_base,const SIZE num_facets_base,T ** Minv,const T D,const T verbose) {
         int i,j;
         size_ground_H = 0;
-        int xE;
         
         for (i = 0; i < size_ground_V; ++i) {
             T * point;
