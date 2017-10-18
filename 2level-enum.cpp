@@ -237,7 +237,7 @@ int main (int argc, const char* argv[]) {
     
     int n_simplicial = 0;
     int current_LD = 0;
-    // first attempt to use the characterization of simplicial 2-level polytopes
+    // use the characterization of simplicial 2-level polytopes
     if (first_base == 0) {
         printf("\nBase #1:\n");
         printf("Constructing slack-matrices of simplicial 2-level polytopes... ");
