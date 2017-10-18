@@ -6,6 +6,11 @@
 #include <cstring> // std::memcpy, std::memset, std::fill
 #include <chrono>
 
+#define ANSI_RED     "\x1b[31m"
+#define ANSI_GREEN   "\x1b[32m"
+#define ANSI_BLUE    "\x1b[34m"
+#define ANSI_RESET   "\x1b[0m"
+
 #include "alloc.hpp"
 
 #include "array/is_equal.hpp"
@@ -532,11 +537,11 @@ int main (int argc, const char* argv[]) {
     
     end_tot_time = my_clock::now();
     tot_elapsed_time = end_tot_time - begin_tot_time;
-    
-    printf("\nTotal #closed sets found = %d\n", N_closed_sets);
-    printf("#2-level polytopes tested = %d\n", total_2level);
-    printf("#non-isomorphic 2-level polytopes found = %d\n", current_LD);
-    printf("Total elapsed time = %lfs\n", tot_elapsed_time.count());
+
+    printf("\n" ANSI_GREEN "Total #closed sets found = %d" ANSI_RESET "\n", N_closed_sets);
+    printf(ANSI_GREEN "#2-level polytopes tested = %d" ANSI_RESET "\n", total_2level);
+    printf(ANSI_GREEN "#non-isomorphic 2-level polytopes found = %d" ANSI_RESET "\n", current_LD);
+    printf(ANSI_GREEN "Total elapsed time = %lfs" ANSI_RESET "\n\n", tot_elapsed_time.count());
     //printf("Total elapsed time(sum)= %lfs\n", tot_elapsed_time_sum);
 
     if (verbose != 0) {

@@ -4,12 +4,12 @@
 NAUTYHOME = /Applications/pynauty-0.6.0/nauty26r7
 HEADER_DIR = h
 
-ifeq ($(use),clang)
-	CXX = clang++
-	CXXFLAGS = -std=c++11 -Wall -Wno-c++14-extensions -O3
-else
+ifeq ($(use),gcc)
 	CXX = g++-7
 	CXXFLAGS = -O3
+else
+	CXX = clang++
+	CXXFLAGS = -std=c++14 -Wall -Wno-c++14-extensions -O3
 endif
 
 OBJS = $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)
