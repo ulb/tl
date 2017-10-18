@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <cstring> // std::memcpy, std::memset, std::fill
-#include <vector>
+//#include <vector>
 #include <chrono>
 
 #include "alloc.hpp"
@@ -43,9 +43,26 @@
 #include "twolvl/is_listed.hpp"
 #include "twolvl/istwolevelpolytope.hpp"
 
-#include "autom/construct_automorphism_base.hpp"
+//#include "autom/construct_automorphism_base.hpp"
 
 #include "addnew/to_list.hpp"
+
+#include "base/construct_atoms_hash.hpp"
+#include "base/construct_atoms.hpp"
+#include "base/construct_atoms_cg.hpp"
+
+#include "base/construct_facets_base.hpp"
+#include "base/construct_d_aut_collection.hpp"
+
+#include "base/construct_base_V.hpp"
+#include "base/construct_base_H.hpp"
+#include "base/construct_ground_V.hpp"
+#include "base/construct_ground_H.hpp"
+
+#include "base/construct_orbits.hpp"
+#include "base/construct_slabs.hpp"
+#include "base/construct_slab_point_sat.hpp"
+#include "base/construct_incompatibility_adjM.hpp"
 
 // Main function
 int main (int argc, const char* argv[]) {
@@ -138,11 +155,10 @@ int main (int argc, const char* argv[]) {
     
     char inputfile_Name[6],outputfile_Name[20];
     sprintf(inputfile_Name,"%dd.txt",D-1);
-    
     my_inputfile = fopen(inputfile_Name,"r");
     
-    int i, j, k, h, it; // iterators
-    
+    int i, j, it; // iterators
+
     int total_2level = 0;
     int N_closed_sets = 0;
     
@@ -157,28 +173,9 @@ int main (int argc, const char* argv[]) {
     alloc(atoms_hash,n_atoms,int);
     alloc(atoms,n_atoms,int**);
     
-    it = 0;
-    
     printf("Preprocessing sizes of slack matrices... ");
-    i = 0;
-    j = 0;
-    char temp_s;
-    while ((fscanf(my_inputfile, "%c", &temp_s) != EOF)) {
-        if ((temp_s == '0') || (temp_s == '1')) ++j;
-        else if (temp_s == '\n') {
-            if (i == 1) atoms_hash[it] = (j-1) << D;
-            ++i;
-            j = 0;
-        }
-        else {
-            atoms_hash[it] += (i-1);
-            i = -1;
-            it++;
-        }
-    }
+    base::construct_atoms_hash(atoms_hash,my_inputfile,D);
     printf("OK\n");
-    
-    rewind(my_inputfile);
     
     int num_rows, num_cols;
     // allocating exact memory for each slack matrix of 2-level (D-1)-polytope
@@ -187,49 +184,22 @@ int main (int argc, const char* argv[]) {
         alloc(atoms[i],num_rows,int*);
         for (j = 0; j < num_rows; ++j) alloc(atoms[i][j],num_cols,int);
     }
+
+    rewind(my_inputfile);
     
     printf("Reading all %d-dimensional 2-level polytopes... ",D-1);
-    if (verbose == 2) printf("\n");
-    i = 0;
-    j = 0;
-    it = 0;
-    while ((fscanf(my_inputfile, "%c", &temp_s) != EOF)) {
-        if ((temp_s == '0') || (temp_s == '1')){
-            atoms[it][i][j] = temp_s - '0';
-            if (verbose == 2) printf("%d",atoms[it][i][j]);
-            ++j;
-        }
-        else if (temp_s == '\n'){
-            if (verbose == 2) printf("\n");
-            ++i;
-            j = 0;
-        }
-        else {
-            if (verbose == 2) printf("-");
-            i = -1;
-            it++;
-        }
-    }
-    if (verbose == 2) printf("\n");
+    it = base::construct_atoms(atoms,my_inputfile,D,verbose);
     printf("OK\nNumber of polytopes read = %d\n",it);
     fclose(my_inputfile);
     
     printf("Computing canonical forms for all nonincidence graphs... ");
     setword ** atoms_cg;
     alloc(atoms_cg,n_atoms,setword *);
-    
-    int n,m;
-    for (i = 0; i < n_atoms; ++i) {
-        // Get the number of rows and columns of current atom
-        twolvl::hash2size(atoms_hash[i],num_rows,num_cols,D);
-        n = num_rows + num_cols;
-        m = SETWORDSNEEDED(n);
-        alloc(atoms_cg[i],m*n,setword);
-        twolvl::canonicize(atoms[i],num_rows,num_cols,n,m,atoms_cg[i]);
-    }
+    base::construct_atoms_cg(atoms_cg,atoms,atoms_hash,n_atoms,D);
     printf("OK\n");
+
+
     printf("Processing bases...\n");
-    
 
     if ((first_base == 0) && (last_base == n_atoms - 1)) sprintf(outputfile_Name,"%dd.txt",D);
     else sprintf(outputfile_Name,"%dd_%d-%d.txt",D,first_base,last_base);
@@ -282,136 +252,41 @@ int main (int argc, const char* argv[]) {
             return 1;
         }
         
-        // Extract embedding transformation matrix M_d(0)
+        // Extract embedding transformation matrix M_d(0) and invert it
         int ** M, ** Minv;
         alloc(M,D,int*);
         for (i = 0; i < D; ++i) alloc(M[i],D,int);
-        
-        // extract the top (D-1)x(D-1) matrix M_{d-1} and extend it to M_d(0)
-        twolvl::extractM(atoms[it],M,D);
-        
-        if (verbose == 2) {
-            printf("M_d(0) = \n");
-            for (i = 0; i < D; ++i) {
-                printf("[");
-                for (j = 0; j < D; ++j) {
-                    printf("%d", M[i][j]);
-                    if (j != D-1) printf(" ");
-                }
-                printf("]\n");
-            }
-        }
-        //printf("OK\n");
+        twolvl::extractM(atoms[it],M,D,verbose);
         
         alloc(Minv,D,int*);
         for (i = 0; i < D; ++i) alloc(Minv[i],D,int);
-        
-        linalg::invertM(M,Minv,D);
-        
-        if (verbose == 2) {
-            printf("M_d^{-1}(0) = \n");
-            for (i = 0; i < D; ++i) {
-                printf("[");
-                for (j = 0; j < D; ++j) {
-                    printf("%d", Minv[i][j]);
-                    if (j != D-1) printf(" ");
-                }
-                printf("]\n");
-            }
-        }
+        linalg::invertM(M,Minv,D,verbose);
         
         printf("Constructing H-embedding of facets of the base... ");
         int ** facets_base;
-        int * E;
-        alloc(E,D,int);
         alloc(facets_base,num_rows_S,int*);
         int num_facets_base = 0; // number of element currently in facets_base
-        for (i = 0; i < num_rows_S; ++i) {
-            alloc(facets_base[i],D,int);
-            if (atoms[it][i][D-1] == 1) for (j = 0; j < D-1; ++j) E[j+1] = 1 - atoms[it][i][j];
-            else for (j = 0; j < D-1; ++j) E[j+1] = atoms[it][i][j];
-            
-            bool found = false;
-            for  (j = 0; j < num_facets_base && !found; ++j)
-                found = array::is_equal(facets_base[j],E,D);
-            if (!found) {
-                if (verbose != 0) {
-                    for (j = 0; j < D; ++j) printf("%d",E[j]);
-                    printf(" ");
-                }
-                std::memcpy(facets_base[num_facets_base],E,D * sizeof(int));
-                num_facets_base++;
-            }
-        }
-        free(E);
+        base::construct_facets_base(facets_base,num_facets_base,atoms[it],num_rows_S,D,verbose);
         printf("OK\n");
         
         printf("Constructing automorphism group of the base and extending it to R^D... ");
-        n = num_rows_S + num_cols_S;
-        m = SETWORDSNEEDED(n);
-        std::vector< std::vector<int> > automorphism_base;
-        int num_autom_base = 0;
-        
-        autom::construct_automorphism_base(atoms[it],num_rows_S,num_cols_S,n,m,automorphism_base,num_autom_base);
-
         int ** d_aut_collection;
-        alloc(d_aut_collection,num_autom_base,int *);
-        
-        //printf("\n");
-        for (i = 0; i < num_autom_base; ++i) {
-            alloc(d_aut_collection[i],D,int);
-            for  (j = num_rows_S; j < num_rows_S + D; ++j) {
-                d_aut_collection[i][j - num_rows_S] = automorphism_base[i][j] - num_rows_S;
-                //printf("%d",d_aut_collection[i][j- num_rows_S]);
-            }
-            //printf("\n");
-        }
-        automorphism_base.clear();
+        int num_autom_base;
+        base::construct_d_aut_collection(d_aut_collection,num_autom_base,atoms[it],num_rows_S,num_cols_S,D,verbose);
         printf("OK\n");
         
         // Create the set Vert(P_0) (in V-embedding)
         printf("Building V-embedding of base... ");
         int ** base_V;
         alloc(base_V,num_cols_S,int *);
-        
-        // Loop through all vertices
-        for (i = 0; i < num_cols_S; ++i) {
-            alloc(base_V[i],D,int);
-            // Create a point whose first coordinate is 0, and the others are the D-1 first bits
-            // of the jth column of the slack matrix S
-            base_V[i][0] = 0;
-            for (j = 0; j < D-1; ++j) base_V[i][j+1] = atoms[it][j][i];
-            
-            if (verbose != 0) {
-                // Print point
-                printf("[");
-                for (j = 0; j < D; ++j){
-                    printf("%d",base_V[i][j]);
-                    if (j != D-1) printf(",");
-                }
-                printf("] ");//
-            }
-        }
+        base::construct_base_V(base_V,atoms[it],num_cols_S,D,verbose);
         printf("OK\n");
         
         // Create Vert(P_0) (H-embedding this time), the set of fixed points
         printf("Building H-embedding of base... ");
         int ** base_H;
         alloc(base_H,num_cols_S,int *);
-        
-        for (i = 0; i < num_cols_S; ++i) {
-            alloc(base_H[i],D,int);
-            linalg::my_matrix_prod(Minv,base_V[i],base_H[i],D,D);
-            if (verbose != 0) {
-                // Print point
-                printf("[");
-                for (j = 0; j < D; ++j) {
-                    printf("%d",base_H[i][j]);
-                    if (j != D-1) printf(",");
-                }
-                printf("] ");//
-            }
-        }
+        base::construct_base_H(base_H,base_V,Minv,num_cols_S,D,verbose);
         printf("OK\n");
         
         // Create the V-embedding of the reduced ground set (by means of translations)
@@ -419,102 +294,15 @@ int main (int argc, const char* argv[]) {
         int ** ground_V;
         int size_ground_V = (nt::my_pow(3,D-1)+1)/2;
         alloc(ground_V,size_ground_V,int *);
-        
-        int * count;
-        alloc(count,D+1,int);
-        // initialize count to 0
-        std::memset(count,0,(D+1) * sizeof(int));
-        bool carry;
-        
-        alloc(ground_V[0],D,int);
-        ground_V[0][0] = 1;
-        std::memset(ground_V[0]+1,0,(D-1) * sizeof(int));
-        
-        if (verbose != 0) {
-            // Print point
-            printf("[");
-            for (i = 0; i < D; ++i){
-                printf("%d",ground_V[0][i]);
-                if (i != D-1) printf(",");
-            }
-            printf("] ");//
-        }
-        
-        k = 1;
-        for (i = D-1; i > 0; --i) {
-            std::memset(count,0,D * sizeof(int));
-            
-            while (count[i] == 0) {
-                alloc(ground_V[k],D,int);
-                ground_V[k][0] = 1;
-                std::memset(ground_V[k]+1,0,(i-1) * sizeof(int));
-                ground_V[k][i] = 1;
-                std::memset(ground_V[k]+i+1,0,(D-i-1) * sizeof(int));
-                
-                // Extract a vector in {-1,0,1}^{D-i-1} to fill the vector
-                for (j = i+1; j < D; ++j) ground_V[k][j] = count[j] - 1;
-                
-                if (verbose != 0) {
-                    // Print point
-                    printf("[");
-                    for (j = 0; j < D; ++j) {
-                        printf("%d",ground_V[k][j]);
-                        if (j != D-1) printf(",");
-                    }
-                    printf("] ");//
-                }
-                ++k;
-                // Increase counter, by performing mod-3 computation
-                j = D-1;
-                do {
-                    carry = (count[j] == 2);
-                    count[j] = (count[j] + 1) % 3;
-                    j--;
-                } while (carry && j >= 0);
-            }
-        }
+        base::construct_ground_V(ground_V,D,verbose);
         printf("OK\n");
-        
+
         // Create ground set
         printf("Building H-embedding of the reduced ground set... ");
         int ** ground_H;
         alloc(ground_H,size_ground_V,int *);
-        int size_ground_H = 0;
-        bool accept;
-        int xE;
-        
-        for (i = 0; i < size_ground_V; ++i) {
-            int * point;
-            alloc(point,D,int);
-            alloc(ground_H[i],D,int);
-            linalg::my_matrix_prod(Minv,ground_V[i],point,D,D);
-            
-            // Facet reduction of the ground set:
-            // we can throw away all the points x of the ground set where we do not have x(E) in {-1,0,1}
-            // for x(E) >= 0, x(E) <= 1 facet of the base, E subset of {2,...,d}
-            accept = true;
-            for (j = 0; j < num_facets_base && accept; ++j) {
-                xE = 0;
-                for (k = 1; k < D; ++k)
-                    if (facets_base[j][k] != 0) xE += point[k];
-                accept = ((xE == -1) || (xE == 0) || (xE == 1));
-            }
-            
-            if (accept) {
-                if (verbose != 0) {
-                    // Print
-                    printf("[");
-                    for (j = 0; j < D; ++j) {
-                        printf("%d",point[j]);
-                        if (j != D-1) printf(",");
-                    }
-                    printf("] ");//
-                }
-                std::memcpy(ground_H[size_ground_H],point,D * sizeof(int));
-                size_ground_H++;
-            }
-            free(point);
-        }
+        int size_ground_H;
+        base::construct_ground_H(ground_H,size_ground_H,ground_V,size_ground_V,facets_base,num_facets_base,Minv,D,verbose);
         printf("OK\n");
         
         // It is possible to free the base_V and ground_V, we will use the H-embedding
@@ -527,163 +315,35 @@ int main (int argc, const char* argv[]) {
         printf("-> Size of the ground set = %d\n",size_ground_V);
         printf("-> Size of the reduced ground set = %d\n",size_ground_H);
         printf("-> Size of the automorphism group of the base = %d\n",num_autom_base);
-        
+
+
         printf("Generating orbits of point of the ground set... ");
-        
         int *** orbits;
         alloc(orbits,size_ground_H,int**);
-        
-        // printf("\n");
-        alloc(orbits[0],num_autom_base,int*);
-        for (j = 0; j < num_autom_base; ++j) {
-            alloc(orbits[0][j],D,int);
-            std::memcpy(orbits[0][j],ground_H[0],D * sizeof(int));
-            // printf("[");
-            // for (k = 0; k < D; ++k) {
-            //     printf("%d",orbits[0][j][k]);
-            //     if (k != D-1)
-            //         printf(",");
-            // }
-            // printf("] ");
-        }
-        // printf("\n");
-        
-        bool found_first_non_zero,reject;
-        
-        for (i = 1; i < size_ground_H; ++i) {
-            alloc(orbits[i],num_autom_base,int*);
-            alloc(orbits[i][0],D,int);
-            std::memcpy(orbits[i][0],ground_H[i],D * sizeof(int));
-            
-            // printf("[");
-            // for (k = 0; k < D; ++k) {
-            //     printf("%d",orbits[i][0][k]);
-            //     if (k != D-1)
-            //         printf(",");
-            // }
-            // printf("] ");
-            
-            for (j = 1; j < num_autom_base; ++j) {
-                alloc(orbits[i][j],D,int);
-                orbits[i][j][0] = 1;
-                found_first_non_zero = false;
-                reject = false;
-                for (k = 1; k < D && !reject; ++k) {
-                    orbits[i][j][k] = 0;
-                    for (h = 1; h < D; ++h)
-                        orbits[i][j][k] += ground_H[i][h]*(base_H[d_aut_collection[j][h-1]][k] - base_H[d_aut_collection[j][D-1]][k]);
-                    if (orbits[i][j][k] != 0 && !found_first_non_zero) {
-                        if (orbits[i][j][k] == -1) reject = true;
-                        found_first_non_zero = true;
-                    }
-                }
-                if (reject) std::memset(orbits[i][j],0,D * sizeof(int));
-                // printf("[");
-                // for (k = 0; k < D; ++k) {
-                //     printf("%d",orbits[i][j][k]);
-                //     if (k != D-1)
-                //         printf(",");
-                // }
-                // printf("] ");
-            }
-            // printf("\n");
-        }
+        base::construct_orbits(orbits,num_autom_base,base_H,d_aut_collection,ground_H,size_ground_H,D);
         printf("OK\n");
         
         // Compute the slabs: inequalities x(E) <= 1, x(E) >= 0 that are valid for the base_H
-        count[0] = 1;
-        std::memset(count+1,0,D * sizeof(int));
-        
         printf("Building slabs... ");
         int ** slabs;
         alloc(slabs,1 << D,int *);
-        int s;
-        int num_slabs = 0;
-        
-        int * normal_vector;
-        alloc(normal_vector,D,int);
-        
-        while (count[D] == 0) {
-            std::memcpy(normal_vector, count, D * sizeof(int));
-            
-            accept = true;
-            for (j = 0; j < num_cols_S && accept; ++j) {
-                linalg::my_inner_prod(normal_vector,base_H[j],s,D);
-                accept = ((s == 0) || (s == 1));
-            }
-            
-            // Add normal vector of slab to the list if it contains all points of the base
-            if (accept) {
-                if (verbose != 0) {
-                    // Print normal vector
-                    for (j = 0; j < D; ++j) printf("%d",normal_vector[j]);
-                    printf(" ");
-                }
-                alloc(slabs[num_slabs],D,int);
-                std::memcpy(slabs[num_slabs],normal_vector,D * sizeof(int));
-                num_slabs++;
-            }
-            
-            // Increase counter, by performing mod-2 computations
-            i = 0;
-            do {
-                carry = (count[i] == 1);
-                count[i] = (count[i] + 1) % 2;
-                ++i;
-            } while (carry && i <= D);
-        }
-        free(normal_vector);
+        int num_slabs;
+        base::construct_orbits(slabs,num_slabs,num_cols_S,base_H,D,verbose);
         printf("OK\n");
-        free(count);
         
+        // Check points versus slabs incidence (for each point, list the slabs containing it)
+        printf("Building incidences between points and slabs... ");
         int ** slab_points_sat;
         alloc(slab_points_sat,size_ground_H,int*);
-        
-        printf("Building incidences between points and slabs... ");
-        // Check points versus slabs incidence (for each point, list the slabs containing it)
-        for (i = 0; i < size_ground_H; ++i) {
-            alloc(slab_points_sat[i],num_slabs,int);
-            for (j = 0; j < num_slabs; ++j) {
-                linalg::my_inner_prod(ground_H[i],slabs[j],s,D);
-                if ((s == 0) || (s == 1)) slab_points_sat[i][j] = 1;
-                else slab_points_sat[i][j] = 0;
-                //if (verbose != 0) printf("%d",slab_points_sat[i][j]);
-            }
-            //if (verbose != 0) printf(" ");
-        }
+        base::construct_slab_point_sat(slab_points_sat,ground_H,slabs,size_ground_H,num_slabs,D,verbose);
         printf("OK\n");
-        
         
         // Construct the incompatibility matrix
         printf("Constructing the incompatibility matrix... ");
         int ** incompatibility_adjM;
         alloc(incompatibility_adjM,size_ground_H,int*);
-        bool is_incompat;
-        int s_i, s_j;
-        
-        for (i = 0; i < size_ground_H; ++i) {
-            alloc(incompatibility_adjM[i],i,int);
-            for (j = 0; j < i; ++j) {
-                is_incompat = false;
-                for (k = 0; k < num_facets_base && !is_incompat; ++k) {
-                    s_i = 0;
-                    s_j = 0;
-                    for (h = 1; h < D; ++h) {
-                        if (facets_base[k][h] != 0) {
-                            s_i += ground_H[i][h];
-                            s_j += ground_H[j][h];
-                        }
-                    }
-                    is_incompat = (s_i * s_j == -1);
-                }
-                if (is_incompat) incompatibility_adjM[i][j] = 1;
-                else incompatibility_adjM[i][j] = 0;
-                //printf("%d",incompatibility_adjM[i][j]);
-            }
-            //printf("\n");
-        }
+        base::construct_incompatibility_adjM(incompatibility_adjM,ground_H,facets_base,size_ground_H,num_facets_base,D);
         printf("OK\n");
-        
         
         printf("Lauching Ganter's next-closure algorithm and checking 2-levelness... ");
         if (verbose != 0) printf("\n");
@@ -754,9 +414,8 @@ int main (int argc, const char* argv[]) {
                 time_slack_matrix = end_slack_matrix - begin_slack_matrix;
             }
             
-            
             bool istwolevel = false;
-            accept = true;
+            bool accept = true;
             int num_vertices_Fi;
             if (verbose != 0) begin_skip_test = my_clock::now();
             for (i = 0; i < num_rows_S_new && accept; ++i) {
@@ -906,7 +565,6 @@ int main (int argc, const char* argv[]) {
     for (i = 0; i < current_LD; ++i) free(LD[i]);
     free(LD);
     free(LD_hash);
-    
     
     return 0;
 }

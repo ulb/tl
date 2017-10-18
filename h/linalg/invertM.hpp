@@ -9,7 +9,7 @@
 namespace linalg {
 	// invert the DxD matrix M
 	template <typename T>
-	void invertM(T ** M, T ** Minv, const T D) {
+	void invertM(T ** M, T ** Minv, const T D, const T verbose) {
 	    int i,j,k;
 	    
 	    T ** W;
@@ -37,6 +37,18 @@ namespace linalg {
 	    }
 	    for (i = 0; i < D; ++i) free(W[i]);
 	    free(W);
+
+        if (verbose == 2) {
+            printf("M_d^{-1}(0) = \n");
+            for (i = 0; i < D; ++i) {
+                printf("[");
+                for (j = 0; j < D; ++j) {
+                    printf("%d", Minv[i][j]);
+                    if (j != D-1) printf(" ");
+                }
+                printf("]\n");
+            }
+        }
 	}
 }
 
