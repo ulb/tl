@@ -1,7 +1,4 @@
-#include "nauty.h"
-
 #include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
 #include <cstring> // std::memcpy, std::memset, std::fill
 #include <chrono>
@@ -47,8 +44,7 @@
 #include "twolvl/is_listed.hpp"
 #include "twolvl/istwolevelpolytope.hpp"
 
-//#include "autom/construct_automorphism_base.hpp"
-
+#include "addnew/pass_test.hpp"
 #include "addnew/to_list.hpp"
 
 #include "base/construct_atoms_hash.hpp"
@@ -67,6 +63,7 @@
 #include "base/construct_slabs.hpp"
 #include "base/construct_slab_point_sat.hpp"
 #include "base/construct_incompatibility_adjM.hpp"
+            
 
 // Main function
 int main (int argc, const char* argv[]) {
@@ -194,6 +191,7 @@ int main (int argc, const char* argv[]) {
     printf("Reading all %d-dimensional 2-level polytopes... ",D-1);
     it = base::construct_atoms(atoms,my_inputfile,D,verbose);
     printf("OK\nNumber of polytopes read = %d\n",it);
+
     fclose(my_inputfile);
     
     printf("Computing canonical forms for all nonincidence graphs... ");
@@ -320,7 +318,6 @@ int main (int argc, const char* argv[]) {
         printf("-> Size of the reduced ground set = %d\n",size_ground_H);
         printf("-> Size of the automorphism group of the base = %d\n",num_autom_base);
 
-
         printf("Generating orbits of point of the ground set... ");
         int *** orbits;
         alloc(orbits,size_ground_H,int**);
@@ -369,7 +366,6 @@ int main (int argc, const char* argv[]) {
         alloc(inccl,size_ground_H,int);
         alloc(I,size_ground_H,int);
         alloc(CI,size_ground_H,int);
-
         
         while (!array::is_all_ones(A,size_ground_H)) {
             i = 0;
@@ -407,32 +403,23 @@ int main (int argc, const char* argv[]) {
             // construct the slack matrix S with embedding transformation matrix in top left position
             int ** S_new;
             int num_rows_S_new, num_cols_S_new;
-            alloc(S_new,2*length_B,int *);
+            alloc(S_new,2*length_B,int*);
             
-            if (verbose != 0) begin_slack_matrix = my_clock::now();
-            
+            if (verbose != 0) begin_slack_matrix = my_clock::now();    
             twolvl::construct_slack_matrix(base_H,ground_H,A,B,slabs,atoms[it],S_new,size_ground_H,num_slabs,length_A,length_B,num_rows_S,num_cols_S,num_rows_S_new,num_cols_S_new,D);
-            
             if (verbose != 0) {
                 end_slack_matrix = my_clock::now();
                 time_slack_matrix = end_slack_matrix - begin_slack_matrix;
             }
             
-            bool istwolevel = false;
-            bool accept = true;
-            int num_vertices_Fi;
             if (verbose != 0) begin_skip_test = my_clock::now();
-            for (i = 0; i < num_rows_S_new && accept; ++i) {
-                num_vertices_Fi = 0;
-                for (j = 0; j < num_cols_S_new; ++j)
-                    if (S_new[i][j] == 0) num_vertices_Fi++;
-                accept = (num_vertices_Fi <= num_cols_S);
-            }
+            bool accept = addnew::pass_test(S_new,num_rows_S_new,num_cols_S_new,num_cols_S);
             if (verbose != 0) {
                 end_skip_test = my_clock::now();
                 time_skip_test = end_skip_test - begin_skip_test;
             }
-            
+
+            bool istwolevel = false;
             if (accept) {
                 if (verbose != 0) begin_2L_test = my_clock::now();
                 istwolevel = twolvl::istwolevelpolytope(S_new,num_rows_S_new,num_cols_S_new,atoms_hash,atoms_cg,n_atoms,D);
