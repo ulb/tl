@@ -33,11 +33,9 @@ namespace clops {
 	    SIZE num_A_indices = get_idx(A,length_A,A_indices,not_A_indices);
    		T B_j, dchcl_i;
    		
-   		//alloc(B_indices,length_B,T);
    		for (j = 0; j < length_B; ++j) {
    			B_j = 1;
    			for (i = 0; i < num_A_indices; ++i) B_j &= slab_points_sat[A_indices[i]][j];
-   			//if (B_j == 1) B_indices[num_B_indices++] = j;
    			B[j] = B_j;
    		}
 	    free(A_indices);
