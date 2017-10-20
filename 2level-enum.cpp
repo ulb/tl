@@ -4,6 +4,9 @@
 #include <chrono>
 
 #define ANSI_RED     "\x1b[31m"
+#define ANSI_YELLOW  "\x1b[33m"
+#define ANSI_MAGENTA "\x1b[35m"
+#define ANSI_CYAN    "\x1b[36m"
 #define ANSI_GREEN   "\x1b[32m"
 #define ANSI_BLUE    "\x1b[34m"
 #define ANSI_RESET   "\x1b[0m"
@@ -154,7 +157,7 @@ int main (int argc, const char* argv[]) {
     
     FILE * my_inputfile, * my_outputfile;
     
-    char inputfile_Name[6],outputfile_Name[20];
+    char inputfile_Name[20],outputfile_Name[20];
     sprintf(inputfile_Name,"%dd.txt",D-1);
     my_inputfile = fopen(inputfile_Name,"r");
     
@@ -525,10 +528,10 @@ int main (int argc, const char* argv[]) {
     end_tot_time = my_clock::now();
     tot_elapsed_time = end_tot_time - begin_tot_time;
 
-    printf("\n" ANSI_GREEN "Total #closed sets found = %d" ANSI_RESET "\n", N_closed_sets);
-    printf(ANSI_GREEN "#2-level polytopes tested = %d" ANSI_RESET "\n", total_2level);
-    printf(ANSI_GREEN "#non-isomorphic 2-level polytopes found = %d" ANSI_RESET "\n", current_LD);
-    printf(ANSI_GREEN "Total elapsed time = %lfs" ANSI_RESET "\n\n", tot_elapsed_time.count());
+    printf("\n" ANSI_GREEN "Total #closed sets found" ANSI_RESET " = " ANSI_GREEN "%d" ANSI_RESET "\n", N_closed_sets);
+    printf(ANSI_GREEN "#2-level polytopes tested" ANSI_RESET " = " ANSI_GREEN "%d" ANSI_RESET "\n", total_2level);
+    printf(ANSI_GREEN "#non-isomorphic 2-level polytopes found" ANSI_RESET " = " ANSI_GREEN "%d" ANSI_RESET "\n", current_LD);
+    printf(ANSI_GREEN "Total elapsed time" ANSI_RESET " = " ANSI_GREEN "%lfs" ANSI_RESET "\n\n", tot_elapsed_time.count());
     //printf("Total elapsed time(sum)= %lfs\n", tot_elapsed_time_sum);
 
     if (verbose != 0) {
