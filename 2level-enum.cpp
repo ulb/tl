@@ -3,13 +3,16 @@
 #include <cstring> // std::memcpy, std::memset, std::fill
 #include <chrono>
 
-#define ANSI_RED     "\x1b[31m"
-#define ANSI_YELLOW  "\x1b[33m"
-#define ANSI_MAGENTA "\x1b[35m"
+#define ANSI_RED     "\e[91m"
+#define ANSI_YELLOW  "\e[93m"
+#define ANSI_MAGENTA "\e[95m"
 #define ANSI_CYAN    "\x1b[36m"
-#define ANSI_GREEN   "\x1b[32m"
-#define ANSI_BLUE    "\x1b[34m"
+#define ANSI_GREEN   "\e[92m"
+#define ANSI_BLUE    "\e[94m"
 #define ANSI_RESET   "\x1b[0m"
+
+#define FINAL_TEXT   "\e[93m"
+#define FINAL_DATA   "\e[91m"
 
 #include "alloc.hpp"
 
@@ -177,7 +180,7 @@ int main (int argc, const char* argv[]) {
     alloc(atoms_hash,n_atoms,int);
     alloc(atoms,n_atoms,int**);
     
-    printf("Preprocessing sizes of slack matrices... ");
+    printf("\nPreprocessing sizes of slack matrices... ");
     base::construct_atoms_hash(atoms_hash,my_inputfile,D);
     printf("OK\n");
     
@@ -529,10 +532,10 @@ int main (int argc, const char* argv[]) {
     end_tot_time = my_clock::now();
     tot_elapsed_time = end_tot_time - begin_tot_time;
 
-    printf("\n" ANSI_GREEN "Total #closed sets found" ANSI_RESET " = " ANSI_GREEN "%d" ANSI_RESET "\n", N_closed_sets);
-    printf(ANSI_GREEN "#2-level polytopes tested" ANSI_RESET " = " ANSI_GREEN "%d" ANSI_RESET "\n", total_2level);
-    printf(ANSI_GREEN "#non-isomorphic 2-level polytopes found" ANSI_RESET " = " ANSI_GREEN "%d" ANSI_RESET "\n", current_LD);
-    printf(ANSI_GREEN "Total elapsed time" ANSI_RESET " = " ANSI_GREEN "%lfs" ANSI_RESET "\n\n", tot_elapsed_time.count());
+    printf("\n" FINAL_TEXT "Total #closed sets found" ANSI_RESET " = " FINAL_DATA "%d" ANSI_RESET "\n", N_closed_sets);
+    printf(FINAL_TEXT "#2-level polytopes tested" ANSI_RESET " = " FINAL_DATA "%d" ANSI_RESET "\n", total_2level);
+    printf(FINAL_TEXT "#non-isomorphic 2-level %d-polytopes found" ANSI_RESET " = " FINAL_DATA "%d" ANSI_RESET "\n", D, current_LD);
+    printf(FINAL_TEXT "Total elapsed time" ANSI_RESET " = " FINAL_DATA "%lfs" ANSI_RESET "\n\n", tot_elapsed_time.count());
     //printf("Total elapsed time(sum)= %lfs\n", tot_elapsed_time_sum);
 
     if (verbose != 0) {

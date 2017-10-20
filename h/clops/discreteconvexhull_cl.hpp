@@ -31,17 +31,18 @@ namespace clops {
 	    SIZE i, j;
 	    T * A_indices, * not_A_indices, * B_indices;
 	    SIZE num_A_indices = get_idx(A,length_A,A_indices,not_A_indices);
-   		T B_j, dchcl_i;
+   		T dchcl_i;
    		
-   		for (j = 0; j < length_B; ++j) {
-   			B_j = 1;
-   			for (i = 0; i < num_A_indices; ++i) B_j &= slab_points_sat[A_indices[i]][j];
-   			B[j] = B_j;
+   		std::fill(B,B+length_B,1);
+
+   		for (i = 0; i < num_A_indices; ++i) {
+   			dchcl[A_indices[i]] = 1;
+   			for (j = 0; j < length_B; ++j) B[j] &= slab_points_sat[A_indices[i]][j];
    		}
 	    free(A_indices);
 
 	    // Set all bits in dchcl to 1
-		std::fill(dchcl,dchcl+length_A,1);
+		//std::fill(dchcl,dchcl+length_A,1);
 
 	    SIZE num_B_indices = get_ones(B,length_B,B_indices);
 		T not_A_indices_i;
