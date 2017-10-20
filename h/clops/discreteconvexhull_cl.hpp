@@ -38,8 +38,10 @@ namespace clops {
 	    
 	    // Intersect all sets of points belonging to elements of B
 	    for (SIZE i = 0; i < length_A; ++i) {
-	    	for (SIZE j = 0; j < num_B_indices; ++j)
-	    		dchcl[i] &= slab_points_sat[i][B_indices[j]];
+	    	if (A[i] == 0) {
+		    	for (SIZE j = 0; j < num_B_indices; ++j)
+		    		dchcl[i] &= slab_points_sat[i][B_indices[j]];
+	    	}
 	    }
 	    free(B_indices);
 	}
