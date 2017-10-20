@@ -1,10 +1,18 @@
 #ifndef H_CLOPS_DISCRETECONVEXHULL_CL
 #define H_CLOPS_DISCRETECONVEXHULL_CL
 
-//#include <cstring> // std::fill
+#include <cstring> // std::fill
 #include "../alloc.hpp"
 
 namespace clops {
+	template <typename T,typename SIZE>
+	SIZE get_ones(T * char_v,const SIZE length,T *& one_indices) {
+		alloc(one_indices,length,T);
+		SIZE num_one_indices = 0;
+		for (SIZE i = 0; i < length; ++i) if (char_v[i] == 1) one_indices[num_one_indices++] = i;
+		return num_one_indices;
+	}
+
 	template <typename T,typename SIZE>
 	SIZE get_idx(T * char_v,const SIZE length,T *& one_indices,T *& zero_indices) {
 		alloc(one_indices,length,T);
@@ -24,22 +32,26 @@ namespace clops {
 	    T * A_indices, * not_A_indices, * B_indices;
 	    SIZE num_A_indices = get_idx(A,length_A,A_indices,not_A_indices);
    		T B_j, dchcl_i;
-   		SIZE num_B_indices = 0;
-   		alloc(B_indices,length_B,T);
+   		
+   		//alloc(B_indices,length_B,T);
    		for (j = 0; j < length_B; ++j) {
    			B_j = 1;
    			for (i = 0; i < num_A_indices; ++i) B_j &= slab_points_sat[A_indices[i]][j];
-   			if (B_j == 1) B_indices[num_B_indices++] = j;
+   			//if (B_j == 1) B_indices[num_B_indices++] = j;
    			B[j] = B_j;
    		}
-	    // Set all bits of A in  dchcl to 1, by definition A is a subset of dchcl
-	    for (i = 0; i < num_A_indices; ++i) dchcl[A_indices[i]] = 1;
 	    free(A_indices);
 
+	    // Set all bits in dchcl to 1
+		std::fill(dchcl,dchcl+length_A,1);
+
+	    SIZE num_B_indices = get_ones(B,length_B,B_indices);
+		T not_A_indices_i;
 	    // Intersect all sets of points belonging to elements of B
 	    for (i = 0; i < length_A - num_A_indices; ++i) {
+	    	not_A_indices_i = not_A_indices[i];
 	    	dchcl_i = 1;
-	    	for (j = 0; j < num_B_indices; ++j) dchcl_i &= slab_points_sat[not_A_indices[i]][B_indices[j]];
+	    	for (j = 0; j < num_B_indices; ++j) dchcl_i &= slab_points_sat[not_A_indices_i][B_indices[j]];
 	    	dchcl[not_A_indices[i]] = dchcl_i;
 	    }
 	    free(not_A_indices);
