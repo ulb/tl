@@ -65,7 +65,6 @@ namespace twolvl {
 	    alloc(rows_S_Fi,num_rows_S_new,T*);
 	    alloc(num_rows_S_Fi,num_rows_S_new,T);
 	    
-	    //bool is_maximal;
 	    for (i = 0; i < num_rows_S_new; ++i) {
 	        alloc(rows_S_Fi[i],num_rows_S_new,T);
 	        l = 0; // current number of rows of S_Fi
@@ -98,13 +97,6 @@ namespace twolvl {
 	        T hash_S_Fi = ((num_zero_indices[i]-1) << D) + num_rows_S_Fi[i] - 1;
 	        
 	        found = twolvl::is_listed(atoms_cg,atoms_hash,n_atoms,canonical_S_Fi,hash_S_Fi,m*n);
-
-	        // found = false;
-	        // for (it = 0; it < n_atoms && !found; it++) {
-	        //     hash2size(atoms_hash[it],num_rows_atom,num_cols_atom,D);
-	        //     if ((num_rows_S_Fi[i] == num_rows_atom) && (num_zero_indices[i] == num_cols_atom))
-	        //         found = array::is_equal(canonical_S_Fi,atoms_cg[it],m*n);
-	        // }
 	        
 	        free(canonical_S_Fi);
 	        for (j = 0; j < num_rows_S_Fi[i]; ++j) free(S_Fi[j]);
