@@ -37,14 +37,11 @@ namespace clops {
    
 	    // Intersect all sets of slabs belonging to elements of A
 	    for (SIZE i = 0; i < num_A_indices; ++i) {
+	    	// Set all bits of A in  dchcl to 1, by definition A is a subset of dchcl
 	    	dchcl[A_indices[i]] = 1;
-	    	for (SIZE j = 0; j < length_B; ++j)
-	    		B[j] &= slab_points_sat[A_indices[i]][j];
+	    	for (SIZE j = 0; j < length_B; ++j) B[j] &= slab_points_sat[A_indices[i]][j];
 	    }
 	    free(A_indices);
-
-	    // Set all bits of dchcl to 1
-	    //std::fill(dchcl,dchcl+length_A,1);
 
 	    T * B_indices;
 	    SIZE num_B_indices = get_ones(B,length_B,B_indices);
@@ -52,8 +49,7 @@ namespace clops {
 	    // Intersect all sets of points belonging to elements of B
 	    for (SIZE i = 0; i < length_A - num_A_indices; ++i) {
 	    	dchcl_i = 1;
-	    	for (SIZE j = 0; j < num_B_indices; ++j)
-	    		dchcl_i &= slab_points_sat[not_A_indices[i]][B_indices[j]];
+	    	for (SIZE j = 0; j < num_B_indices; ++j) dchcl_i &= slab_points_sat[not_A_indices[i]][B_indices[j]];
 	    	dchcl[not_A_indices[i]] = dchcl_i;
 	    }
 	    free(not_A_indices);
