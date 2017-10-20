@@ -69,18 +69,10 @@ namespace twolvl {
 	    for (i = 0; i < num_rows_S_new; ++i) {
 	        alloc(rows_S_Fi[i],num_rows_S_new,T);
 	        l = 0; // current number of rows of S_Fi
-	        for (j = 0; j < i; ++j) {
-	            if (is_maximal(S_new,zero_indices[i],num_zero_indices[i],i,j,num_rows_S_new)) {
-                    rows_S_Fi[i][l] = j;
-                    ++l;
-                }
-	        }
-	        for (++j; j < num_rows_S_new; ++j) {
-	            if (is_maximal(S_new,zero_indices[i],num_zero_indices[i],i,j,num_rows_S_new)) {
-                    rows_S_Fi[i][l] = j;
-                    ++l;
-                }
-	        }
+	        for (j = 0; j < i; ++j)
+	            if (is_maximal(S_new,zero_indices[i],num_zero_indices[i],i,j,num_rows_S_new)) rows_S_Fi[i][l++] = j;
+	        for (++j; j < num_rows_S_new; ++j)
+	            if (is_maximal(S_new,zero_indices[i],num_zero_indices[i],i,j,num_rows_S_new)) rows_S_Fi[i][l++] = j;
 	        num_rows_S_Fi[i] = l;
 	    }
 	    
