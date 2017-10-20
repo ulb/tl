@@ -1,8 +1,7 @@
 #ifndef H_TWOLVL_ISTWOLEVELPOLYTOPE
 #define H_TWOLVL_ISTWOLEVELPOLYTOPE
 
-#include <nauty.h>
-#include <algorithm> // std::find
+#include "nauty.h"
 
 #include "../alloc.hpp"
 
@@ -10,11 +9,30 @@
 #include "is_listed.hpp"
 
 namespace twolvl {
+
+	template <typename T,typename SIZE>
+	bool is_subset(T ** S_new,T * zero_indices_i,const SIZE num_zero_indices_i,const T j,const T k) {
+        for (SIZE h = 0; h < num_zero_indices_i; ++h)               
+            if (S_new[j][zero_indices_i[h]] == 0 && S_new[k][zero_indices_i[h]] != 0) return false;
+        return true;
+	}
+
+    // the only rows in S_Fi are the one containing the maximal sets of zeros
+	template <typename T,typename SIZE>
+	bool is_maximal(T ** S_new,T * zero_indices_i,const SIZE num_zero_indices_i,const T i,const T j,const SIZE num_rows_S_new) {
+        for (SIZE k = 0; k < num_rows_S_new; ++k) {
+            // Check if the set of zeros of S_new[j][.] intersected with the one of S_new[i][.]
+            // is a subset of the one S_new[k][.] intersected with the one of S_new[i][.]
+            if ((k != j) && (k != i) && is_subset(S_new,zero_indices_i,num_zero_indices_i,j,k)) return false;
+        }
+        return true;
+    }
+
 	// Checks whether a given 0-1 matrix is the slack matrix of a D-dimensional 2-level polytope,
 	// by using the list of (D-1)-dimensional 2-level polytopes.
 	template <typename T,typename SIZE,typename NT_T>
 	bool istwolevelpolytope(T ** S_new,const SIZE num_rows_S_new,const SIZE num_cols_S_new,T * atoms_hash,NT_T ** atoms_cg,const SIZE n_atoms, const T D) {
-	    int i, j, k, h, l;
+	    int i, j, k, l;
 	    // First test: check that every column contains at least D zeros
 	    // by construction, every row of S contains at least D zeros
 	    int num_facets_contain;
@@ -47,31 +65,21 @@ namespace twolvl {
 	    alloc(rows_S_Fi,num_rows_S_new,T*);
 	    alloc(num_rows_S_Fi,num_rows_S_new,T);
 	    
-	    bool is_maximal, is_subset;
+	    //bool is_maximal;
 	    for (i = 0; i < num_rows_S_new; ++i) {
 	        alloc(rows_S_Fi[i],num_rows_S_new,T);
 	        l = 0; // current number of rows of S_Fi
-	        for (j = 0; j < num_rows_S_new; ++j) {
-	            if (j != i) {
-	                // the only rows in S_Fi are the one containing the maximal sets of zeros
-	                is_maximal = true;
-	                for (k = 0; k < num_rows_S_new && is_maximal; ++k) {
-	                    if ((k != j) && (k != i)) {
-	                        // Check if the set of zeros of S_new[j][.] intersected with the one of S_new[i][.]
-	                        // is a subset of the one S_new[k][.] intersected with the one of S_new[i][.]
-	                        is_subset = true;
-	                        for (h = 0; h < num_zero_indices[i] && is_subset; ++h) {                    
-	                            if (std::find(zero_indices[j],zero_indices[j]+num_zero_indices[j],zero_indices[i][h]) != zero_indices[j]+num_zero_indices[j])
-	                                is_subset = std::find(zero_indices[k],zero_indices[k]+num_zero_indices[k],zero_indices[i][h]) != zero_indices[k]+num_zero_indices[k];
-	                        }
-	                        is_maximal = !is_subset;
-	                    }
-	                }
-	                if (is_maximal) {
-	                    rows_S_Fi[i][l] = j;
-	                    ++l;
-	                }
-	            }
+	        for (j = 0; j < i; ++j) {
+	            if (is_maximal(S_new,zero_indices[i],num_zero_indices[i],i,j,num_rows_S_new)) {
+                    rows_S_Fi[i][l] = j;
+                    ++l;
+                }
+	        }
+	        for (++j; j < num_rows_S_new; ++j) {
+	            if (is_maximal(S_new,zero_indices[i],num_zero_indices[i],i,j,num_rows_S_new)) {
+                    rows_S_Fi[i][l] = j;
+                    ++l;
+                }
 	        }
 	        num_rows_S_Fi[i] = l;
 	    }

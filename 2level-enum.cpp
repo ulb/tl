@@ -209,6 +209,7 @@ int main (int argc, const char* argv[]) {
     if ((first_base == 0) && (last_base == n_atoms - 1)) sprintf(outputfile_Name,"%dd.txt",D);
     else sprintf(outputfile_Name,"%dd_%d-%d.txt",D,first_base,last_base);
     my_outputfile = fopen(outputfile_Name,"w+");
+
     
     int n_simplicial = 0;
     int current_LD = 0;
