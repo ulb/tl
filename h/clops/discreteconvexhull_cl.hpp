@@ -28,29 +28,38 @@ namespace clops {
 	// Compute the discrete convex hull of a point set A
 	template <typename T,typename SIZE>
 	void discreteconvexhull_cl(T * A,T *& B,T *& dchcl,T ** slab_points_sat,const SIZE length_A,const SIZE length_B) {
-	    SIZE i, j;
+	    SIZE i;
 	    T * A_indices, * not_A_indices, * B_indices;
 	    SIZE num_A_indices = get_idx(A,length_A,A_indices,not_A_indices);
    		T dchcl_i;
    		
    		std::fill(B,B+length_B,1);
 
+   		T A_indices_i, not_A_indices_i;
+
    		for (i = 0; i < num_A_indices; ++i) {
-   			dchcl[A_indices[i]] = 1;
-   			for (j = 0; j < length_B; ++j) B[j] &= slab_points_sat[A_indices[i]][j];
+   			// Set all bits of A in dchcl to 1: by definiton A is a subset of dchcl
+   			A_indices_i = A_indices[i];
+   			dchcl[A_indices_i] = 1;
+			auto Bj = B;
+			auto Bend = B + length_B;
+			auto slab_points_sat_ij = slab_points_sat[A_indices_i];
+			while (Bj != Bend) *(Bj++) &= *(slab_points_sat_ij++);
+   			//for (j = 0; j < length_B; ++j) B[j] &= slab_points_sat[A_indices_i][j];
    		}
 	    free(A_indices);
 
-	    // Set all bits in dchcl to 1
-		//std::fill(dchcl,dchcl+length_A,1);
-
 	    SIZE num_B_indices = get_ones(B,length_B,B_indices);
-		T not_A_indices_i;
+		
 	    // Intersect all sets of points belonging to elements of B
 	    for (i = 0; i < length_A - num_A_indices; ++i) {
 	    	not_A_indices_i = not_A_indices[i];
 	    	dchcl_i = 1;
-	    	for (j = 0; j < num_B_indices; ++j) dchcl_i &= slab_points_sat[not_A_indices_i][B_indices[j]];
+	    	auto B_indices_j = B_indices;
+			auto B_indices_end = B_indices + num_B_indices;
+			auto slab_points_sat_i = slab_points_sat[not_A_indices_i];
+			while (B_indices_j != B_indices_end) dchcl_i &= slab_points_sat_i[*(B_indices_j++)];
+	    	//for (j = 0; j < num_B_indices; ++j) dchcl_i &= slab_points_sat[not_A_indices_i][B_indices[j]];
 	    	dchcl[not_A_indices[i]] = dchcl_i;
 	    }
 	    free(not_A_indices);
