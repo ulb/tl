@@ -1,9 +1,13 @@
 #replace with the absolute path to the folder /nauty26r7
 #download from http://pallini.di.uniroma1.it/#howtogetit
 #and install
-NAUTYHOME = /Applications/pynauty-0.6.0/nauty26r7
-#NAUTYHOME = $(HOME)/.opt/nauty26r10
+
 HEADER_DIR = h
+
+NAUTYHOME = /Applications/pynauty-0.6.0/nauty26r7
+ifeq ($(dude),omar)
+	NAUTYHOME = $(HOME)/.opt/nauty26r10
+endif
 
 ifeq ($(use),gcc)
 	CXX = g++-7
