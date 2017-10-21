@@ -3,16 +3,9 @@
 
 #include <cstring> // std::fill
 #include "../alloc.hpp"
+#include "get_ones.hpp"
 
 namespace clops {
-	template <typename T,typename SIZE>
-	SIZE get_ones(T * char_v,const SIZE length,T *& one_indices) {
-		alloc(one_indices,length,T);
-		SIZE num_one_indices = 0;
-		for (SIZE i = 0; i < length; ++i) if (char_v[i] == 1) one_indices[num_one_indices++] = i;
-		return num_one_indices;
-	}
-
 	template <typename T,typename SIZE>
 	SIZE get_idx(T * char_v,const SIZE length,T *& one_indices,T *& zero_indices) {
 		alloc(one_indices,length,T);
@@ -49,7 +42,7 @@ namespace clops {
    		}
 	    free(A_indices);
 
-	    SIZE num_B_indices = get_ones(B,length_B,B_indices);
+	    SIZE num_B_indices = clops::get_ones(B,length_B,B_indices);
 		
 	    // Intersect all sets of points belonging to elements of B
 	    for (i = 0; i < length_A - num_A_indices; ++i) {
