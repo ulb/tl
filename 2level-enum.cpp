@@ -327,7 +327,7 @@ int main (int argc, const char* argv[]) {
 
         printf("Generating orbits of point of the ground set... ");
         int *** orbits;
-        alloc(orbits,size_ground_H,int**);
+        alloc(orbits,num_autom_base,int**);
         base::construct_orbits(orbits,num_autom_base,base_H,d_aut_collection,ground_H,size_ground_H,D);
         printf("OK\n");
         
@@ -481,8 +481,8 @@ int main (int argc, const char* argv[]) {
         for (i = 0; i < num_slabs; ++i) free(slabs[i]);
         free(slabs);
         
-        for (i = 0; i < size_ground_H; ++i) {
-            for (j = 0; j < num_autom_base; ++j) free(orbits[i][j]);
+        for (i = 0; i < num_autom_base; ++i) {
+            for (j = 0; j < size_ground_H; ++j) free(orbits[i][j]);
             free(orbits[i]);
         }
         free(orbits);
