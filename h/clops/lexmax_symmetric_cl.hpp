@@ -6,6 +6,7 @@
 #include "../alloc.hpp"
 #include "../array/is_equal.hpp"
 #include "../array/is_all_ones.hpp"
+#include "../array/is_all_zeros.hpp"
 #include "../array/index_in_collection.hpp"
 #include "get_ones.hpp"
 
@@ -22,7 +23,7 @@ namespace clops {
 
 	// compute the lexmax symmetric copy of a set A
 	template <typename T,typename SIZE>
-	void lexmax_symmetric_cl(T *& A,T *& symcl,T ** ground_set_H,const SIZE length_A,T *** orbits,const SIZE num_autom_base,const T D) {
+	void lexmax_symmetric_cl(T * A,T *& symcl,T ** ground_set_H,const SIZE length_A,T *** orbits,const SIZE num_autom_base,const T D) {
 	    SIZE i;
 
 	    std::memcpy(symcl,A,length_A * sizeof(T));
@@ -34,9 +35,8 @@ namespace clops {
 	        T * A_sym;
 	        alloc(A_sym,length_A,T);
 	        A_sym[0] = 1;
-	        std::memset(A_sym+1,0,(length_A-1) * sizeof(T));
-	        
-	        if (!array::is_equal(A,A_sym,length_A)) {
+
+	        if (!array::is_all_zeros(A + 1,length_A - 1)) {
 	            for (i = 0; i < num_autom_base; ++i) {
 	                if (!clops::is_outside_X(orbits[i],ground_set_H,A_sym,A_indices,num_A_indices,length_A,D))
 	                    if (clops::is_preccurlyeq(symcl,A_sym,length_A)) std::memcpy(symcl,A_sym,length_A * sizeof(T));
