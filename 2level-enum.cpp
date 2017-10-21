@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <cstring> // std::memcpy, std::memset, std::fill
 #include <chrono>
@@ -6,10 +6,10 @@
 #define ANSI_RED     "\e[91m"
 #define ANSI_YELLOW  "\e[93m"
 #define ANSI_MAGENTA "\e[95m"
-#define ANSI_CYAN    "\x1b[36m"
+#define ANSI_CYAN    "\e[96m"
 #define ANSI_GREEN   "\e[92m"
 #define ANSI_BLUE    "\e[94m"
-#define ANSI_RESET   "\x1b[0m"
+#define ANSI_RESET   "\e[39m"
 
 #define FINAL_TEXT   "\e[93m"
 #define FINAL_DATA   "\e[91m"
@@ -17,7 +17,6 @@
 #include "alloc.hpp"
 
 #include "array/is_equal.hpp"
-#include "array/index_in_collection.hpp"
 #include "array/is_all_ones.hpp"
 #include "nt/factor.hpp"
 #include "nt/my_pow.hpp"
@@ -46,7 +45,7 @@
 #include "linalg/invertM.hpp"
 
 #include "twolvl/hash2size.hpp"
-#include "twolvl/canonicize.hpp"
+//#include "twolvl/canonicize.hpp"
 #include "twolvl/is_listed.hpp"
 #include "twolvl/istwolevelpolytope.hpp"
 
