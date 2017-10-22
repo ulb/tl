@@ -8,17 +8,18 @@
 
 #include "../alloc.hpp"
 #include "../twolvl/canonicize.hpp"
+#include "../twolvl/dump.hpp"
 #include "../subcl/is_susp.hpp"
 #include "../subcl/is_polar.hpp"
 
 namespace addnew {
 	// check if the slack matrix S is already listed in LD; if not, add it to LD //int *& LD_hash, setword **& LD
 	template <typename T,typename NT_T,typename UNSIGNED_T,typename SIZE>
-	void to_list(T **& S_new,SIZE & num_rows_S_new,SIZE & num_cols_S_new,FILE * my_outputfile,T *& LD_hash,NT_T **& LD,T & current_LD, const T D, T & verbose,UNSIGNED_T & simplicial_facet,UNSIGNED_T & cs,UNSIGNED_T & stab,UNSIGNED_T & n_suspensions,UNSIGNED_T & n_polar) {
+	void to_list(T **& S_new,SIZE & num_rows_S_new,SIZE & num_cols_S_new,T *& LD_hash,NT_T **& LD,T & current_LD, const T D, T & verbose,UNSIGNED_T & simplicial_facet,UNSIGNED_T & cs,UNSIGNED_T & stab,UNSIGNED_T & n_suspensions,UNSIGNED_T & n_polar) {
 	    int i, j;
 	    SIZE n, m;
 	    T hash_S_new = ((num_cols_S_new-1) << D) + num_rows_S_new - 1;
-	    
+
 	    NT_T * canonical_S_new;
 	    n = num_rows_S_new + num_cols_S_new;
 	    m = SETWORDSNEEDED(n);
@@ -33,11 +34,7 @@ namespace addnew {
 	        LD_hash[current_LD] = hash_S_new;
 	        current_LD++;
 
-	        for (i = 0; i < num_rows_S_new; ++i){
-	            for (j = 0; j < num_cols_S_new; ++j) fprintf(my_outputfile,"%d",S_new[i][j]);
-	            fprintf(my_outputfile,"\n");
-	        }
-	        fprintf(my_outputfile,"-\n");
+			twolvl::dump(D,num_rows_S_new,num_cols_S_new,S_new);
 
 	        // tests for subclasses of 2-level polytopes
 	        if (verbose != 0) {
@@ -49,7 +46,7 @@ namespace addnew {
 	                has_simplicial = (num_zeros == D);
 	            }
 	            if (has_simplicial) simplicial_facet++;
-	            
+
 	            bool STAB = false;
 	            for (i = 0; i < num_cols_S_new && !STAB; ++i) {
 	                num_zeros = 0;
@@ -58,7 +55,7 @@ namespace addnew {
 	                STAB = (num_zeros == D);
 	            }
 	            if (STAB) stab++;
-	            
+
 	            bool CS = true;
 	            int num_ones;
 	            for (i = 0; i < num_rows_S_new && CS; ++i) {
@@ -68,9 +65,9 @@ namespace addnew {
 	                CS = (num_ones == num_cols_S_new/2);
 	            }
 	            if (CS) cs++;
-	            
-	            if (subcl::is_susp(S_new,num_rows_S_new,num_cols_S_new)) n_suspensions++;
-	            
+
+	            if (subcl::is_susp(S_new,num_rows_S_new,num_cols_S_new)) ++n_suspensions;
+
 	            subcl::is_polar(S_new,hash_S_new,canonical_S_new,num_rows_S_new,num_cols_S_new,n,m,LD_hash,LD,current_LD,D,n_polar);
 	        }
 	    }
