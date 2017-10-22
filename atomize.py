@@ -26,22 +26,24 @@ class Atom (object):
         self.matrix = matrix
         self.hash = urlsafe_b64encode(sha256(self.data().encode('utf-8')).digest()).decode('utf-8')
 
-    def data ( self ) :
+    def data ( self , linesep = '' , colsep = '' , itemsep = ' ' ) :
 
-        return '{}-{}x{}-{}'.format(self.dimension, self.rows, self.columns,
-                ''.join(map(lambda row : ''.join(map(str,row)), self.matrix)))
+        return '{d}{s}{r}{s}{c}{s}{m}'.format(
+            s=itemsep,
+            d=self.dimension,
+            r=self.rows,
+            c=self.columns,
+            m=linesep.join(map(lambda row : colsep.join(map(str,row)), self.matrix)),
+        )
 
-    def dump ( self , fd ) :
+    def dump ( self , fd  , linesep = ' ' , colsep = ' ' , itemsep = ' ' ) :
 
-        fd.write('{}\n'.format(self.dimension))
-        fd.write('{}\n'.format(self.rows))
-        fd.write('{}\n'.format(self.columns))
-        for row in self.matrix:
-            fd.write('{}\n'.format(' '.join(map(str,row))))
+        fd.write(self.data(linesep=linesep, colsep=colsep, itemsep=itemsep))
+        fd.write('\n')
 
     def __repr__ ( self ) :
 
-        return '{}-{}x{}-{}'.format(self.dimension, self.rows, self.columns, self.hash)
+        return self.data()
 
 
 if __name__ == '__main__':
@@ -66,6 +68,11 @@ if __name__ == '__main__':
 
         os.makedirs('atoms/{}'.format(dimension), exist_ok=True)
 
+        with open('atoms/{}/all'.format(dimension), 'w') as _all:
+            for atom in atoms:
+                atom.dump(_all)
+
         for i, atom in enumerate(atoms):
             with open('atoms/{}/{}'.format(atom.dimension,i), 'w') as fd:
-                atom.dump(fd)
+                atom.dump(fd, linesep = '\n', itemsep = '\n' )
+
