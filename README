@@ -1,4 +1,7 @@
 
+- to ATOMIZE the atoms
+
+	python3 atomize.py {2,3,4,5,6}.txt
 
 - install nauty, available at http://pallini.di.uniroma1.it/#howtogetit 
 
