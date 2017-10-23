@@ -20,6 +20,8 @@ namespace base {
 
 	public:
 
+		typedef uint_fast8_t W;
+
 		const T dimension;
 		const T rows;
 		const T columns;
@@ -28,8 +30,8 @@ namespace base {
 		T** matrix;
 		setword* cg;
 		T cg_length;
-		T* xpt;
-		T* xend;
+		W* xpt;
+		W* xend;
 
 		Atom(const T dimension, const T rows, const T columns, T* data) :
 		dimension(dimension), rows(rows), columns(columns), data(data) {
@@ -63,71 +65,18 @@ namespace base {
 			uint8_t* cg_pt = (uint8_t *) cg;
 			uint8_t* const cg_end = cg_pt + cg_bytes;
 
-			alloc(this->xpt, 3*8*t_bytes + 8*cg_bytes, T);
-			this->xend = this->xpt + 3*8*t_bytes + 8*cg_bytes;
+			alloc(this->xpt, 3*t_bytes + cg_bytes, W);
+			this->xend = this->xpt + 3*t_bytes + cg_bytes;
 
-			T* xpt(this->xpt);
+			W* xpt(this->xpt);
 
-			while ( dimension_pt != dimension_end ) {
-				uint8_t v = *dimension_pt;
+			while ( dimension_pt != dimension_end ) *(xpt++) = *(dimension_pt++);
 
-				*(xpt++) = v & 0b10000000;
-				*(xpt++) = v & 0b01000000;
-				*(xpt++) = v & 0b00100000;
-				*(xpt++) = v & 0b00010000;
-				*(xpt++) = v & 0b00001000;
-				*(xpt++) = v & 0b00000100;
-				*(xpt++) = v & 0b00000010;
-				*(xpt++) = v & 0b00000001;
+			while ( rows_pt != rows_end ) *(xpt++) = *(rows_pt++);
 
-				++dimension_pt;
-			}
+			while ( columns_pt != columns_end ) *(xpt++) = *(columns_pt++);
 
-			while ( rows_pt != rows_end ) {
-				uint8_t v = *rows_pt;
-
-				*(xpt++) = v & 0b10000000;
-				*(xpt++) = v & 0b01000000;
-				*(xpt++) = v & 0b00100000;
-				*(xpt++) = v & 0b00010000;
-				*(xpt++) = v & 0b00001000;
-				*(xpt++) = v & 0b00000100;
-				*(xpt++) = v & 0b00000010;
-				*(xpt++) = v & 0b00000001;
-
-				++rows_pt;
-			}
-
-			while ( columns_pt != columns_end ) {
-				uint8_t v = *columns_pt;
-
-				*(xpt++) = v & 0b10000000;
-				*(xpt++) = v & 0b01000000;
-				*(xpt++) = v & 0b00100000;
-				*(xpt++) = v & 0b00010000;
-				*(xpt++) = v & 0b00001000;
-				*(xpt++) = v & 0b00000100;
-				*(xpt++) = v & 0b00000010;
-				*(xpt++) = v & 0b00000001;
-
-				++columns_pt;
-			}
-
-
-			while ( cg_pt != cg_end ) {
-				uint8_t v = *cg_pt;
-
-				*(xpt++) = v & 0b10000000;
-				*(xpt++) = v & 0b01000000;
-				*(xpt++) = v & 0b00100000;
-				*(xpt++) = v & 0b00010000;
-				*(xpt++) = v & 0b00001000;
-				*(xpt++) = v & 0b00000100;
-				*(xpt++) = v & 0b00000010;
-				*(xpt++) = v & 0b00000001;
-
-				++cg_pt;
-			}
+			while ( cg_pt != cg_end ) *(xpt++) = *(cg_pt++);
 
 		}
 

@@ -5,7 +5,7 @@
 #include "twolvl/load.hpp"
 #include "twolvl/dump.hpp"
 #include "base/Atom.hpp"
-#include "search/Trie.hpp"
+#include "search/BTrie.hpp"
 
 int main () {
 
@@ -17,7 +17,7 @@ int main () {
     //}
 
     std::vector<base::Atom<int>> polytopes;
-    search::Trie<int> trie;
+    search::BTrie<uint_fast8_t, 256> trie;
     while ( true ) {
 
         if ( !twolvl::load(std::cin, polytopes) ) break ;

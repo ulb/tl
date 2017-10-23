@@ -7,7 +7,7 @@
 #include "twolvl/dump.hpp"
 #include "base/Atom.hpp"
 #include "twolvl/istwolevelpolytope.hpp"
-#include "search/Trie.hpp"
+#include "search/BTrie.hpp"
 
 int main (int argc, const char* argv[]) {
 
@@ -28,7 +28,7 @@ int main (int argc, const char* argv[]) {
     twolvl::loadall(kernel, facets);
     kernel.close();
     std::cerr << "Done. Loaded " << facets.size() << " facets." << std::endl;
-    search::Trie<int> trie;
+    search::BTrie<uint_fast8_t, 256> trie;
     for (auto& facet : facets) {
         trie.insert(facet.xpt, facet.xend);
         facet.teardown();
