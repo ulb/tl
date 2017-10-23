@@ -1,23 +1,30 @@
-#ifndef H_SEARCH_TRIE
-#define H_SEARCH_TRIE
-
-#include "search/TrieNode.hpp"
+#ifndef H_SEARCH_BINARYTRIE
+#define H_SEARCH_BINARYTRIE
 
 namespace search {
 
-	template <typename T>
-	class Trie {
-
-	private:
-		TrieNode root;
+	class BinaryTrieNode {
 
 	public:
-		Trie():root(){}
+		bool flag;
+		BinaryTrieNode * left;
+		BinaryTrieNode * right;
+		BinaryTrieNode():flag(false),left(NULL),right(NULL){}
+	} ;
+
+	template <typename T>
+	class BinaryTrie {
+
+	private:
+		BinaryTrieNode root;
+
+	public:
+		BinaryTrie():root(){}
 		/**
 		 * Inserts if not already there. Returns true if already in the trie, false otherwise.
 		 */
 		bool insert(T* pt, T* const end){
-			TrieNode* node(&this->root);
+			BinaryTrieNode* node(&this->root);
 			while ( true ) {
 
 				if ( pt == end ) {
@@ -28,7 +35,7 @@ namespace search {
 					}
 				}
 
-				TrieNode* child = (*pt == 0) ? node->left : node->right;
+				BinaryTrieNode* child = (*pt == 0) ? node->left : node->right;
 
 				if ( child == NULL ) {
 					insert_suffix(node, pt, end);
@@ -45,7 +52,7 @@ namespace search {
 		 * Returns true if the vector is in the trie, false otherwise.
 		 */
 		bool search(T * pt, T* const end){
-			TrieNode* node(&this->root);
+			BinaryTrieNode* node(&this->root);
 			while ( true ) {
 
 				if ( pt == end ) {
@@ -53,7 +60,7 @@ namespace search {
 					else return false;
 				}
 
-				TrieNode* child = (*pt == 0) ? node->left : node->right;
+				BinaryTrieNode* child = (*pt == 0) ? node->left : node->right;
 
 				if ( child == NULL ) return false;
 
@@ -66,10 +73,10 @@ namespace search {
 		/**
 		 * Assumes pt != end.
 		 */
-		void insert_suffix(TrieNode* parent, T* pt, T* const end) {
+		void insert_suffix(BinaryTrieNode* parent, T* pt, T* const end) {
 
 			do {
-				TrieNode* next = new TrieNode();
+				BinaryTrieNode* next = new BinaryTrieNode();
 				if ( *pt == 0 ) parent->left = next;
 				else parent->right = next;
 				parent = next;
@@ -79,7 +86,7 @@ namespace search {
 
 		}
 
-		void erase(TrieNode* node){
+		void erase(BinaryTrieNode* node){
 			if ( node == NULL ) return ;
 	        this->erase(node->left);
 	        this->erase(node->right);
@@ -92,7 +99,7 @@ namespace search {
 	        this->root.flag = false;
 		}
 
-		~Trie(){
+		~BinaryTrie(){
 			this->clear();
 	    }
 
@@ -101,4 +108,4 @@ namespace search {
 
 }
 
-#endif // H_SEARCH_TRIE
+#endif // H_SEARCH_BINARYTRIE
