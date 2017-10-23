@@ -4,6 +4,7 @@
 #include "../array/is_equal.hpp"
 
 namespace twolvl {
+	// Should use MTF trie here MTF!!
 	template <typename A,typename NT_T, typename T,typename SIZE_TP>
 	bool is_listed(A& atoms, NT_T* S,const T rows, const T cols, const SIZE_TP length) {
 	    for (auto& atom : atoms) {
