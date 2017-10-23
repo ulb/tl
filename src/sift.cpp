@@ -4,10 +4,10 @@
 
 #include "twolvl/loadall.hpp"
 #include "twolvl/load.hpp"
+#include "twolvl/dump.hpp"
 #include "base/Atom.hpp"
 #include "twolvl/istwolevelpolytope.hpp"
-#include "twolvl/dump.hpp"
-#include "nauty.h"
+#include "search/Trie.hpp"
 
 int main (int argc, const char* argv[]) {
 
@@ -26,7 +26,14 @@ int main (int argc, const char* argv[]) {
     std::vector<base::Atom<int>> facets;
     std::ifstream kernel(kernel_filename, std::ifstream::in);
     twolvl::loadall(kernel, facets);
+    kernel.close();
     std::cerr << "Done. Loaded " << facets.size() << " facets." << std::endl;
+    search::Trie<int> trie;
+    for (auto& facet : facets) {
+        trie.insert(facet.cg_pt, facet.cg_end);
+        facet.teardown();
+    }
+    facets.clear();
 
     // sift through popcorn
     std::vector<base::Atom<int>> polytopes;
@@ -36,15 +43,12 @@ int main (int argc, const char* argv[]) {
 
         auto& polytope = polytopes[0]; // ugly we use a length-1 vector atm
 
-        if ( twolvl::istwolevelpolytope(facets, polytope) ) twolvl::dump(std::cout, polytope);
+        if ( twolvl::istwolevelpolytope(trie, polytope) ) twolvl::dump(std::cout, polytope);
 
         polytope.teardown();
         polytopes.clear(); // ugly hack atm, we use a vector containing a single element
 
     }
-
-    for (auto& atom : facets) atom.teardown();
-    facets.clear();
 
     return 0;
 

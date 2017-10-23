@@ -50,7 +50,7 @@ namespace base {
 			this->cg = cg;
 			this->cg_length = n*m;
 
-			size_t length = cg_length * (sizeof(setword)/sizeof(uint8_t));
+			int length = cg_length * (sizeof(setword)/sizeof(uint8_t));
 			uint8_t * pt = (uint8_t *) cg;
 			uint8_t * end = pt + length;
 

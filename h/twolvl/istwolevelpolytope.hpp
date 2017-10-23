@@ -1,10 +1,8 @@
 #ifndef H_TWOLVL_ISTWOLEVELPOLYTOPE
 #define H_TWOLVL_ISTWOLEVELPOLYTOPE
 
-#include "nauty.h"
 #include "alloc.hpp"
-#include "twolvl/canonicize.hpp"
-#include "twolvl/is_listed.hpp"
+#include "base/Atom.hpp"
 
 namespace twolvl {
 
@@ -28,8 +26,8 @@ namespace twolvl {
 
 	// Checks whether a given 0-1 matrix is the slack matrix of a D-dimensional 2-level polytope,
 	// by using the list of (D-1)-dimensional 2-level polytopes.
-	template <typename A, typename P>
-	bool istwolevelpolytope(A& atoms, P& poly) {
+	template <typename T, typename P>
+	bool istwolevelpolytope(T& trie, P& poly) {
 		auto& S = poly.matrix;
 		auto& rows = poly.rows;
 		auto& cols = poly.columns;
@@ -79,29 +77,28 @@ namespace twolvl {
 
 	    // Go through all the rows and build the corresponding submatrix for each of them. If the input is a slack matrix,
 	    // this will compute the slack matrix of the corresponding facet and test is it appears in the list L_{D-1}
-	    int** S_Fi;
+	    
 	    bool found = true;
-	    int n,m;
 
 	    for (i = 0; i < rows && found; ++i) {
-	        alloc(S_Fi,num_rows_S_Fi[i],int*);
-	        for (j = 0; j < num_rows_S_Fi[i]; ++j) {
-	            alloc(S_Fi[j],num_zero_indices[i],int);
-	            for (k = 0; k < num_zero_indices[i]; ++k)
-	                S_Fi[j][k] = S[rows_S_Fi[i][j]][zero_indices[i][k]];
+	    	int fdimension = D - 1;
+	    	int frows = num_rows_S_Fi[i];
+	    	int fcolumns = num_zero_indices[i];
+	    	int* fdata;
+	    	int flength = frows * fcolumns;
+	        alloc(fdata,flength,int);
+	        int* fpt = fdata;
+
+	        for (j = 0; j < frows; ++j) {
+	            for (k = 0; k < fcolumns; ++k)
+	                *(fpt++) = S[rows_S_Fi[i][j]][zero_indices[i][k]];
 	        }
 
-	        setword * canonical_S_Fi;
-	        n = num_rows_S_Fi[i] + num_zero_indices[i];
-	        m = SETWORDSNEEDED(n);
-	        alloc(canonical_S_Fi,m*n,setword);
-	        twolvl::canonicize(S_Fi,num_rows_S_Fi[i],num_zero_indices[i],n,m,canonical_S_Fi);
+	        base::Atom<int> facet(fdimension,frows,fcolumns,fdata);
 
-	        found = twolvl::is_listed(atoms,canonical_S_Fi,num_rows_S_Fi[i],num_zero_indices[i],m*n);
+	        found = trie.search(facet.cg_pt, facet.cg_end);
 
-	        free(canonical_S_Fi);
-	        for (j = 0; j < num_rows_S_Fi[i]; ++j) free(S_Fi[j]);
-	        free(S_Fi);
+	        facet.teardown();
 	    }
 
 	    for (i = 0; i < rows; ++i) free(rows_S_Fi[i]);

@@ -1,13 +1,11 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
 
 #include "twolvl/loadall.hpp"
 #include "twolvl/load.hpp"
-#include "base/Atom.hpp"
-#include "twolvl/is_listed.hpp"
 #include "twolvl/dump.hpp"
-#include "nauty.h"
+#include "base/Atom.hpp"
+#include "search/Trie.hpp"
 
 int main (int argc, const char* argv[]) {
 
@@ -21,26 +19,21 @@ int main (int argc, const char* argv[]) {
     //int verbose = (argc > 2) ? atoi(argv[2]) : 0; // not use ATM
 
     // sift through popcorn
-    std::vector<base::Atom<int>> unique;
     std::vector<base::Atom<int>> polytopes;
+    search::Trie<int> trie;
     while ( true ) {
 
         if ( !twolvl::load(std::cin, polytopes) ) break ;
 
         auto& polytope = polytopes[0]; // ugly we use a length-1 vector atm
 
-        if ( !twolvl::is_listed(unique, polytope.cg, polytope.rows, polytope.columns, polytope.cg_length) ) {
-            twolvl::dump(std::cout, polytope);
-            unique.push_back(polytope);
-        }
-        else polytope.teardown();
+        if ( !trie.insert(polytope.cg_pt, polytope.cg_end) ) twolvl::dump(std::cout, polytope);
+        
+        polytope.teardown();
 
         polytopes.clear(); // ugly hack atm, we use a vector containing a single element
 
     }
-
-    for (auto& polytope : unique) polytope.teardown();
-    unique.clear();
 
     return 0;
 

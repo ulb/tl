@@ -3,7 +3,6 @@
 
 namespace search {
 
-	template <typename T>
 	class TrieNode {
 
 	public:

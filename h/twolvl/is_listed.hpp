@@ -14,6 +14,7 @@ namespace twolvl {
 	    }
 	    return false;
 	}
+
 }
 
 #endif // H_TWOLVL_IS_LISTED
