@@ -9,7 +9,6 @@ namespace base {
 	template <typename T,typename SIZE>
 	void construct_orbits(T *** orbits,const SIZE num_autom_base,T ** base_H,T ** d_aut_collection,T ** ground_H,const SIZE size_ground_H,const T D) {
         SIZE i,j,k,h;
-        fprintf(stderr, "\n");
         alloc(orbits[0],size_ground_H,T*);
         for (j = 0; j < size_ground_H; ++j) {
             alloc(orbits[0][j],D,T);
