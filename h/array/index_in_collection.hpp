@@ -1,7 +1,7 @@
 #ifndef H_ARRAY_INDEX_IN_COLLECTION
 #define H_ARRAY_INDEX_IN_COLLECTION
 
-#include "is_equal.hpp"
+#include "array/is_equal.hpp"
 
 namespace array {
 	// returns the index of some vector in a collection of vectors

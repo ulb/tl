@@ -1,6 +1,18 @@
 #include <iostream>
 #include <vector>
 
+#define ANSI_RED     "\e[91m"
+#define ANSI_YELLOW  "\e[93m"
+#define ANSI_MAGENTA "\e[95m"
+#define ANSI_CYAN    "\e[96m"
+#define ANSI_GREEN   "\e[92m"
+#define ANSI_BLUE    "\e[94m"
+#define ANSI_RESET   "\e[0m"
+
+#define TITLE_TEXT   "\e[92m\e[4m"
+#define FINAL_TEXT   "\e[93m"
+#define FINAL_DATA   "\e[91m"
+
 #include "linalg/is_id.hpp"
 #include "linalg/invertM.hpp"
 
@@ -249,6 +261,7 @@ int main (int argc, const char* argv[]) {
                 free(S_new);
 
             }
+            fprintf(stderr, "\nOK\n");
 
             free(CI);
             free(I);
