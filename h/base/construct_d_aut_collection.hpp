@@ -10,7 +10,7 @@
 
 namespace base {
 	template <typename T,typename SIZE>
-	void construct_d_aut_collection(T **& d_aut_collection,T & num_autom_base,T ** S,const SIZE num_rows_S,const SIZE num_cols_S, const T D, const T verbose) {
+	void construct_d_aut_collection(T **& d_aut_collection,T & num_autom_base,T ** S,const SIZE num_rows_S,const SIZE num_cols_S, const T D) {
         int i,j;
         SIZE n,m;
         n = num_rows_S + num_cols_S;
@@ -22,14 +22,11 @@ namespace base {
 
         alloc(d_aut_collection,num_autom_base,T *);
 
-        //fprintf(stderr,"\n");
         for (i = 0; i < num_autom_base; ++i) {
             alloc(d_aut_collection[i],D,T);
             for  (j = num_rows_S; j < num_rows_S + D; ++j) {
                 d_aut_collection[i][j - num_rows_S] = automorphism_base[i][j] - num_rows_S;
-                //fprintf(stderr,"%d",d_aut_collection[i][j- num_rows_S]);
             }
-            //fprintf(stderr, "\n");
         }
         automorphism_base.clear();
 	}

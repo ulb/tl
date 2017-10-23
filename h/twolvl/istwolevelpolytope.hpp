@@ -77,26 +77,27 @@ namespace twolvl {
 
 	    // Go through all the rows and build the corresponding submatrix for each of them. If the input is a slack matrix,
 	    // this will compute the slack matrix of the corresponding facet and test is it appears in the list L_{D-1}
-	    
+
 	    bool found = true;
 
 	    for (i = 0; i < rows && found; ++i) {
-	    	int fdimension = D - 1;
-	    	int frows = num_rows_S_Fi[i];
-	    	int fcolumns = num_zero_indices[i];
+	    	const int fdimension = D - 1;
+	    	const int frows = num_rows_S_Fi[i];
+	    	const int fcolumns = num_zero_indices[i];
 	    	int* fdata;
-	    	int flength = frows * fcolumns;
-	        alloc(fdata,flength,int);
+	        alloc(fdata,3+frows*fcolumns,int);
 	        int* fpt = fdata;
 
-	        for (j = 0; j < frows; ++j) {
+			*(fpt++) = fdimension;
+			*(fpt++) = frows;
+			*(fpt++) = fcolumns;
+	        for (j = 0; j < frows; ++j)
 	            for (k = 0; k < fcolumns; ++k)
 	                *(fpt++) = S[rows_S_Fi[i][j]][zero_indices[i][k]];
-	        }
 
 	        base::Atom<int> facet(fdimension,frows,fcolumns,fdata);
 
-	        found = trie.search(facet.cg_pt, facet.cg_end);
+	        found = trie.search(facet.xpt, facet.xend);
 
 	        facet.teardown();
 	    }

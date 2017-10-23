@@ -30,7 +30,7 @@ int main (int argc, const char* argv[]) {
     std::cerr << "Done. Loaded " << facets.size() << " facets." << std::endl;
     search::Trie<int> trie;
     for (auto& facet : facets) {
-        trie.insert(facet.cg_pt, facet.cg_end);
+        trie.insert(facet.xpt, facet.xend);
         facet.teardown();
     }
     facets.clear();

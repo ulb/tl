@@ -7,7 +7,7 @@
 namespace twolvl {
 	// slack matrix construction
 	template <typename T,typename SIZE>
-	void construct_slack_matrix(T **& base_H,T **& ground_set_H,T *& A,T *& B,T **& slabs,T ** S,T **& S_new,const SIZE size_ground_H, const SIZE num_slabs,const SIZE length_A,const SIZE length_B,const SIZE num_rows_S,const SIZE num_cols_S, SIZE & num_rows_S_new, SIZE & num_cols_S_new,const T D) {
+	void construct_slack_matrix(T **& base_H,T **& ground_set_H,T *& A,T *& B,T **& slabs,T ** S,T **& S_new,const SIZE size_ground_H, const SIZE num_slabs,const SIZE length_A,const SIZE length_B,const SIZE num_cols_S, SIZE & num_rows_S_new, SIZE & num_cols_S_new,const T D) {
 	    int i, j, k, h;
 	    T ** all_rows;
 	    alloc(all_rows,2*num_slabs,T*);
@@ -16,14 +16,14 @@ namespace twolvl {
 	    T * temp_row;
 	    alloc(temp_row,num_cols_S_new,T);
 	    bool accept;
-	    
+
 	    k = 0;
 	    for (i = 0; i < num_slabs; ++i) {
 	        if (B[i] == 1) {
 	            linalg::my_inner_prod(ground_set_H[0],slabs[i],s,D);
 	            if (s != 0) temp_row[0] = 1;
 	            else temp_row[0] = 0;
-	            
+
 	            for (j = 0; j < num_cols_S; ++j) {
 	                linalg::my_inner_prod(base_H[j],slabs[i],s,D);
 	                if (s != 0) temp_row[1+j] = 1;
@@ -38,17 +38,17 @@ namespace twolvl {
 	                    ++h;
 	                }
 	            }
-	            
+
 	            int num_vertices = 0;
 	            for (j = 0; j < num_cols_S_new; ++j)
 	                if (temp_row[j] == 0) num_vertices += 1;
-	            
+
 	            if (num_vertices >= D) {
 	                alloc(all_rows[k],num_cols_S_new,T);
 	                for (j = 0; j < num_cols_S_new; ++j) all_rows[k][j] = temp_row[j];
 	                ++k;
 	            }
-	            
+
 	            if ((num_cols_S_new - num_vertices) >= D) {
 	                alloc(all_rows[k],num_cols_S_new,T);
 	                for (j = 0; j < num_cols_S_new; ++j) all_rows[k][j] = 1-temp_row[j];
@@ -58,9 +58,9 @@ namespace twolvl {
 	    }
 	    free(temp_row);
 	    int temp_num_all_rows = k;
-	    
+
 	    for (i = 0; i < 2*length_B; ++i) alloc(S_new[i],num_cols_S_new,T);
-	    
+
 	    num_rows_S_new = 0;
 	    // check maximality of rows
 	    bool is_maximal, is_subset;
@@ -81,10 +81,10 @@ namespace twolvl {
 	            num_rows_S_new++;
 	        }
 	    }
-	    
+
 	    for (i = 0; i < temp_num_all_rows; ++i) free(all_rows[i]);
 	    free(all_rows);
-	    
+
 	    // rearranging rows of S_new
 	    int n_row = 0;
 	    alloc(temp_row,num_cols_S_new,T);

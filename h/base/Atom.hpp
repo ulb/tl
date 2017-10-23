@@ -28,8 +28,8 @@ namespace base {
 		T** matrix;
 		setword* cg;
 		T cg_length;
-		T* cg_pt;
-		T* cg_end;
+		T* xpt;
+		T* xend;
 
 		Atom(const T dimension, const T rows, const T columns, T* data) :
 		dimension(dimension), rows(rows), columns(columns), data(data) {
@@ -39,7 +39,7 @@ namespace base {
 
 			// proxy for indexed row-first iteration
 			alloc(this->matrix,rows,T*) ;
-			for (size_t i = 0; i < rows; ++i) this->matrix[i] = this->vector + i * columns ;
+			for (T i = 0; i < rows; ++i) this->matrix[i] = this->vector + i * columns ;
 
 			// compute canonical form (only needed for d-1 atoms, should skip)
 	        int n(this->rows + this->columns);
@@ -50,33 +50,89 @@ namespace base {
 			this->cg = cg;
 			this->cg_length = n*m;
 
-			int length = cg_length * (sizeof(setword)/sizeof(uint8_t));
-			uint8_t * pt = (uint8_t *) cg;
-			uint8_t * end = pt + length;
+			// compute bit vector representation
+			int t_bytes = sizeof(T)/sizeof(uint8_t);
+			uint8_t* dimension_pt = (uint8_t*) &this->dimension;
+			uint8_t* rows_pt = (uint8_t*) &this->rows;
+			uint8_t* columns_pt = (uint8_t*) &this->columns;
+			uint8_t* const dimension_end = dimension_pt + t_bytes;
+			uint8_t* const rows_end = rows_pt + t_bytes;
+			uint8_t* const columns_end = columns_pt + t_bytes;
 
-			alloc(this->cg_pt, 8*length, T);
-			this->cg_end = this->cg_pt + 8*length;
+			int cg_bytes = cg_length * (sizeof(setword)/sizeof(uint8_t));
+			uint8_t* cg_pt = (uint8_t *) cg;
+			uint8_t* const cg_end = cg_pt + cg_bytes;
 
-			T* cg_pt(this->cg_pt);
-			while ( pt != end ) {
-				uint8_t v = *pt;
+			alloc(this->xpt, 3*8*t_bytes + 8*cg_bytes, T);
+			this->xend = this->xpt + 3*8*t_bytes + 8*cg_bytes;
 
-				*(cg_pt++) = v & 0b10000000;
-				*(cg_pt++) = v & 0b01000000;
-				*(cg_pt++) = v & 0b00100000;
-				*(cg_pt++) = v & 0b00010000;
-				*(cg_pt++) = v & 0b00001000;
-				*(cg_pt++) = v & 0b00000100;
-				*(cg_pt++) = v & 0b00000010;
-				*(cg_pt++) = v & 0b00000001;
+			T* xpt(this->xpt);
 
-				++pt;
+			while ( dimension_pt != dimension_end ) {
+				uint8_t v = *dimension_pt;
+
+				*(xpt++) = v & 0b10000000;
+				*(xpt++) = v & 0b01000000;
+				*(xpt++) = v & 0b00100000;
+				*(xpt++) = v & 0b00010000;
+				*(xpt++) = v & 0b00001000;
+				*(xpt++) = v & 0b00000100;
+				*(xpt++) = v & 0b00000010;
+				*(xpt++) = v & 0b00000001;
+
+				++dimension_pt;
+			}
+
+			while ( rows_pt != rows_end ) {
+				uint8_t v = *rows_pt;
+
+				*(xpt++) = v & 0b10000000;
+				*(xpt++) = v & 0b01000000;
+				*(xpt++) = v & 0b00100000;
+				*(xpt++) = v & 0b00010000;
+				*(xpt++) = v & 0b00001000;
+				*(xpt++) = v & 0b00000100;
+				*(xpt++) = v & 0b00000010;
+				*(xpt++) = v & 0b00000001;
+
+				++rows_pt;
+			}
+
+			while ( columns_pt != columns_end ) {
+				uint8_t v = *columns_pt;
+
+				*(xpt++) = v & 0b10000000;
+				*(xpt++) = v & 0b01000000;
+				*(xpt++) = v & 0b00100000;
+				*(xpt++) = v & 0b00010000;
+				*(xpt++) = v & 0b00001000;
+				*(xpt++) = v & 0b00000100;
+				*(xpt++) = v & 0b00000010;
+				*(xpt++) = v & 0b00000001;
+
+				++columns_pt;
+			}
+
+
+			while ( cg_pt != cg_end ) {
+				uint8_t v = *cg_pt;
+
+				*(xpt++) = v & 0b10000000;
+				*(xpt++) = v & 0b01000000;
+				*(xpt++) = v & 0b00100000;
+				*(xpt++) = v & 0b00010000;
+				*(xpt++) = v & 0b00001000;
+				*(xpt++) = v & 0b00000100;
+				*(xpt++) = v & 0b00000010;
+				*(xpt++) = v & 0b00000001;
+
+				++cg_pt;
 			}
 
 		}
 
 		void teardown ( ) {
-			free(this->cg_pt);
+			free(this->xpt);
 			free(this->cg);
 			free(this->matrix);
 			free(this->data);

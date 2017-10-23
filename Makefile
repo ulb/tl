@@ -14,7 +14,7 @@ ifeq ($(use),gcc)
 	CXXFLAGS = -O3
 else
 	CXX = clang++
-	CXXFLAGS = -std=c++14 -Wall -Wno-c++14-extensions -O3
+	CXXFLAGS = -std=c++14 -Wall -W -O3
 endif
 
 OBJS = $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)

@@ -126,7 +126,7 @@ int main (int argc, const char* argv[]) {
             fprintf(stderr, "Constructing automorphism group of the base and extending it to R^D... ");
             int ** d_aut_collection;
             int num_autom_base;
-            base::construct_d_aut_collection(d_aut_collection,num_autom_base,facet.matrix,num_rows_S,num_cols_S,D,verbose);
+            base::construct_d_aut_collection(d_aut_collection,num_autom_base,facet.matrix,num_rows_S,num_cols_S,D);
             fprintf(stderr, "OK\n");
 
             // Create the set Vert(P_0) (in V-embedding)
@@ -251,7 +251,7 @@ int main (int argc, const char* argv[]) {
                 int num_rows_S_new, num_cols_S_new;
                 alloc(S_new,2*length_B,int*);
 
-                twolvl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,length_A,length_B,num_rows_S,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+                twolvl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,length_A,length_B,num_cols_S,num_rows_S_new,num_cols_S_new,D);
 
                 if ( addnew::pass_test(S_new,num_rows_S_new,num_cols_S_new,num_cols_S) ) {
                     twolvl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);

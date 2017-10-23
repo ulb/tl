@@ -54,7 +54,7 @@ namespace twolvl {
 	    // Obtain canonical graph from Nauty
 	    densenauty(g,lab,ptn,orbits,&options,&stats,m,n,cg);
 
-	    for (size_t k = 0; k < m*n; ++k) cg_vec[k] = cg[k];
+	    for (int k = 0; k < m*n; ++k) cg_vec[k] = cg[k];
 
 	    // Clean up
 	    DYNFREE(lab,lab_sz);

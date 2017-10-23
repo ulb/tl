@@ -27,7 +27,7 @@ namespace search {
 						return false;
 					}
 				}
-				
+
 				TrieNode* child = (*pt == 0) ? node->left : node->right;
 
 				if ( child == NULL ) {
@@ -41,6 +41,9 @@ namespace search {
 
 		}
 
+		/**
+		 * Returns true if the vector is in the trie, false otherwise.
+		 */
 		bool search(T * pt, T* const end){
 			TrieNode* node(&this->root);
 			while ( true ) {
@@ -49,7 +52,7 @@ namespace search {
 					if ( node->flag ) return true;
 					else return false;
 				}
-				
+
 				TrieNode* child = (*pt == 0) ? node->left : node->right;
 
 				if ( child == NULL ) return false;
@@ -60,14 +63,20 @@ namespace search {
 
 		}
 
-		void insert_suffix(TrieNode* const parent, T* const pt, T* const end) {
-			if ( pt == end ) parent->flag = true;
-			else {
+		/**
+		 * Assumes pt != end.
+		 */
+		void insert_suffix(TrieNode* parent, T* pt, T* const end) {
+
+			do {
 				TrieNode* next = new TrieNode();
 				if ( *pt == 0 ) parent->left = next;
 				else parent->right = next;
-				insert_suffix(next,pt+1,end);
-			}
+				parent = next;
+			} while ( ++pt != end ) ;
+
+			parent->flag = true;
+
 		}
 
 		void erase(TrieNode* node){
@@ -86,7 +95,7 @@ namespace search {
 		~Trie(){
 			this->clear();
 	    }
-		
+
 	} ;
 
 
