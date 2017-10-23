@@ -7,5 +7,6 @@ for d in $(seq 1 $1); do
 	if [ -e atoms/$d/all ] ; then
 		continue
 	fi
+	mkdir -p atoms/$d
 	sh list.sh $d | tee atoms/$d/all | wc -l
 done
