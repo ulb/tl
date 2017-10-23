@@ -18,7 +18,7 @@ namespace base {
     }
 
 	template <typename T,typename SIZE>
-	void construct_orbits(T ** slabs,T & num_slabs,const SIZE num_cols_S,T ** base_H,const T D,const T verbose) {
+	void construct_slabs(T ** slabs,T & num_slabs,const SIZE num_cols_S,T ** base_H,const T D,const T verbose) {
         int i,j;
         T * count;
         alloc(count,D+1,T);
@@ -26,25 +26,25 @@ namespace base {
         count[0] = 1;
         std::memset(count+1,0,D * sizeof(T));
         bool carry;
-        
+
         num_slabs = 0;
         T * normal_vector;
         alloc(normal_vector,D,T);
         while (count[D] == 0) {
             std::memcpy(normal_vector, count, D * sizeof(T));
-            
+
             // Add normal vector of slab to the list if it contains all points of the base
             if (accept(normal_vector,base_H,num_cols_S,D)) {
                 if (verbose != 0) {
                     // Print normal vector
-                    for (j = 0; j < D; ++j) printf("%d",normal_vector[j]);
-                    printf(" ");
+                    for (j = 0; j < D; ++j) fprintf(stderr, "%d",normal_vector[j]);
+                    fprintf(stderr, " ");
                 }
                 alloc(slabs[num_slabs],D,T);
                 std::memcpy(slabs[num_slabs],normal_vector,D * sizeof(T));
                 num_slabs++;
             }
-            
+
             // Increase counter, by performing mod-2 computations
             i = 0;
             do {

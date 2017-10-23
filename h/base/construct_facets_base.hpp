@@ -19,14 +19,14 @@ namespace base {
             alloc(facets_base[i],D,T);
             if (S[i][D-1] == 1) for (j = 0; j < D-1; ++j) E[j+1] = 1 - S[i][j];
             else for (j = 0; j < D-1; ++j) E[j+1] = S[i][j];
-            
+
             found = false;
             for  (j = 0; j < num_facets_base && !found; ++j)
                 found = array::is_equal(facets_base[j],E,D);
             if (!found) {
                 if (verbose != 0) {
-                    for (j = 0; j < D; ++j) printf("%d",E[j]);
-                    printf(" ");
+                    for (j = 0; j < D; ++j) fprintf(stderr, "%d",E[j]);
+                    fprintf(stderr, " ");
                 }
                 std::memcpy(facets_base[num_facets_base],E,D * sizeof(T));
                 num_facets_base++;

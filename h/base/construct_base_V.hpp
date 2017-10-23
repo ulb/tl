@@ -16,15 +16,15 @@ namespace base {
             // of the jth column of the slack matrix S
             base_V[i][0] = 0;
             for (j = 0; j < D-1; ++j) base_V[i][j+1] = S[j][i];
-            
+
             if (verbose != 0) {
                 // Print point
-                printf("[");
+                fprintf(stderr,"[");
                 for (j = 0; j < D; ++j){
-                    printf("%d",base_V[i][j]);
-                    if (j != D-1) printf(",");
+                    fprintf(stderr,"%d",base_V[i][j]);
+                    if (j != D-1) fprintf(stderr,",");
                 }
-                printf("] ");//
+                fprintf(stderr,"] ");//
             }
         }
 	}

@@ -27,15 +27,15 @@ namespace base {
 
     template <typename T,typename SIZE>
     void construct_incompatibility_adjM(T ** incompatibility_adjM, T ** ground_H,T ** facets_base,const SIZE size_ground_H,const SIZE num_facets_base,const T D) {
-        int i,j;        
+        int i,j;
         for (i = 0; i < size_ground_H; ++i) {
             alloc(incompatibility_adjM[i],i,T);
-            for (j = 0; j < i; ++j) {                
+            for (j = 0; j < i; ++j) {
                 if (is_incompat(ground_H,i,j,facets_base,num_facets_base,D)) incompatibility_adjM[i][j] = 1;
                 else incompatibility_adjM[i][j] = 0;
-                //printf("%d",incompatibility_adjM[i][j]);
+                //fprintf(stderr, "%d",incompatibility_adjM[i][j]);
             }
-            //printf("\n");
+            //fprintf(stderr, "\n");
         }
     }
 }

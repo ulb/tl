@@ -15,12 +15,12 @@ namespace base {
             linalg::my_matrix_prod(Minv,base_V[i],base_H[i],D,D);
             if (verbose != 0) {
                 // Print point
-                printf("[");
+                fprintf(stderr,"[");
                 for (j = 0; j < D; ++j) {
-                    printf("%d",base_H[i][j]);
-                    if (j != D-1) printf(",");
+                    fprintf(stderr,"%d",base_H[i][j]);
+                    if (j != D-1) fprintf(stderr,",");
                 }
-                printf("] ");//
+                fprintf(stderr,"] ");//
             }
         }
 	}

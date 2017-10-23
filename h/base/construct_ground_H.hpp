@@ -29,22 +29,22 @@ namespace base {
 	void construct_ground_H(T ** ground_H,SIZE & size_ground_H,T ** ground_V,const SIZE size_ground_V,T ** facets_base,const SIZE num_facets_base,T ** Minv,const T D,const T verbose) {
         int i,j;
         size_ground_H = 0;
-        
+
         for (i = 0; i < size_ground_V; ++i) {
             T * point;
             alloc(point,D,T);
             alloc(ground_H[i],D,T);
             linalg::my_matrix_prod(Minv,ground_V[i],point,D,D);
-            
+
             if (accept(facets_base,num_facets_base,point,D)) {
                 if (verbose != 0) {
                     // Print
-                    printf("[");
+                    fprintf(stderr, "[");
                     for (j = 0; j < D; ++j) {
-                        printf("%d",point[j]);
-                        if (j != D-1) printf(",");
+                        fprintf(stderr, "%d",point[j]);
+                        if (j != D-1) fprintf(stderr,",");
                     }
-                    printf("] ");//
+                    fprintf(stderr, "] ");//
                 }
                 std::memcpy(ground_H[size_ground_H],point,D * sizeof(int));
                 size_ground_H++;

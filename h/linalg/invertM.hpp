@@ -11,7 +11,7 @@ namespace linalg {
 	template <typename T>
 	void invertM(T ** M, T ** Minv, const T D, const T verbose) {
 	    int i,j,k;
-	    
+
 	    T ** W;
 	    alloc(W,D,T*);
 	    for (i = 0; i < D; ++i) {
@@ -39,14 +39,14 @@ namespace linalg {
 	    free(W);
 
         if (verbose == 2) {
-            printf("M_d^{-1}(0) = \n");
+            fprintf(stderr,"M_d^{-1}(0) = \n");
             for (i = 0; i < D; ++i) {
-                printf("[");
+                fprintf(stderr,"[");
                 for (j = 0; j < D; ++j) {
-                    printf("%d", Minv[i][j]);
-                    if (j != D-1) printf(" ");
+                    fprintf(stderr,"%d", Minv[i][j]);
+                    if (j != D-1) fprintf(stderr," ");
                 }
-                printf("]\n");
+                fprintf(stderr,"]\n");
             }
         }
 	}

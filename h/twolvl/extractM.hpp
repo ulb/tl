@@ -16,14 +16,14 @@ namespace twolvl {
 	    }
 
         if (verbose == 2) {
-            printf("M_d(0) = \n");
+            fprintf(stderr,"M_d(0) = \n");
             for (i = 0; i < D; ++i) {
-                printf("[");
+                fprintf(stderr,"[");
                 for (j = 0; j < D; ++j) {
-                    printf("%d", M[i][j]);
-                    if (j != D-1) printf(" ");
+                    fprintf(stderr,"%d", M[i][j]);
+                    if (j != D-1) fprintf(stderr," ");
                 }
-                printf("]\n");
+                fprintf(stderr,"]\n");
             }
         }
 	}

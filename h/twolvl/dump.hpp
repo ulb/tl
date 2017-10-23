@@ -5,24 +5,43 @@
 
 namespace twolvl {
 
-	template <typename T>
-	bool dump(const T D, const T rows, const T cols, T** matrix) {
+	template <typename O, typename A>
+	void dump(O& ostream, A& atom) {
 
-		std::cout << D << std::endl ;
-		std::cout << rows << std::endl ;
-		std::cout << cols << std::endl ;
+		auto& dimension = atom.dimension;
+		auto& rows = atom.rows;
+		auto& cols = atom.columns;
+		auto pt = atom.vector;
 
-		for (size_t i = 0; i < rows; ++i){
+		ostream << dimension << ' ' ;
+		ostream << rows << ' ' ;
+		ostream << cols << ' ' ;
 
-			for ( size_t j = 0 ;;) { // assuming cols > 0
-				std::cout << matrix[i][j] ;
-				if ( ++j == cols ) break ;
-				else std::cout << ' ' ;
+		size_t items = rows * cols ;
+
+		// assumes items > 0
+		while ( --items > 0 ) ostream << *(pt++) << ' ' ;
+		ostream << *(pt++) << std::endl ;
+
+	}
+
+	template <typename O, typename T>
+	void dump(O& ostream, const T dimension, const T rows, const T cols, T** matrix) {
+
+		ostream << dimension << ' ' ;
+		ostream << rows << ' ' ;
+		ostream << cols << ' ' ;
+
+		// assumes rows * cols > 0
+		for ( T i = 0 ; i < rows - 1 ; ++i ) {
+			for ( T j = 0 ; j < cols ; ++j) {
+				ostream << matrix[i][j] << ' ' ;
 			}
-
-			std::cout << std::endl ;
-
 		}
+
+		for ( T j = 0 ; j < cols - 1 ; ++j) ostream << matrix[rows-1][j] << ' ' ;
+
+		ostream << matrix[rows-1][cols-1] << std::endl ;
 
 	}
 

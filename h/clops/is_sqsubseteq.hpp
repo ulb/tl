@@ -1,7 +1,8 @@
 #ifndef H_CLOPS_IS_SQSUBSETEQ
 #define H_CLOPS_IS_SQSUBSETEQ
 
-#include "is_subseteq.hpp"
+#include "array/is_equal.hpp"
+#include "clops/is_subseteq.hpp"
 
 namespace clops {
 	template <typename T,typename SIZE>

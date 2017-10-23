@@ -1,7 +1,15 @@
+# New version
 
 - to ATOMIZE the atoms
 
-	python3 atomize.py {2,3,4,5,6}.txt
+	python3 atomize.py {2,3,4,5,6}d.txt
+
+- 6-dimensional popcorn machine!
+
+	cat atoms/5/all | time ./run/inflate | ./run/dedup | ./run/sift atoms/5/all | wc -l
+
+
+# Old version
 
 - install nauty, available at http://pallini.di.uniroma1.it/#howtogetit 
 

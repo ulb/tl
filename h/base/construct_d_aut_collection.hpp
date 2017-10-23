@@ -17,19 +17,19 @@ namespace base {
         m = SETWORDSNEEDED(n);
         std::vector< std::vector<T> > automorphism_base;
         num_autom_base = 0;
-        
+
         autom::construct_automorphism_base(S,num_rows_S,num_cols_S,n,m,automorphism_base,num_autom_base);
 
         alloc(d_aut_collection,num_autom_base,T *);
-        
-        //printf("\n");
+
+        //fprintf(stderr,"\n");
         for (i = 0; i < num_autom_base; ++i) {
             alloc(d_aut_collection[i],D,T);
             for  (j = num_rows_S; j < num_rows_S + D; ++j) {
                 d_aut_collection[i][j - num_rows_S] = automorphism_base[i][j] - num_rows_S;
-                //printf("%d",d_aut_collection[i][j- num_rows_S]);
+                //fprintf(stderr,"%d",d_aut_collection[i][j- num_rows_S]);
             }
-            //printf("\n");
+            //fprintf(stderr, "\n");
         }
         automorphism_base.clear();
 	}

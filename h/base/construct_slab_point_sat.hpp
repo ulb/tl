@@ -18,9 +18,9 @@ namespace base {
                 linalg::my_inner_prod(ground_H[i],slabs[j],s,D);
                 if ((s == 0) || (s == 1)) slab_points_sat[i][j] = 1;
                 else slab_points_sat[i][j] = 0;
-                if (verbose == 2) printf("%d",slab_points_sat[i][j]);
+                if (verbose == 2) fprintf(stderr, "%d",slab_points_sat[i][j]);
             }
-            if (verbose == 2) printf(" ");
+            if (verbose == 2) fprintf(stderr," ");
         }
     }
 }

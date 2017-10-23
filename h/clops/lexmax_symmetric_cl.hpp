@@ -3,22 +3,23 @@
 
 #include <cstring> // std::equal
 
-#include "../alloc.hpp"
-#include "../array/is_equal.hpp"
-#include "../array/is_all_ones.hpp"
-#include "../array/is_all_zeros.hpp"
-#include "../array/index_in_collection.hpp"
-#include "get_ones.hpp"
+#include "alloc.hpp"
+#include "array/is_equal.hpp"
+#include "array/is_all_ones.hpp"
+#include "array/is_all_zeros.hpp"
+#include "array/index_in_collection.hpp"
+#include "clops/get_ones.hpp"
+#include "clops/is_preccurlyeq.hpp"
 
 namespace clops {
 	template <typename T,typename SIZE>
 	bool is_outside_X(T ** orbits_i,T ** ground_set_H,T * A_sym, T * A_indices,const SIZE num_A_indices,const SIZE length_A,const T D) {
-        std::memset(A_sym+1,0,(length_A-1) * sizeof(T));
-        for (SIZE j = 1; j < num_A_indices; ++j) {
-            if (orbits_i[A_indices[j]][0] == 0) return true;
-            else A_sym[array::index_in_collection(ground_set_H,orbits_i[A_indices[j]],length_A,D)] = 1;
-        }
-        return false;
+		std::memset(A_sym+1,0,(length_A-1) * sizeof(T));
+		for (SIZE j = 1; j < num_A_indices; ++j) {
+		    if (orbits_i[A_indices[j]][0] == 0) return true;
+		    else A_sym[array::index_in_collection(ground_set_H,orbits_i[A_indices[j]],length_A,D)] = 1;
+		}
+		return false;
 	}
 
 	// compute the lexmax symmetric copy of a set A
@@ -27,11 +28,11 @@ namespace clops {
 	    SIZE i;
 
 	    std::memcpy(symcl,A,length_A * sizeof(T));
-	    
+
 	    if (!array::is_all_ones(A,length_A)) {
 	    	T * A_indices;
     		SIZE num_A_indices = clops::get_ones(A,length_A,A_indices);
-	        
+
 	        T * A_sym;
 	        alloc(A_sym,length_A,T);
 	        A_sym[0] = 1;

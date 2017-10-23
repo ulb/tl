@@ -9,20 +9,20 @@ namespace base {
 	template <typename T,typename SIZE>
 	void construct_orbits(T *** orbits,const SIZE num_autom_base,T ** base_H,T ** d_aut_collection,T ** ground_H,const SIZE size_ground_H,const T D) {
         SIZE i,j,k,h;
-        // printf("\n");
+        fprintf(stderr, "\n");
         alloc(orbits[0],size_ground_H,T*);
         for (j = 0; j < size_ground_H; ++j) {
             alloc(orbits[0][j],D,T);
             std::memcpy(orbits[0][j],ground_H[j],D * sizeof(T));
         }
-        
+
         bool found_first_non_zero,reject;
-        
+
         for (i = 1; i < num_autom_base; ++i) {
             alloc(orbits[i],size_ground_H,T*);
             alloc(orbits[i][0],D,T);
             std::memcpy(orbits[i][0],ground_H[0],D * sizeof(T));
-            
+
             for (j = 1; j < size_ground_H; ++j) {
                 alloc(orbits[i][j],D,T);
                 orbits[i][j][0] = 1;

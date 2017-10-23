@@ -15,18 +15,18 @@ namespace subcl {
 	    bool flag = false;
 	    bool is_contained,found,is_subset;
 
-	    /*printf("   (%d,%d)\n",num_rows_S_new,num_cols_S_new);
+	    /*fprintf(stderr,"   (%d,%d)\n",num_rows_S_new,num_cols_S_new);
 	    for (i = 0; i < num_rows_S_new; ++i){
-	        printf("   ");
+	        fprintf(stderr,"   ");
 	        for (j = 0; j < num_cols_S_new; ++j)
-	            printf("%d",S_new[i][j]);
-	        printf("\n");
+	            fprintf(stderr,"%d",S_new[i][j]);
+	        fprintf(stderr,"\n");
 	    }
-	    printf("\n");*/
+	    fprintf(stderr,"\n");*/
 
 	    for (i = 0; i < num_rows_S_new; ++i) {
 			SIZE * zeros_idx, * ones_idx;
-	        alloc(zeros_idx,num_cols_S_new,T); 
+	        alloc(zeros_idx,num_cols_S_new,T);
 	        alloc(ones_idx,num_cols_S_new,T);
 	        SIZE num_zeros, num_ones;
 	        num_zeros = 0;
@@ -67,9 +67,9 @@ namespace subcl {
 	                            char_F1[zeros_idx[h]] = 0;
 	                    }
 	                    free(translated_F1_point);
-	                    is_contained &= found;  
+	                    is_contained &= found;
 	                }
-	                
+
 	                if (is_contained) {
 	                    T * intersect_rows_containing_F1;
 	                    alloc(intersect_rows_containing_F1,num_cols_S_new,T);
@@ -90,7 +90,7 @@ namespace subcl {
 	                        }
 	                    }
 	                    flag = array::is_equal(intersect_rows_containing_F1,char_F1,num_cols_S_new);
-	                    free(intersect_rows_containing_F1);  
+	                    free(intersect_rows_containing_F1);
 	                }
 	                free(char_F1);
 	            }

@@ -20,10 +20,17 @@ endif
 OBJS = $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)
 HEADER_FILES = $(shell find $(HEADER_DIR) | grep '.hpp$$')
 
-all: 2level-enum
+RUNNABLES = $(patsubst %,run/%,inflate dedup sift)
 
-2level-enum: 2level-enum.cpp $(OBJS) $(HEADER_FILES)
-	$(CXX) $(CXXFLAGS) -g 2level-enum.cpp -o 2level-enum $(OBJS) -I$(NAUTYHOME) -I$(HEADER_DIR)
+all: prepare $(RUNNABLES)
+
+run/%: src/%.cpp $(OBJS) $(HEADER_FILES)
+	$(CXX) $(CXXFLAGS) -g $< -o $@ $(OBJS) -I$(NAUTYHOME) -I$(HEADER_DIR)
+
+prepare: run
+
+run:
+	mkdir -p run
 
 clean:
-	rm 2level-enum
+	rm -rf run
