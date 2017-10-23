@@ -52,7 +52,7 @@ namespace search {
 		/**
 		 * Returns true if the vector is in the trie, false otherwise.
 		 */
-		bool search(T * pt, T* const end){
+		bool search(T* pt, T* const end){
 			BTrieNode<B>* node(&this->root);
 			while ( true ) {
 

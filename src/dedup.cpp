@@ -17,7 +17,7 @@ int main () {
     //}
 
     std::vector<base::Atom<int>> polytopes;
-    search::BTrie<uint_fast8_t, 256> trie;
+    search::BTrie<uint_fast8_t, 4> trie;
     while ( true ) {
 
         if ( !twolvl::load(std::cin, polytopes) ) break ;

@@ -21,7 +21,6 @@ namespace base {
 	public:
 
 		typedef uint_fast8_t W;
-
 		const T dimension;
 		const T rows;
 		const T columns;
@@ -65,18 +64,32 @@ namespace base {
 			uint8_t* cg_pt = (uint8_t *) cg;
 			uint8_t* const cg_end = cg_pt + cg_bytes;
 
-			alloc(this->xpt, 3*t_bytes + cg_bytes, W);
-			this->xend = this->xpt + 3*t_bytes + cg_bytes;
+			const int xlength = 3*4*t_bytes + 4*cg_bytes;
+			alloc(this->xpt, xlength, W);
+			this->xend = this->xpt + xlength;
 
 			W* xpt(this->xpt);
 
-			while ( dimension_pt != dimension_end ) *(xpt++) = *(dimension_pt++);
+			while ( dimension_pt != dimension_end ) {
+				uint8_t v = *(dimension_pt++);
+				for (int i = 6 ; i >= 0 ; i -= 2) *(xpt++) = (v>>i) & 3;
+			}
 
-			while ( rows_pt != rows_end ) *(xpt++) = *(rows_pt++);
+			while ( rows_pt != rows_end ) {
+				uint8_t v = *(rows_pt++);
+				for (int i = 6 ; i >= 0 ; i -= 2) *(xpt++) = (v>>i) & 3;
+			}
 
-			while ( columns_pt != columns_end ) *(xpt++) = *(columns_pt++);
+			while ( columns_pt != columns_end ) {
+				uint8_t v = *(columns_pt++);
+				for (int i = 6 ; i >= 0 ; i -= 2) *(xpt++) = (v>>i) & 3;
+			}
 
-			while ( cg_pt != cg_end ) *(xpt++) = *(cg_pt++);
+
+			while ( cg_pt != cg_end ) {
+				uint8_t v = *(cg_pt++);
+				for (int i = 6 ; i >= 0 ; i -= 2) *(xpt++) = (v>>i) & 3;
+			}
 
 		}
 

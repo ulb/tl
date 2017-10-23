@@ -28,7 +28,7 @@ int main (int argc, const char* argv[]) {
     twolvl::loadall(kernel, facets);
     kernel.close();
     std::cerr << "Done. Loaded " << facets.size() << " facets." << std::endl;
-    search::BTrie<uint_fast8_t, 256> trie;
+    search::BTrie<uint_fast8_t, 4> trie;
     for (auto& facet : facets) {
         trie.insert(facet.xpt, facet.xend);
         facet.teardown();
