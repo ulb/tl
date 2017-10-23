@@ -1,7 +1,7 @@
 #ifndef H_TWOLVL_IS_LISTED
 #define H_TWOLVL_IS_LISTED
 
-#include "../array/is_equal.hpp"
+#include "array/is_equal.hpp"
 
 namespace twolvl {
 	// Should use MTF trie here MTF!!
