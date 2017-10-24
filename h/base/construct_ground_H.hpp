@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <cstring> // std::memcpy, std::memset, std::fill
-#include <algorithm> // std::sort
+// #include <algorithm> // std::sort
 #include <utility> // std::pair
 #include <vector> // std::vector
 
@@ -57,13 +57,16 @@ namespace base {
         pairs.reserve(length);
         for (int i = 0; i < length; ++i) pairs.emplace_back(list[i],i);
         compare_ground_pairs<std::pair<T*,T>> comp(D);
-        std::sort(pairs.begin(), pairs.end(), comp);
+        //std::sort(pairs.begin(), pairs.end(), comp);
         for (auto& pair: pairs) {
             *(index++) = pair.first;
             *(indices++) = pair.second;
         }
     }
 
+
+    // The V embedding of the ground set is constructed in lexicographic order.
+    // Thus, so is the H embedding of the ground set
     template <typename T,typename SIZE>
     bool accept(T ** facets_base,const SIZE num_facets_base,T * point,const T D) {
         int i,j;
