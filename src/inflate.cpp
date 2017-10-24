@@ -171,8 +171,8 @@ int main (int argc, const char* argv[]) {
             fprintf(stderr, "-> Size of the automorphism group of the base = %d\n",num_autom_base);
 
             fprintf(stderr, "Generating orbits of point of the ground set... ");
-            int *** orbits;
-            alloc(orbits,num_autom_base,int**);
+            int ** orbits;
+            alloc(orbits,num_autom_base,int*);
             base::construct_orbits(orbits,num_autom_base,base_H,d_aut_collection,ground_H,size_ground_H,D);
             fprintf(stderr, "OK\n");
 
@@ -225,7 +225,7 @@ int main (int argc, const char* argv[]) {
                     clops::inc(A,i,I,size_ground_H); // I = inc(A,i)
                     clops::discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
                     clops::incompatibility_cl(dchcl,inccl,incompatibility_adjM,size_ground_H);
-                    clops::lexmax_symmetric_cl(inccl,CI,ground_H,size_ground_H,orbits,num_autom_base,D);
+                    clops::lexmax_symmetric_cl(inccl,CI,size_ground_H,orbits,num_autom_base);
                     ++i;
                 } while (!clops::is_sqsubseteq(I,CI,size_ground_H));
                 std::memcpy(A,CI,size_ground_H * sizeof(int));
@@ -279,10 +279,7 @@ int main (int argc, const char* argv[]) {
             for (int i = 0; i < num_slabs; ++i) free(slabs[i]);
             free(slabs);
 
-            for (int i = 0; i < num_autom_base; ++i) {
-                for (int j = 0; j < size_ground_H; ++j) free(orbits[i][j]);
-                free(orbits[i]);
-            }
+            for (int i = 0; i < num_autom_base; ++i) free(orbits[i]);
             free(orbits);
 
             for (int i = 0; i < size_ground_V; ++i) free(ground_H[i]);
