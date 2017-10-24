@@ -13,27 +13,6 @@
 
 namespace base {
 
-    template<typename T>
-    class compare_ground_H {
-    private:
-        const int dimension;
-
-    public:
-
-        compare_ground_H (const int dimension):dimension(dimension) {}
-
-        bool operator() (T* a, T* b) {
-            const int dimension = this->dimension;
-            for (int i = 0; i < dimension; ++i) {
-                if (a[i] < b[i]) return true;
-                if (a[i] > b[i]) return false;
-            }
-            return false;
-        }
-
-    };
-
-
     // The V embedding of the ground set is constructed in lexicographic order.
     // Thus, so is the H embedding of the ground set
     template <typename T,typename SIZE>

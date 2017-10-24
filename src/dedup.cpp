@@ -1,11 +1,13 @@
 #include <iostream>
 #include <vector>
+#include <set>
+#include <utility>
 
 #include "twolvl/loadall.hpp"
 #include "twolvl/load.hpp"
 #include "twolvl/dump.hpp"
 #include "base/Atom.hpp"
-#include "search/BTrie.hpp"
+#include "array/LexicographicOrder.hpp"
 
 int main () {
 
@@ -17,19 +19,33 @@ int main () {
     //}
 
     std::vector<base::Atom<int>> polytopes;
-    search::BTrie<uint_fast8_t, 4> trie;
+    std::vector<base::Atom<int>> uniques;
+
+    array::LexicographicOrder<setword*> comp;
+    std::set<std::pair<setword*,setword*>,array::LexicographicOrder<setword*>> cgs(comp);
     while ( true ) {
 
         if ( !twolvl::load(std::cin, polytopes) ) break ;
 
         auto& polytope = polytopes[0]; // ugly we use a length-1 vector atm
 
-        if ( !trie.insert(polytope.xpt, polytope.xend) ) twolvl::dump(std::cout, polytope);
+        std::pair<setword*,setword*> pair(polytope.cg, polytope.cg_end);
+        if ( cgs.count(pair) == 0 ) {
+            twolvl::dump(std::cout, polytope);
+            uniques.push_back(polytope);
+            cgs.insert(pair);
+        }
 
-        polytope.teardown();
+        else {
+            polytope.teardown();
+        }
+
         polytopes.clear(); // ugly hack atm, we use a vector containing a single element
 
     }
+
+    for (auto& unique : uniques) unique.teardown();
+    uniques.clear(); // should only use the setword vector and throw away the rest
 
     return 0;
 

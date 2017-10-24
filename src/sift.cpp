@@ -1,13 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
+#include "nauty.h"
 #include "twolvl/loadall.hpp"
 #include "twolvl/load.hpp"
 #include "twolvl/dump.hpp"
 #include "base/Atom.hpp"
 #include "twolvl/istwolevelpolytope.hpp"
-#include "search/BTrie.hpp"
+#include "array/LexicographicOrder.hpp"
 
 int main (int argc, const char* argv[]) {
 
@@ -28,12 +30,12 @@ int main (int argc, const char* argv[]) {
     twolvl::loadall(kernel, facets);
     kernel.close();
     std::cerr << "Done. Loaded " << facets.size() << " facets." << std::endl;
-    search::BTrie<uint_fast8_t, 4> trie;
-    for (auto& facet : facets) {
-        trie.insert(facet.xpt, facet.xend);
-        facet.teardown();
-    }
-    facets.clear();
+
+    std::vector<std::pair<setword*,setword*>> cgs;
+    cgs.reserve(facets.size());
+    for (auto& facet : facets) cgs.emplace_back(facet.cg, facet.cg_end);
+    array::LexicographicOrder<setword*> comp;
+    std::sort(cgs.begin(), cgs.end(), comp);
 
     // sift through popcorn
     std::vector<base::Atom<int>> polytopes;
@@ -43,12 +45,16 @@ int main (int argc, const char* argv[]) {
 
         auto& polytope = polytopes[0]; // ugly we use a length-1 vector atm
 
-        if ( twolvl::istwolevelpolytope(trie, polytope) ) twolvl::dump(std::cout, polytope);
+        if ( twolvl::istwolevelpolytope(comp, cgs, polytope) ) twolvl::dump(std::cout, polytope);
 
         polytope.teardown();
         polytopes.clear(); // ugly hack atm, we use a vector containing a single element
 
     }
+
+    cgs.clear();
+    for (auto& facet : facets) facet.teardown();
+    facets.clear();
 
     return 0;
 

@@ -20,7 +20,6 @@ namespace base {
 
 	public:
 
-		typedef uint_fast8_t W;
 		const T dimension;
 		const T rows;
 		const T columns;
@@ -28,9 +27,7 @@ namespace base {
 		T* vector;
 		T** matrix;
 		setword* cg;
-		T cg_length;
-		W* xpt;
-		W* xend;
+		setword* cg_end;
 
 		Atom(const T dimension, const T rows, const T columns, T* data) :
 		dimension(dimension), rows(rows), columns(columns), data(data) {
@@ -49,52 +46,11 @@ namespace base {
 	        alloc(cg, m*n, setword);
 	        twolvl::canonicize(this->matrix, this->rows, this->columns, n, m, cg);
 			this->cg = cg;
-			this->cg_length = n*m;
-
-			// compute bit vector representation
-			int t_bytes = sizeof(T)/sizeof(uint8_t);
-			uint8_t* dimension_pt = (uint8_t*) &this->dimension;
-			uint8_t* rows_pt = (uint8_t*) &this->rows;
-			uint8_t* columns_pt = (uint8_t*) &this->columns;
-			uint8_t* const dimension_end = dimension_pt + t_bytes;
-			uint8_t* const rows_end = rows_pt + t_bytes;
-			uint8_t* const columns_end = columns_pt + t_bytes;
-
-			int cg_bytes = cg_length * (sizeof(setword)/sizeof(uint8_t));
-			uint8_t* cg_pt = (uint8_t *) cg;
-			uint8_t* const cg_end = cg_pt + cg_bytes;
-
-			const int xlength = 3*4*t_bytes + 4*cg_bytes;
-			alloc(this->xpt, xlength, W);
-			this->xend = this->xpt + xlength;
-
-			W* xpt(this->xpt);
-
-			while ( dimension_pt != dimension_end ) {
-				uint8_t v = *(dimension_pt++);
-				for (int i = 6 ; i >= 0 ; i -= 2) *(xpt++) = (v>>i) & 3;
-			}
-
-			while ( rows_pt != rows_end ) {
-				uint8_t v = *(rows_pt++);
-				for (int i = 6 ; i >= 0 ; i -= 2) *(xpt++) = (v>>i) & 3;
-			}
-
-			while ( columns_pt != columns_end ) {
-				uint8_t v = *(columns_pt++);
-				for (int i = 6 ; i >= 0 ; i -= 2) *(xpt++) = (v>>i) & 3;
-			}
-
-
-			while ( cg_pt != cg_end ) {
-				uint8_t v = *(cg_pt++);
-				for (int i = 6 ; i >= 0 ; i -= 2) *(xpt++) = (v>>i) & 3;
-			}
+			this->cg_end = cg + m*n;
 
 		}
 
 		void teardown ( ) {
-			free(this->xpt);
 			free(this->cg);
 			free(this->matrix);
 			free(this->data);

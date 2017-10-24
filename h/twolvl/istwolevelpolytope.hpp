@@ -1,6 +1,9 @@
 #ifndef H_TWOLVL_ISTWOLEVELPOLYTOPE
 #define H_TWOLVL_ISTWOLEVELPOLYTOPE
 
+#include <algorithm>
+#include <utility>
+#include "nauty.h"
 #include "alloc.hpp"
 #include "base/Atom.hpp"
 
@@ -26,8 +29,8 @@ namespace twolvl {
 
 	// Checks whether a given 0-1 matrix is the slack matrix of a D-dimensional 2-level polytope,
 	// by using the list of (D-1)-dimensional 2-level polytopes.
-	template <typename T, typename P>
-	bool istwolevelpolytope(T& trie, P& poly) {
+	template <typename C, typename A, typename P>
+	bool istwolevelpolytope(C& comp, A& cgs, P& poly) {
 		auto& S = poly.matrix;
 		auto& rows = poly.rows;
 		auto& cols = poly.columns;
@@ -96,8 +99,9 @@ namespace twolvl {
 	                *(fpt++) = S[rows_S_Fi[i][j]][zero_indices[i][k]];
 
 	        base::Atom<int> facet(fdimension,frows,fcolumns,fdata);
+			std::pair<setword*, setword*> pair(facet.cg, facet.cg_end);
 
-	        found = trie.search(facet.xpt, facet.xend);
+			found = std::binary_search(cgs.begin(), cgs.end(), pair, comp);
 
 	        facet.teardown();
 	    }
