@@ -159,14 +159,6 @@ int main (int argc, const char* argv[]) {
             base::construct_ground_H(ground_H,size_ground_H,ground_V,size_ground_V,facets_base,num_facets_base,Minv,D,verbose);
             fprintf(stderr, "OK\n");
 
-            fprintf(stderr, "Indexing H-embedding of the reduced ground set... ");
-            int** index_H;
-            int* indices_H;
-            alloc(index_H,size_ground_H,int*);
-            alloc(indices_H,size_ground_H,int);
-            base::index_ground_H(D, size_ground_H, ground_H, index_H, indices_H);
-            fprintf(stderr, "OK\n");
-
             // It is possible to free the base_V and ground_V, we will use the H-embedding
             for (int i = 0; i < size_ground_V; ++i) free(ground_V[i]);
             free(ground_V);
@@ -233,7 +225,7 @@ int main (int argc, const char* argv[]) {
                     clops::inc(A,i,I,size_ground_H); // I = inc(A,i)
                     clops::discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
                     clops::incompatibility_cl(dchcl,inccl,incompatibility_adjM,size_ground_H);
-                    clops::lexmax_symmetric_cl(inccl,CI,index_H,indices_H,size_ground_H,orbits,num_autom_base,D);
+                    clops::lexmax_symmetric_cl(inccl,CI,ground_H,size_ground_H,orbits,num_autom_base,D);
                     ++i;
                 } while (!clops::is_sqsubseteq(I,CI,size_ground_H));
                 std::memcpy(A,CI,size_ground_H * sizeof(int));
@@ -293,8 +285,6 @@ int main (int argc, const char* argv[]) {
             }
             free(orbits);
 
-            free(index_H);
-            free(indices_H);
             for (int i = 0; i < size_ground_V; ++i) free(ground_H[i]);
             free(ground_H);
 

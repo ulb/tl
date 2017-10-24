@@ -23,7 +23,8 @@ namespace base {
         compare_ground_H (const int dimension):dimension(dimension) {}
 
         bool operator() (T* a, T* b) {
-            for (int i = 0; i < this->dimension; ++i) {
+            const int dimension = this->dimension;
+            for (int i = 0; i < dimension; ++i) {
                 if (a[i] < b[i]) return true;
                 if (a[i] > b[i]) return false;
             }
@@ -31,38 +32,6 @@ namespace base {
         }
 
     };
-
-    template<typename P>
-    class compare_ground_pairs {
-    private:
-        const int dimension;
-
-    public:
-
-        compare_ground_pairs (const int dimension):dimension(dimension) {}
-
-        bool operator() (P& a, P& b) {
-            for (int i = 0; i < this->dimension; ++i) {
-                if (a.first[i] < b.first[i]) return true;
-                if (a.first[i] > b.first[i]) return false;
-            }
-            return a.second < b.second;
-        }
-
-    };
-
-    template<typename T>
-    void index_ground_H (int D, int length, T** list, T** index, T* indices) {
-        std::vector<std::pair<T*,T>> pairs;
-        pairs.reserve(length);
-        for (int i = 0; i < length; ++i) pairs.emplace_back(list[i],i);
-        compare_ground_pairs<std::pair<T*,T>> comp(D);
-        //std::sort(pairs.begin(), pairs.end(), comp);
-        for (auto& pair: pairs) {
-            *(index++) = pair.first;
-            *(indices++) = pair.second;
-        }
-    }
 
 
     // The V embedding of the ground set is constructed in lexicographic order.
