@@ -6,11 +6,11 @@ HEADER_DIR = h
 
 NAUTYHOME = /Applications/pynauty-0.6.0/nauty26r7
 ifeq ($(dude),omar)
-	NAUTYHOME = $(HOME)/.opt/nauty26r10
+	NAUTYHOME = $(HOME)/.opt/nauty
 endif
 
 ifeq ($(use),gcc)
-	CXX = g++-7
+	CXX = g++
 	CXXFLAGS = -O3
 else
 	CXX = clang++
