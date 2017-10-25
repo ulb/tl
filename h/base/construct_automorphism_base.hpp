@@ -1,10 +1,10 @@
-#ifndef H_AUTOM_CONSTRUCT_AUTOMORPHISM_BASE
-#define H_AUTOM_CONSTRUCT_AUTOMORPHISM_BASE
+#ifndef H_BASE_CONSTRUCT_AUTOMORPHISM_BASE
+#define H_BASE_CONSTRUCT_AUTOMORPHISM_BASE
 
-#include <nauty.h>
-#include <naugroup.h>
+#include "nauty.h"
+#include "naugroup.h"
 
-namespace autom {
+namespace base {
 	DYNALLSTAT(int,allp,allp_sz);
 	DYNALLSTAT(int,id,id_sz);
 
@@ -140,4 +140,4 @@ namespace autom {
 	}
 }
 
-#endif // H_AUTOM_CONSTRUCT_AUTOMORPHISM_BASE
+#endif // H_BASE_CONSTRUCT_AUTOMORPHISM_BASE

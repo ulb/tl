@@ -5,8 +5,8 @@
 #include "nauty.h"
 #include <vector> // std::memcpy, std::memset, std::fill
 
-#include "../alloc.hpp"
-#include "../autom/construct_automorphism_base.hpp"
+#include "alloc.hpp"
+#include "base/construct_automorphism_base.hpp"
 
 namespace base {
 	template <typename T,typename SIZE>
@@ -18,7 +18,7 @@ namespace base {
         std::vector< std::vector<T> > automorphism_base;
         num_autom_base = 0;
 
-        autom::construct_automorphism_base(S,num_rows_S,num_cols_S,n,m,automorphism_base,num_autom_base);
+        base::construct_automorphism_base(S,num_rows_S,num_cols_S,n,m,automorphism_base,num_autom_base);
 
         alloc(d_aut_collection,num_autom_base,T *);
 
