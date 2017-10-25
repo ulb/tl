@@ -5,13 +5,13 @@
 
 namespace tl {
 
-	template <typename O, typename A>
-	void dump(O& ostream, A& atom) {
+	template <typename O, typename P>
+	void dump(O& ostream, P& polytope) {
 
-		auto& dimension = atom.dimension;
-		auto& rows = atom.rows;
-		auto& cols = atom.columns;
-		auto pt = atom.vector;
+		auto& dimension = polytope.dimension;
+		auto& rows = polytope.rows;
+		auto& cols = polytope.columns;
+		auto pt = polytope.vector;
 
 		ostream << dimension << ' ' ;
 		ostream << rows << ' ' ;
