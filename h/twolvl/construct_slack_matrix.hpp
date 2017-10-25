@@ -77,7 +77,7 @@ namespace twolvl {
 	    free(temp_row);
 	    	    
 	    num_rows_S_new = 0;
-	    alloc(S_new,2*num_B_indices,T *);
+	    alloc(S_new,num_all_rows,T *);
 	    // check maximality of rows
 	    for (i = 0; i < num_all_rows; i++) {
 	        if (is_maximal(all_rows,num_all_rows,num_cols_S_new,i)) {
