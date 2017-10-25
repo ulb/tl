@@ -4,9 +4,10 @@
 namespace linalg {
 	// <x,y> = out
 	template <typename T,typename SIZE>
-	void my_inner_prod(T * x, T * y, T & out, SIZE length) {
-	    out = 0;
-	    for (int i = 0; i < length; ++i) out += x[i]*y[i];
+	T my_inner_prod(T * x, T * y, SIZE length) {
+	    T out = 0;
+	    for (SIZE i = 0; i < length; ++i) out += x[i]*y[i];
+	    return out;
 	}
 }
 #endif // H_LINALG_MY_INNER_PROD

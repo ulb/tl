@@ -2,8 +2,8 @@
 #define H_CLOPS_DISCRETECONVEXHULL_CL
 
 #include <cstring> // std::fill
-#include "../alloc.hpp"
-#include "get_ones.hpp"
+#include "alloc.hpp"
+#include "array/get_ones.hpp"
 
 namespace clops {
 	template <typename T,typename SIZE>
@@ -42,7 +42,7 @@ namespace clops {
    		}
 	    free(A_indices);
 
-	    SIZE num_B_indices = clops::get_ones(B,length_B,B_indices);
+	    SIZE num_B_indices = array::get_ones(B,length_B,B_indices);
 		
 	    // Intersect all sets of points belonging to elements of B
 	    for (i = 0; i < length_A - num_A_indices; ++i) {

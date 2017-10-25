@@ -240,24 +240,17 @@ int main (int argc, const char* argv[]) {
                         fprintf(stderr, "\n%dk",N_closed_sets_current_base/1000);
                 }
 
-                int length_A = 0;
-                for (i = 0; i < size_ground_H; ++i) if (A[i] == 1) length_A++;
-
-                int length_B = 0;
-                for (i = 0; i < num_slabs; ++i) if (B[i] == 1) length_B++;
-
                 // construct the slack matrix S with embedding transformation matrix in top left position
                 int ** S_new;
                 int num_rows_S_new, num_cols_S_new;
-                alloc(S_new,2*length_B,int*);
 
-                twolvl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,length_A,length_B,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+                twolvl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
 
                 if ( addnew::pass_test(S_new,num_rows_S_new,num_cols_S_new,num_cols_S) ) {
                     twolvl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
                 }
 
-                for (int i = 0; i < 2*length_B; ++i) free(S_new[i]);
+                for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
                 free(S_new);
 
             }

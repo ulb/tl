@@ -3,7 +3,7 @@
 
 #include "../alloc.hpp"
 
-namespace clops {
+namespace array {
 	template <typename T,typename SIZE>
 	SIZE get_ones(T * char_v,const SIZE length,T *& one_indices) {
 		alloc(one_indices,length,T);

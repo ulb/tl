@@ -3,15 +3,15 @@
 
 #include <cstring> // std::memcpy, std::memset, std::fill
 
-#include "../alloc.hpp"
-#include "../linalg/my_inner_prod.hpp"
+#include "alloc.hpp"
+#include "linalg/my_inner_prod.hpp"
 
 namespace base {
     template <typename T,typename SIZE>
     bool accept(T * normal_vector,T ** base_H,const SIZE num_cols_S,const T D) {
         T s;
-        for (int j = 0; j < num_cols_S; ++j) {
-            linalg::my_inner_prod(normal_vector,base_H[j],s,D);
+        for (SIZE j = 0; j < num_cols_S; ++j) {
+            s = linalg::my_inner_prod(normal_vector,base_H[j],D);
             if ((s != 0) && (s != 1)) return false;
         }
         return true;
@@ -19,7 +19,7 @@ namespace base {
 
 	template <typename T,typename SIZE>
 	void construct_slabs(T ** slabs,T & num_slabs,const SIZE num_cols_S,T ** base_H,const T D,const T verbose) {
-        int i,j;
+        SIZE i,j;
         T * count;
         alloc(count,D+1,T);
         // initialize count to e_1

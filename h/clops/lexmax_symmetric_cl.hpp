@@ -7,7 +7,7 @@
 #include "array/is_equal.hpp"
 #include "array/is_all_ones.hpp"
 #include "array/is_all_zeros.hpp"
-#include "clops/get_ones.hpp"
+#include "array/get_ones.hpp"
 #include "clops/is_preccurlyeq.hpp"
 
 namespace clops {
@@ -29,7 +29,7 @@ namespace clops {
 
 	    if (!array::is_all_ones(A,length_A)) {
 	    	T * A_indices;
-    		SIZE num_A_indices = clops::get_ones(A,length_A,A_indices);
+    		SIZE num_A_indices = array::get_ones(A,length_A,A_indices);
 
 	        T * A_sym;
 	        alloc(A_sym,length_A,T);
