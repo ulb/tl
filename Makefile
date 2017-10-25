@@ -4,10 +4,7 @@
 
 HEADER_DIR = h
 
-NAUTYHOME = $(HOME)/nauty26r10
-ifeq ($(dude),omar)
-	NAUTYHOME = $(HOME)/.opt/nauty
-endif
+NAUTYHOME = $(HOME)/.opt/nauty
 
 ifeq ($(use),gcc)
 	CXX = g++
