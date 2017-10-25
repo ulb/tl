@@ -48,8 +48,6 @@
 #include "simpl/slack_matrix_simplicial_2L.hpp"
 #include "simpl/push_simplicial_core.hpp"
 
-#include "addnew/pass_test.hpp"
-
 int main (int argc, const char* argv[]) {
 
     std::ios_base::sync_with_stdio(true);
@@ -247,14 +245,13 @@ int main (int argc, const char* argv[]) {
                 int ** S_new;
                 int num_rows_S_new, num_cols_S_new;
 
-                tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
 
-                if ( addnew::pass_test(S_new,num_rows_S_new,num_cols_S_new,num_cols_S) ) {
+                if ( base_is_lex_max ) {
                     tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
+                    for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
+                    free(S_new);
                 }
-
-                for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-                free(S_new);
 
             }
             fprintf(stderr, "\nOK\n");
