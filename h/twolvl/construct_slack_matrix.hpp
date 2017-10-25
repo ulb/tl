@@ -15,19 +15,20 @@ namespace twolvl {
 
     // check maximality of zero sets of rows
     template <typename T,typename SIZE>
-    bool is_maximal(T ** all_rows,const SIZE num_all_rows,const SIZE num_cols_S_new,const T i) {
-		SIZE j;
-		for (j = 0; j < i; ++j) if (is_subset(all_rows[i],all_rows[j],num_cols_S_new)) return false;
-        for (++j; j < num_all_rows; ++j) if (is_subset(all_rows[i],all_rows[j],num_cols_S_new)) return false;
+    bool is_maximal(T** rows, T** ith, T** end, const SIZE ncols) {
+        T* rowi = *ith;
+	while ( rows != ith ) if (is_subset(rowi,*(rows++),ncols)) return false;
+	++rows;
+	while ( rows != end ) if (is_subset(rowi,*(rows++),ncols)) return false;
         return true;
-	}
+    }
 
-	// test function
-	template <typename T,typename SIZE>
-	bool accept(T ** S_new,T ** S,const SIZE num_cols_S,const T i, const T n_row) {
-        for (SIZE j = 0; j < num_cols_S; ++j) if (S_new[i][j+1] != S[n_row][j]) return false;
+    // test function
+    template <typename T,typename SIZE>
+        bool accept(T* Sn, T* S,const SIZE d) {
+        for (SIZE j = 0; j < d; ++j) if (Sn[j] != S[j]) return false;
         return true;
-	}
+    }
 
 	// slack matrix construction
 	template <typename T,typename SIZE>
@@ -36,9 +37,9 @@ namespace twolvl {
 	    T ** all_rows;
 	    alloc(all_rows,2*num_slabs,T*);
 
-        T * A_indices, * B_indices;       
-        T num_A_indices = array::get_ones(A,size_ground_H,A_indices);
-        T num_B_indices = array::get_ones(B,num_slabs,B_indices);
+	    T * A_indices, * B_indices;
+	    T num_A_indices = array::get_ones(A,size_ground_H,A_indices);
+	    T num_B_indices = array::get_ones(B,num_slabs,B_indices);
 	    num_cols_S_new = num_cols_S + num_A_indices;
 
 	    T * temp_row;
@@ -61,7 +62,7 @@ namespace twolvl {
                 temp_row[num_cols_S+j] = s;
 				num_ones += s;
             }
-            
+
             if ((num_cols_S_new - num_ones) >= D) {
                 alloc(all_rows[num_all_rows],num_cols_S_new,T);
                 std::memcpy(all_rows[num_all_rows++],temp_row,num_cols_S_new * sizeof(T));
@@ -75,26 +76,26 @@ namespace twolvl {
 	    free(A_indices);
 	    free(B_indices);
 	    free(temp_row);
-	    	    
+
 	    num_rows_S_new = 0;
 	    alloc(S_new,num_all_rows,T *);
 	    // check maximality of rows
 	    for (i = 0; i < num_all_rows; i++) {
-	        if (is_maximal(all_rows,num_all_rows,num_cols_S_new,i)) {
-	        	alloc(S_new[num_rows_S_new],num_cols_S_new,T);
+	        if (is_maximal(all_rows, all_rows+i, all_rows+num_all_rows, num_cols_S_new)) {
+	            alloc(S_new[num_rows_S_new],num_cols_S_new,T);
 	            std::memcpy(S_new[num_rows_S_new],all_rows[i],num_cols_S_new * sizeof(T));
 	            num_rows_S_new++;
 	        }
 	    }
-	    
+
 	    for (i = 0; i < num_all_rows; ++i) free(all_rows[i]);
 	    free(all_rows);
-	    
+
 	    // rearranging rows of S_new
 	    T n_row = 0;
 	    alloc(temp_row,num_cols_S_new,T);
 	    for (i = n_row+1; (i < num_rows_S_new) && (n_row < D); ++i) {
-	        if (accept(S_new,S,num_cols_S,i,n_row)) {
+	        if (accept(S_new[i]+1,S[n_row],num_cols_S)) {
 	            std::memcpy(temp_row,S_new[i],num_cols_S_new * sizeof(T));
 	            std::memcpy(S_new[i],S_new[n_row+1],num_cols_S_new * sizeof(T));
 	            std::memcpy(S_new[n_row+1],temp_row,num_cols_S_new * sizeof(T));

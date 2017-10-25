@@ -10,20 +10,27 @@
 
 namespace twolvl {
 
-	template <typename T,typename SIZE>
-	bool is_subset(T ** S,T * zero_indices_i,const SIZE num_zero_indices_i,const T j,const T k) {
-	    for (SIZE h = 0; h < num_zero_indices_i; ++h)
-		if (S[j][zero_indices_i[h]] == 0 && S[k][zero_indices_i[h]] != 0) return false;
+	template <typename T>
+	bool is_subset(T* Sj, T* Sk, T* zeros,const T* const end) {
+
+		while ( zeros != end ) {
+			if (Sj[*zeros] == 0 && Sk[*zeros] != 0) return false;
+			++zeros;
+		}
+
 	    return true;
+
 	}
 
 	// the only rows in S_Fi are the one containing the maximal sets of zeros
 	template <typename T,typename SIZE>
-	bool is_maximal(T ** S,T * zero_indices_i,const SIZE num_zero_indices_i,const T i,const T j,const SIZE rows) {
+	bool is_maximal(T** S,T* zeros,const T* const end,const T i,const T j,const SIZE rows) {
+		T* Sj = S[j];
 	    for (SIZE k = 0; k < rows; ++k) {
-		// Check if the set of zeros of S[j][.] intersected with the one of S[i][.]
-		// is a subset of the one S[k][.] intersected with the one of S[i][.]
-		if ((k != j) && (k != i) && is_subset(S,zero_indices_i,num_zero_indices_i,j,k)) return false;
+			T* Sk = S[k];
+			// Check if the set of zeros of S[j][.] intersected with the one of S[i][.]
+			// is a subset of the one S[k][.] intersected with the one of S[i][.]
+			if ((k != j) && (k != i) && is_subset(Sj,Sk,zeros,end)) return false;
 	    }
 	    return true;
 	}
@@ -51,7 +58,7 @@ namespace twolvl {
 	    alloc(zero_indices,rows,int *);
 	    alloc(num_zero_indices,rows,int);
 	    for (i = 0; i < rows; ++i) num_zero_indices[i] = array::get_zeros(S[i],cols,zero_indices[i]);
-	    
+
 	    int** rows_S_Fi;
 	    int* num_rows_S_Fi;
 	    alloc(rows_S_Fi,rows,int*);
@@ -60,10 +67,12 @@ namespace twolvl {
 	    for (i = 0; i < rows; ++i) {
 	        alloc(rows_S_Fi[i],rows,int);
 	        l = 0; // current number of rows of S_Fi
+			int* zeros = zero_indices[i];
+			const int * const end = zeros + num_zero_indices[i];
 	        for (j = 0; j < i; ++j)
-	            if (is_maximal(S,zero_indices[i],num_zero_indices[i],i,j,rows)) rows_S_Fi[i][l++] = j;
+	            if (is_maximal(S,zeros,end,i,j,rows)) rows_S_Fi[i][l++] = j;
 	        for (++j; j < rows; ++j)
-	            if (is_maximal(S,zero_indices[i],num_zero_indices[i],i,j,rows)) rows_S_Fi[i][l++] = j;
+	            if (is_maximal(S,zeros,end,i,j,rows)) rows_S_Fi[i][l++] = j;
 	        num_rows_S_Fi[i] = l;
 	    }
 
