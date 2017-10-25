@@ -6,6 +6,7 @@
 #include "nauty.h"
 #include "alloc.hpp"
 #include "base/Atom.hpp"
+#include "array/get_zeros.hpp"
 
 namespace twolvl {
 
@@ -45,24 +46,12 @@ namespace twolvl {
 	        if (num_facets_contain < D) return false;
 	    }
 
-	    int** zero_indices;
-	    int* num_zero_indices;
-	    alloc(zero_indices,rows,int*);
+		int ** zero_indices;
+	    int * num_zero_indices;
+	    alloc(zero_indices,rows,int *);
 	    alloc(num_zero_indices,rows,int);
-
-	    for (i = 0; i < rows; ++i) {
-	        k = 0;
-	        alloc(zero_indices[i],cols,int);
-	        zero_indices[i][0] = 0;
-	        for (j = 0; j < cols; ++j){
-	            if (S[i][j] == 0) {
-	                zero_indices[i][k] = j;
-	                ++k;
-	            }
-	        }
-	        num_zero_indices[i] = k;
-	    }
-
+	    for (i = 0; i < rows; ++i) num_zero_indices[i] = array::get_zeros(S[i],cols,zero_indices[i]);
+	    
 	    int** rows_S_Fi;
 	    int* num_rows_S_Fi;
 	    alloc(rows_S_Fi,rows,int*);
