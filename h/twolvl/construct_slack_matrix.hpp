@@ -32,7 +32,7 @@ namespace twolvl {
 	// slack matrix construction
 	template <typename T,typename SIZE>
 	void construct_slack_matrix(T ** base_H,T ** ground_H,T * A,T * B,T ** slabs,T ** S,T **& S_new,const SIZE size_ground_H, const SIZE num_slabs,const SIZE num_cols_S, SIZE & num_rows_S_new, SIZE & num_cols_S_new,const T D) {
-	    SIZE i, j, k;
+	    SIZE i, j;
 	    T ** all_rows;
 	    alloc(all_rows,2*num_slabs,T*);
 
@@ -43,8 +43,7 @@ namespace twolvl {
 
 	    T * temp_row;
 	    alloc(temp_row,num_cols_S_new,T);
-	    
-	    k = 0;
+	    SIZE num_all_rows = 0;
 	    T num_ones, B_i,s;
 	    for (i = 0; i < num_B_indices; ++i) {
 	        num_ones = 0;
@@ -64,19 +63,18 @@ namespace twolvl {
             }
             
             if ((num_cols_S_new - num_ones) >= D) {
-                alloc(all_rows[k],num_cols_S_new,T);
-                std::memcpy(all_rows[k++],temp_row,num_cols_S_new * sizeof(T));
+                alloc(all_rows[num_all_rows],num_cols_S_new,T);
+                std::memcpy(all_rows[num_all_rows++],temp_row,num_cols_S_new * sizeof(T));
             }
             if (num_ones >= D) {
-                alloc(all_rows[k],num_cols_S_new,T);
-                for (j = 0; j < num_cols_S_new; ++j) all_rows[k][j] = 1-temp_row[j];
-                ++k;
+                alloc(all_rows[num_all_rows],num_cols_S_new,T);
+                for (j = 0; j < num_cols_S_new; ++j) all_rows[num_all_rows][j] = 1-temp_row[j];
+                ++num_all_rows;
             }
 	    }
 	    free(A_indices);
 	    free(B_indices);
 	    free(temp_row);
-	    SIZE num_all_rows = k;
 	    	    
 	    num_rows_S_new = 0;
 	    alloc(S_new,2*num_B_indices,T *);
