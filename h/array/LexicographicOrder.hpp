@@ -14,7 +14,7 @@ namespace array {
 
         FixedLexicographicOrder (const int dimension):dimension(dimension) {}
 
-        bool operator() (I a, I b) {
+        bool operator() (const I& a, const I& b) const {
             const int dimension = this->dimension;
             for (int i = 0; i < dimension; ++i) {
                 if (a[i] < b[i]) return true;
