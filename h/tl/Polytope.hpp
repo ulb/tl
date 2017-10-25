@@ -1,11 +1,11 @@
-#ifndef H_BASE_ATOM
-#define H_BASE_ATOM
+#ifndef H_TL_POLYTOPE
+#define H_TL_POLYTOPE
 
 #include "nauty.h"
 #include "alloc.hpp"
-#include "twolvl/canonicize.hpp"
+#include "tl/canonicize.hpp"
 
-namespace base {
+namespace tl {
 
 	/**
 	 * this->data is used for lexicographical ordering and is layed out as follows
@@ -16,7 +16,7 @@ namespace base {
 	 */
 
 	template <typename T>
-	class Atom {
+	class Polytope {
 
 	public:
 
@@ -29,7 +29,7 @@ namespace base {
 		setword* cg;
 		setword* cg_end;
 
-		Atom(const T dimension, const T rows, const T columns, T* data) :
+		Polytope(const T dimension, const T rows, const T columns, T* data) :
 		dimension(dimension), rows(rows), columns(columns), data(data) {
 
 			// proxy for incremented row-first iteration
@@ -44,7 +44,7 @@ namespace base {
 	        int m(SETWORDSNEEDED(n));
 			setword* cg;
 	        alloc(cg, m*n, setword);
-	        twolvl::canonicize(this->matrix, this->rows, this->columns, n, m, cg);
+	        tl::canonicize(this->matrix, this->rows, this->columns, n, m, cg);
 			this->cg = cg;
 			this->cg_end = cg + m*n;
 
@@ -60,4 +60,4 @@ namespace base {
 
 }
 
-#endif // H_BASE_ATOM
+#endif // H_TL_POLYTOPE

@@ -1,11 +1,11 @@
-#ifndef H_TWOLVL_CONSTRUCT_SLACK_MATRIX
-#define H_TWOLVL_CONSTRUCT_SLACK_MATRIX
+#ifndef H_TL_CONSTRUCT_SLACK_MATRIX
+#define H_TL_CONSTRUCT_SLACK_MATRIX
 
 #include "alloc.hpp"
 #include "array/get_ones.hpp"
 #include "linalg/my_inner_prod.hpp"
 
-namespace twolvl {
+namespace tl {
 	// Check if the indices of zeros in all_rows[i] is a subset of all_rows[j]s
     template <typename T,typename SIZE>
     bool is_subset(T * all_rows_i,T * all_rows_j,const SIZE num_cols_S_new) {
@@ -106,4 +106,4 @@ namespace twolvl {
 	}
 }
 
-#endif // H_TWOLVL_CONSTRUCT_SLACK_MATRIX
+#endif // H_TL_CONSTRUCT_SLACK_MATRIX

@@ -1,7 +1,7 @@
-#ifndef H_TWOLVL_CHECKSIMPLICIALCORE
-#define H_TWOLVL_CHECKSIMPLICIALCORE
+#ifndef H_TL_CHECKSIMPLICIALCORE
+#define H_TL_CHECKSIMPLICIALCORE
 
-namespace twolvl {
+namespace tl {
 	template <typename T>
 	bool checksimplicialcore(T** S, const T D) {
 	    for (T i = 0; i < D; ++i) {
@@ -12,4 +12,4 @@ namespace twolvl {
 	}
 }
 
-#endif // H_TWOLVL_CHECKSIMPLICIALCORE
+#endif // H_TL_CHECKSIMPLICIALCORE

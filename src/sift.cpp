@@ -4,11 +4,11 @@
 #include <algorithm>
 
 #include "nauty.h"
-#include "twolvl/loadall.hpp"
-#include "twolvl/load.hpp"
-#include "twolvl/dump.hpp"
-#include "base/Atom.hpp"
-#include "twolvl/istwolevelpolytope.hpp"
+#include "tl/loadall.hpp"
+#include "tl/load.hpp"
+#include "tl/dump.hpp"
+#include "tl/Polytope.hpp"
+#include "tl/istwolevelpolytope.hpp"
 #include "array/LexicographicOrder.hpp"
 
 int main (int argc, const char* argv[]) {
@@ -25,9 +25,9 @@ int main (int argc, const char* argv[]) {
 
     // read kernel file
     std::cerr << "Reading kernel file..." << std::endl;
-    std::vector<base::Atom<int>> facets;
+    std::vector<tl::Polytope<int>> facets;
     std::ifstream kernel(kernel_filename, std::ifstream::in);
-    twolvl::loadall(kernel, facets);
+    tl::loadall(kernel, facets);
     kernel.close();
     std::cerr << "Done. Loaded " << facets.size() << " facets." << std::endl;
 
@@ -38,14 +38,14 @@ int main (int argc, const char* argv[]) {
     std::sort(cgs.begin(), cgs.end(), comp);
 
     // sift through popcorn
-    std::vector<base::Atom<int>> polytopes;
+    std::vector<tl::Polytope<int>> polytopes;
     while ( true ) {
 
-        if ( !twolvl::load(std::cin, polytopes) ) break ;
+        if ( !tl::load(std::cin, polytopes) ) break ;
 
         auto& polytope = polytopes[0]; // ugly we use a length-1 vector atm
 
-        if ( twolvl::istwolevelpolytope(comp, cgs, polytope) ) twolvl::dump(std::cout, polytope);
+        if ( tl::istwolevelpolytope(comp, cgs, polytope) ) tl::dump(std::cout, polytope);
 
         polytope.teardown();
         polytopes.clear(); // ugly hack atm, we use a vector containing a single element

@@ -1,9 +1,9 @@
-#ifndef H_TWOLVL_IS_LISTED
-#define H_TWOLVL_IS_LISTED
+#ifndef H_TL_IS_LISTED
+#define H_TL_IS_LISTED
 
 #include "array/is_equal.hpp"
 
-namespace twolvl {
+namespace tl {
 	// Should use MTF trie here MTF!!
 	template <typename A,typename NT_T, typename T,typename SIZE_TP>
 	bool is_listed(A& atoms, NT_T* S,const T rows, const T cols, const SIZE_TP length) {
@@ -17,4 +17,4 @@ namespace twolvl {
 
 }
 
-#endif // H_TWOLVL_IS_LISTED
+#endif // H_TL_IS_LISTED

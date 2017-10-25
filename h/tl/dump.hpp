@@ -1,9 +1,9 @@
-#ifndef H_TWOLVL_DUMP
-#define H_TWOLVL_DUMP
+#ifndef H_TL_DUMP
+#define H_TL_DUMP
 
 #include <iostream>
 
-namespace twolvl {
+namespace tl {
 
 	template <typename O, typename A>
 	void dump(O& ostream, A& atom) {
@@ -47,4 +47,4 @@ namespace twolvl {
 
 }
 
-#endif // H_TWOLVL_DUMP
+#endif // H_TL_DUMP

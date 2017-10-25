@@ -7,8 +7,8 @@
 #include <cstring> // std::equal, std::memcpy, std::memset, std::fill
 
 #include "../alloc.hpp"
-#include "../twolvl/canonicize.hpp"
-#include "../twolvl/dump.hpp"
+#include "../tl/canonicize.hpp"
+#include "../tl/dump.hpp"
 #include "../subcl/is_susp.hpp"
 #include "../subcl/is_polar.hpp"
 
@@ -24,17 +24,17 @@ namespace addnew {
 	    n = num_rows_S_new + num_cols_S_new;
 	    m = SETWORDSNEEDED(n);
 	    alloc(canonical_S_new,m*n,NT_T);
-	    twolvl::canonicize(S_new,num_rows_S_new,num_cols_S_new,n,m,canonical_S_new);
+	    tl::canonicize(S_new,num_rows_S_new,num_cols_S_new,n,m,canonical_S_new);
 
 	    // Browse through all nonincidence graphs that have the same hash to see if one of them
 	    // is isomorphic to the current nonincidence graph
-	    if (!twolvl::is_listed(LD,LD_hash,current_LD,canonical_S_new,hash_S_new,m*n)) {
+	    if (!tl::is_listed(LD,LD_hash,current_LD,canonical_S_new,hash_S_new,m*n)) {
 	        alloc(LD[current_LD],m*n,NT_T);
 	        std::memcpy(LD[current_LD],canonical_S_new,m*n * sizeof(NT_T));
 	        LD_hash[current_LD] = hash_S_new;
 	        current_LD++;
 
-			twolvl::dump(D,num_rows_S_new,num_cols_S_new,S_new);
+			tl::dump(D,num_rows_S_new,num_cols_S_new,S_new);
 
 	        // tests for subclasses of 2-level polytopes
 	        if (verbose != 0) {

@@ -19,13 +19,13 @@
 #include "nt/my_pow.hpp"
 #include "nt/factor.hpp"
 
-#include "twolvl/load.hpp"
-#include "twolvl/dump.hpp"
-#include "twolvl/extractM.hpp"
-#include "twolvl/checksimplicialcore.hpp"
-#include "twolvl/construct_slack_matrix.hpp"
+#include "tl/load.hpp"
+#include "tl/dump.hpp"
+#include "tl/extractM.hpp"
+#include "tl/checksimplicialcore.hpp"
+#include "tl/construct_slack_matrix.hpp"
 
-#include "base/Atom.hpp"
+#include "tl/Polytope.hpp"
 #include "base/construct_d_aut_collection.hpp"
 #include "base/construct_slab_point_sat.hpp"
 #include "base/construct_incompatibility_adjM.hpp"
@@ -62,10 +62,10 @@ int main (int argc, const char* argv[]) {
     int verbose = (argc == 2) ? atoi(argv[1]) : 0;
 
     // start the popcorn machine
-    std::vector<base::Atom<int>> facets;
+    std::vector<tl::Polytope<int>> facets;
     while ( true ) {
 
-        if ( !twolvl::load(std::cin, facets) ) break ;
+        if ( !tl::load(std::cin, facets) ) break ;
 
         auto& facet = facets[0]; // ugly we use a length-1 vector atm
 
@@ -86,7 +86,7 @@ int main (int argc, const char* argv[]) {
                 simpl::slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
                 simpl::push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,facet.matrix,D);
 
-                twolvl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
+                tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
 
                 for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
                 free(S_new);
@@ -100,7 +100,7 @@ int main (int argc, const char* argv[]) {
             int num_cols_S(facet.columns);
 
             fprintf(stderr, "Simplicial core? ");
-            if (twolvl::checksimplicialcore(facet.matrix,D)) fprintf(stderr, "OK\n");
+            if (tl::checksimplicialcore(facet.matrix,D)) fprintf(stderr, "OK\n");
             else {
                 fprintf(stderr, "Fail\n");
                 return 1;
@@ -110,7 +110,7 @@ int main (int argc, const char* argv[]) {
             int ** M, ** Minv;
             alloc(M,D,int*);
             for (int i = 0; i < D; ++i) alloc(M[i],D,int);
-            twolvl::extractM(facet.matrix,M,D,verbose);
+            tl::extractM(facet.matrix,M,D,verbose);
 
             alloc(Minv,D,int*);
             for (int i = 0; i < D; ++i) alloc(Minv[i],D,int);
@@ -247,10 +247,10 @@ int main (int argc, const char* argv[]) {
                 int ** S_new;
                 int num_rows_S_new, num_cols_S_new;
 
-                twolvl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+                tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
 
                 if ( addnew::pass_test(S_new,num_rows_S_new,num_cols_S_new,num_cols_S) ) {
-                    twolvl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
+                    tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
                 }
 
                 for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);

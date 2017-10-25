@@ -1,9 +1,9 @@
-#ifndef H_TWOLVL_CANONICIZE
-#define H_TWOLVL_CANONICIZE
+#ifndef H_TL_CANONICIZE
+#define H_TL_CANONICIZE
 
 #include <nauty.h>
 
-namespace twolvl {
+namespace tl {
 	// output the canonical form of a slack matrix
 	template <typename T,typename SIZE,typename SIZE_TP,typename NT_T>
 	void canonicize(T ** S, const SIZE num_rows, const SIZE num_cols, const SIZE_TP n, const SIZE_TP m, NT_T * cg_vec) {
@@ -66,4 +66,4 @@ namespace twolvl {
 	}
 }
 
-#endif // H_TWOLVL_CANONICIZE
+#endif // H_TL_CANONICIZE

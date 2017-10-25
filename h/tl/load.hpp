@@ -1,10 +1,10 @@
-#ifndef H_TWOLVL_LOAD
-#define H_TWOLVL_LOAD
+#ifndef H_TL_LOAD
+#define H_TL_LOAD
 
 #include <iostream>
 #include "alloc.hpp"
 
-namespace twolvl {
+namespace tl {
 
 	template <typename I, typename A>
 	bool load(I& istream, A& array) {
@@ -44,4 +44,4 @@ namespace twolvl {
 
 }
 
-#endif // H_TWOLVL_LOAD
+#endif // H_TL_LOAD

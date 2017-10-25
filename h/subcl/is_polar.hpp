@@ -3,8 +3,8 @@
 
 #include "../alloc.hpp"
 #include "../array/is_equal.hpp"
-#include "../twolvl/is_listed.hpp"
-#include "../twolvl/canonicize.hpp"
+#include "../tl/is_listed.hpp"
+#include "../tl/canonicize.hpp"
 
 namespace subcl {
 	// Test if the polar of the 2-level polytope having slack-matrix S_new is a still 2_level
@@ -22,7 +22,7 @@ namespace subcl {
 	    NT_T * canonical_S_T;
 
 	    alloc(canonical_S_T,m*n,setword);
-	    twolvl::canonicize(S_T,num_cols_S_new,num_rows_S_new,n,m,canonical_S_T);
+	    tl::canonicize(S_T,num_cols_S_new,num_rows_S_new,n,m,canonical_S_T);
 
 	    for (i = 0; i < num_cols_S_new; ++i) free(S_T[i]);
 	    free(S_T);
@@ -30,7 +30,7 @@ namespace subcl {
 	    if (hash_S_new == hash_S_T) {
 	        if (array::is_equal(canonical_S_T,canonical_S_new,m*n)) n_polar += 1; // self-polar
 	    }
-	    else if (twolvl::is_listed(LD,LD_hash,current_LD,canonical_S_T,hash_S_T,m*n))
+	    else if (tl::is_listed(LD,LD_hash,current_LD,canonical_S_T,hash_S_T,m*n))
 	        n_polar += 2;
 	}
 }

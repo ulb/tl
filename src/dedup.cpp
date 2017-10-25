@@ -3,10 +3,10 @@
 #include <set>
 #include <utility>
 
-#include "twolvl/loadall.hpp"
-#include "twolvl/load.hpp"
-#include "twolvl/dump.hpp"
-#include "base/Atom.hpp"
+#include "tl/loadall.hpp"
+#include "tl/load.hpp"
+#include "tl/dump.hpp"
+#include "tl/Polytope.hpp"
 #include "array/LexicographicOrder.hpp"
 
 int main () {
@@ -18,20 +18,20 @@ int main () {
         //return 1;
     //}
 
-    std::vector<base::Atom<int>> polytopes;
-    std::vector<base::Atom<int>> uniques;
+    std::vector<tl::Polytope<int>> polytopes;
+    std::vector<tl::Polytope<int>> uniques;
 
     array::LexicographicOrder<setword*> comp;
     std::set<std::pair<setword*,setword*>,array::LexicographicOrder<setword*>> cgs(comp);
     while ( true ) {
 
-        if ( !twolvl::load(std::cin, polytopes) ) break ;
+        if ( !tl::load(std::cin, polytopes) ) break ;
 
         auto& polytope = polytopes[0]; // ugly we use a length-1 vector atm
 
         std::pair<setword*,setword*> pair(polytope.cg, polytope.cg_end);
         if ( cgs.count(pair) == 0 ) {
-            twolvl::dump(std::cout, polytope);
+            tl::dump(std::cout, polytope);
             uniques.push_back(polytope);
             cgs.insert(pair);
         }

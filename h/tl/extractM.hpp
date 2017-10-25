@@ -1,9 +1,9 @@
-#ifndef H_TWOLVL_EXTRACTM
-#define H_TWOLVL_EXTRACTM
+#ifndef H_TL_EXTRACTM
+#define H_TL_EXTRACTM
 
 #include <stdio.h>
 
-namespace twolvl {
+namespace tl {
     // extract the top (D-1)x(D-1) matrix M_{d-1} and extend it to M_d(0)
 	template <typename T>
 	void extractM(T ** S, T ** M, const T D, const T verbose) {
@@ -29,4 +29,4 @@ namespace twolvl {
 	}
 }
 
-#endif // H_TWOLVL_EXTRACTM
+#endif // H_TL_EXTRACTM

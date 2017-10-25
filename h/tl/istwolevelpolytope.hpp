@@ -1,14 +1,14 @@
-#ifndef H_TWOLVL_ISTWOLEVELPOLYTOPE
-#define H_TWOLVL_ISTWOLEVELPOLYTOPE
+#ifndef H_TL_ISTWOLEVELPOLYTOPE
+#define H_TL_ISTWOLEVELPOLYTOPE
 
 #include <algorithm>
 #include <utility>
 #include "nauty.h"
 #include "alloc.hpp"
-#include "base/Atom.hpp"
+#include "tl/Polytope.hpp"
 #include "array/get_zeros.hpp"
 
-namespace twolvl {
+namespace tl {
 
 	template <typename T>
 	bool is_subset(T* Sj, T* Sk, T* zeros,const T* const end) {
@@ -96,7 +96,7 @@ namespace twolvl {
 	            for (k = 0; k < fcolumns; ++k)
 	                *(fpt++) = S[rows_S_Fi[i][j]][zero_indices[i][k]];
 
-	        base::Atom<int> facet(fdimension,frows,fcolumns,fdata);
+	        tl::Polytope<int> facet(fdimension,frows,fcolumns,fdata);
 			std::pair<setword*, setword*> pair(facet.cg, facet.cg_end);
 
 			found = std::binary_search(cgs.begin(), cgs.end(), pair, comp);
@@ -116,4 +116,4 @@ namespace twolvl {
 	}
 }
 
-#endif // H_TWOLVL_ISTWOLEVELPOLYTOPE
+#endif // H_TL_ISTWOLEVELPOLYTOPE
