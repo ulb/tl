@@ -4,7 +4,7 @@
 
 HEADER_DIR = h
 
-NAUTYHOME = /Applications/pynauty-0.6.0/nauty26r7
+NAUTYHOME = $(HOME)/nauty26r10
 ifeq ($(dude),omar)
 	NAUTYHOME = $(HOME)/.opt/nauty
 endif
