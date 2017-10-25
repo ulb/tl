@@ -116,6 +116,9 @@ int main (int argc, const char* argv[]) {
             for (int i = 0; i < D; ++i) alloc(Minv[i],D,int);
             linalg::invertM(M,Minv,D,verbose);
 
+            for (int i = 0; i < D; ++i) free(M[i]);
+            free(M);
+
             fprintf(stderr, "Constructing H-embedding of facets of the base... ");
             int ** facets_base;
             alloc(facets_base,num_rows_S,int*);
@@ -287,13 +290,8 @@ int main (int argc, const char* argv[]) {
             for (int i = 0; i < num_rows_S; ++i) free(facets_base[i]);
             free(facets_base);
 
-            for (int i = 0; i < D; ++i) {
-                free(Minv[i]);
-                free(M[i]);
-            }
+            for (int i = 0; i < D; ++i) free(Minv[i]);
             free(Minv);
-            free(M);
-
         }
 
         facet.teardown();
