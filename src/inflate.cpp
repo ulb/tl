@@ -273,7 +273,7 @@ int main (int argc, const char* argv[]) {
             free(A);
 
             free(mem_incompatibility_adjM);
-            free(slab_points_sat);
+            free(mem_slab_points_sat);
             free(mem_slabs);
             free(mem_orbits);
             free(mem_ground_H);
