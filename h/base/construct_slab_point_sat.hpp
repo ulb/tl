@@ -13,7 +13,7 @@ namespace base {
         SIZE i,j;
         T s;
         for (i = 0; i < size_ground_H; ++i) {
-            alloc(slab_points_sat[i],num_slabs,T);
+            // alloc(slab_points_sat[i],num_slabs,T);
             for (j = 0; j < num_slabs; ++j) {
                 s = linalg::my_inner_prod(ground_H[i],slabs[j],D);
                 if ((s == 0) || (s == 1)) slab_points_sat[i][j] = 1;

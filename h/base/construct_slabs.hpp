@@ -40,7 +40,7 @@ namespace base {
                     for (j = 0; j < D; ++j) fprintf(stderr, "%d",normal_vector[j]);
                     fprintf(stderr, " ");
                 }
-                alloc(slabs[num_slabs],D,T);
+                // alloc(slabs[num_slabs],D,T);
                 std::memcpy(slabs[num_slabs],normal_vector,D * sizeof(T));
                 num_slabs++;
             }
