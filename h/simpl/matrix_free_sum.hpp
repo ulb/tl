@@ -1,18 +1,17 @@
 #ifndef H_SIMPL_MATRIX_FREE_SUM
 #define H_SIMPL_MATRIX_FREE_SUM
 
-#include "../alloc.hpp"
+#include "alloc_matrix.hpp"
 
 namespace simpl {
 	template <typename T,typename SIZE>
-	void matrix_free_sum(T ** P,T ** Q,const SIZE m1,const SIZE n1,const SIZE m2,const SIZE n2,T **& P_oplus_Q,SIZE & num_rows,SIZE & num_cols) {
-	    int i,j,k;
+	void matrix_free_sum(T ** P,T ** Q,const SIZE m1,const SIZE n1,const SIZE m2,const SIZE n2,void *& mem_P_oplus_Q,T **& P_oplus_Q,SIZE & num_rows,SIZE & num_cols) {
+	    SIZE i,j,k;
 	    int offset;
 	    num_rows = m1 * m2;
 	    num_cols = n1 + n2;
 	    
-	    alloc(P_oplus_Q,num_rows,T *);
-	    for (i = 0; i < num_rows; ++i) alloc(P_oplus_Q[i],num_cols,T);
+	    alloc_matrix(mem_P_oplus_Q,P_oplus_Q,num_rows,num_cols);
 	    
 	    offset = 0;
 	    for (i = 0; i < m2; ++i) {

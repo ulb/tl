@@ -80,20 +80,19 @@ int main (int argc, const char* argv[]) {
             std::cerr << "Simplicial facet:" << std::endl;
             std::cerr << "Constructing slack-matrices of simplicial 2-level polytopes... ";
             int K;
+            void * mem_S_new;
             int ** S_new;
             int num_rows_S_new,num_cols_S_new;
 
             for (auto N : nt::factor(D)) {
                 K = D/N;
-                simpl::slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
+                simpl::slack_matrix_simplicial_2L(K,N,mem_S_new,S_new,num_rows_S_new,num_cols_S_new);
                 simpl::push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,facet.matrix,D);
 
                 tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
 
-                for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-                free(S_new);
+                free(mem_S_new);
             }
-
         }
 
         // non simplicial case
