@@ -204,7 +204,6 @@ int main (int argc, const char* argv[]) {
             void * mem_incompatibility_adjM;
             int ** incompatibility_adjM;
             alloc_triangular_matrix(mem_incompatibility_adjM,incompatibility_adjM,size_ground_H);
-            // alloc(incompatibility_adjM,size_ground_H,int*);
             base::construct_incompatibility_adjM(incompatibility_adjM,ground_H,facets_base,size_ground_H,num_facets_base,D);
             // fprintf(stderr, "OK\n");
 

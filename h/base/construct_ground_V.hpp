@@ -13,7 +13,6 @@ namespace base {
         T * count;
         alloc(count,D,T);
         // initialize count to 0
-        //std::memset(count,0,D * sizeof(T));
         bool carry;
 
         ground_V[0][0] = 1;

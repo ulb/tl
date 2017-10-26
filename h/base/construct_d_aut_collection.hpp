@@ -21,15 +21,10 @@ namespace base {
 
         base::construct_automorphism_base(S,num_rows_S,num_cols_S,n,m,automorphism_base,num_autom_base);
 
-        // alloc(d_aut_collection,num_autom_base,T *);
         alloc_matrix(mem_d_aut_collection,d_aut_collection,num_autom_base,D);
 
-        for (i = 0; i < num_autom_base; ++i) {
-            // alloc(d_aut_collection[i],D,T);
-            for  (j = num_rows_S; j < num_rows_S + D; ++j) {
-                d_aut_collection[i][j - num_rows_S] = automorphism_base[i][j] - num_rows_S;
-            }
-        }
+        for (i = 0; i < num_autom_base; ++i)
+            for  (j = num_rows_S; j < num_rows_S + D; ++j) d_aut_collection[i][j - num_rows_S] = automorphism_base[i][j] - num_rows_S;
         automorphism_base.clear();
 	}
 }
