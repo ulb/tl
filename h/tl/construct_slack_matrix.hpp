@@ -2,7 +2,7 @@
 #define H_TL_CONSTRUCT_SLACK_MATRIX
 
 #include "alloc.hpp"
-#include "alloc_matrix.hpp"
+#include "mem/alloc_matrix.hpp"
 #include "array/get_ones.hpp"
 #include "linalg/my_inner_prod.hpp"
 
@@ -36,7 +36,6 @@ namespace tl {
 		free(A_indices);
 	    free(B_indices);
 	    free(temp_row);
-	    // for (SIZE i = 0; i < num_all_rows; ++i) free(all_rows[i]);
 	    free(mem_all_rows);
 	}
 
@@ -52,8 +51,7 @@ namespace tl {
 
 	    void * mem_all_rows;
 	    T ** all_rows;
-	    // alloc(all_rows,2*num_slabs,T*);
-	    alloc_matrix(mem_all_rows,all_rows,2*num_slabs,num_cols_S_new);
+	    mem::alloc_matrix(mem_all_rows,all_rows,2*num_slabs,num_cols_S_new);
 
 	    T * temp_row;
 	    alloc(temp_row,num_cols_S_new,T);
@@ -88,7 +86,6 @@ namespace tl {
             		free_all(A_indices,B_indices,temp_row,all_rows);
             		return false;
             	}
-                // alloc(all_rows[num_all_rows],num_cols_S_new,T);
                 std::memcpy(all_rows[num_all_rows],temp_row,num_cols_S_new * sizeof(T));
                 ++num_all_rows;
             }
@@ -97,17 +94,15 @@ namespace tl {
             		free_all(A_indices,B_indices,temp_row,all_rows);
             		return false;
             	}
-                // alloc(all_rows[num_all_rows],num_cols_S_new,T);
                 for (j = 0; j < num_cols_S_new; ++j) all_rows[num_all_rows][j] = 1-temp_row[j];
                 ++num_all_rows;
             }
 	    }
 	    free(A_indices);
 	    free(B_indices);
-	    free(temp_row);
 
 	    num_rows_S_new = 0;
-	    alloc_matrix(mem_S_new,S_new,num_all_rows,num_cols_S_new);
+	    mem::alloc_matrix(mem_S_new,S_new,num_all_rows,num_cols_S_new);
 	    // alloc(S_new,num_all_rows,T *);
 	    // check maximality of rows
 	    for (i = 0; i < num_all_rows; i++) {
@@ -118,12 +113,10 @@ namespace tl {
 	        }
 	    }
 
-	    // for (i = 0; i < num_all_rows; ++i) free(all_rows[i]);
 	    free(mem_all_rows);
 
 	    // rearranging rows of S_new
 	    T n_row = 0;
-	    alloc(temp_row,num_cols_S_new,T);
 	    for (i = n_row+1; (i < num_rows_S_new) && (n_row < D); ++i) {
 	        if (accept(S_new[i]+1,S[n_row],num_cols_S)) {
 	            std::memcpy(temp_row,S_new[i],num_cols_S_new * sizeof(T));
