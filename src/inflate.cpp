@@ -179,7 +179,6 @@ int main (int argc, const char* argv[]) {
             void * mem_orbits;
             int ** orbits;
             alloc_matrix(mem_orbits,orbits,num_autom_base,size_ground_H);
-            // alloc(orbits,num_autom_base,int*);
             base::construct_orbits(orbits,num_autom_base,base_H,d_aut_collection,ground_H,size_ground_H,D);
             // fprintf(stderr, "OK\n");
 
@@ -188,7 +187,6 @@ int main (int argc, const char* argv[]) {
             void * mem_slabs;
             int ** slabs;
             alloc_matrix(mem_slabs,slabs,1 << D,D);
-            // alloc(slabs,1 << D,int *);
             int num_slabs;
             base::construct_slabs(slabs,num_slabs,num_cols_S,base_H,D,verbose);
             // fprintf(stderr, "OK\n");
@@ -198,7 +196,6 @@ int main (int argc, const char* argv[]) {
             void * mem_slab_points_sat;
             int ** slab_points_sat;
             alloc_matrix(mem_slab_points_sat,slab_points_sat,size_ground_H,num_slabs);
-            // alloc(slab_points_sat,size_ground_H,int*);
             base::construct_slab_point_sat(slab_points_sat,ground_H,slabs,size_ground_H,num_slabs,D,verbose);
             // fprintf(stderr, "OK\n");
 
@@ -262,7 +259,6 @@ int main (int argc, const char* argv[]) {
 
                 if ( base_is_lex_max ) {
                     tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
-                    // for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
                     free(mem_S_new);
                 }
 
@@ -276,31 +272,14 @@ int main (int argc, const char* argv[]) {
             free(B);
             free(A);
 
-            // for (int i = 0; i < size_ground_H; ++i) free(incompatibility_adjM[i]);
             free(mem_incompatibility_adjM);
-
-            // for (int i = 0; i < size_ground_H; ++i) free(slab_points_sat[i]);
             free(slab_points_sat);
-
-            // for (int i = 0; i < num_slabs; ++i) free(slabs[i]);
             free(mem_slabs);
-
-            // for (int i = 0; i < num_autom_base; ++i) free(orbits[i]);
             free(mem_orbits);
-
-            // for (int i = 0; i < size_ground_V; ++i) free(ground_H[i]);
             free(mem_ground_H);
-
-            // for (int i = 0; i < num_cols_S; ++i) free(base_H[i]);
             free(mem_base_H);
-
-            // for (int i = 0; i < num_autom_base; ++i) free(d_aut_collection[i]);
             free(mem_d_aut_collection);
-
-            // for (int i = 0; i < num_rows_S; ++i) free(facets_base[i]);
             free(mem_facets_base);
-
-            // for (int i = 0; i < D; ++i) free(Minv[i]);
             free(mem_Minv);
         }
 
