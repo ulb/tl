@@ -254,15 +254,16 @@ int main (int argc, const char* argv[]) {
                 }
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
+                void * mem_S_new;
                 int ** S_new;
                 int num_rows_S_new, num_cols_S_new;
 
-                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
 
                 if ( base_is_lex_max ) {
-                    tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
-                    for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-                    free(S_new);
+                    tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
+                    // for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
+                    free(mem_S_new);
                 }
 
             }
