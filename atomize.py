@@ -2,8 +2,6 @@
 
 import os
 import sys
-from hashlib import sha256
-from base64 import urlsafe_b64encode
 
 class Atom (object):
 
@@ -24,7 +22,6 @@ class Atom (object):
         self.rows = rows
         self.columns = columns
         self.matrix = matrix
-        self.hash = urlsafe_b64encode(sha256(self.data().encode('utf-8')).digest()).decode('utf-8')
 
     def data ( self , linesep = '' , colsep = '' , itemsep = ' ' ) :
 
@@ -54,25 +51,58 @@ if __name__ == '__main__':
 
         atoms = []
 
-        with open(filename) as fd:
+        i = 0
 
-            matrix = ()
+        outdir = 'atoms/{}'.format(dimension)
 
-            for line in fd.read().splitlines():
+        os.makedirs(outdir, exist_ok=True)
+
+        out = outdir + '/all'
+
+        with open(filename) as fd, open(out, 'w') as _all:
+
+            # matrix = ()
+
+            matrix = ''
+            columns = 0
+            rows = 0
+
+            for line in fd:
+
+                line = line.rstrip('\n')
 
                 if line == '-' :
-                    atoms.append( Atom(dimension, matrix) )
-                    matrix = ()
+
+                    data = '{d} {r} {c} {m}\n'.format(
+                        d=dimension,
+                        r=rows,
+                        c=columns,
+                        m=' '.join(matrix),
+                    )
+
+                    _all.write(data)
+
+                    matrix = ''
+                    rows = 0
+                    columns = 0
+
+                    i+=1
+                    if i % 1000 == 0 : print(i)
+
+                    # atom = Atom(dimension, matrix)
+                    # atom.dump(_all)
+                    # matrix = ()
+
                 else :
-                    matrix += ( tuple(map(int, line)) , )
 
-        os.makedirs('atoms/{}'.format(dimension), exist_ok=True)
+                    columns = len(line)
+                    rows += 1
+                    matrix += line
+                    # matrix += ( tuple(map(int, line)) , )
 
-        with open('atoms/{}/all'.format(dimension), 'w') as _all:
-            for atom in atoms:
-                atom.dump(_all)
+        print(i)
 
-        for i, atom in enumerate(atoms):
-            with open('atoms/{}/{}'.format(atom.dimension,i), 'w') as fd:
-                atom.dump(fd, linesep = '\n', itemsep = '\n' )
+        # for i, atom in enumerate(atoms):
+            # with open('atoms/{}/{}'.format(atom.dimension,i), 'w') as fd:
+                # atom.dump(fd, linesep = '\n', itemsep = '\n' )
 

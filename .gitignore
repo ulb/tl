@@ -1,8 +1,4 @@
 run
 atoms
 2level-enum
-2d.txt
-3d.txt
-4d.txt
-5d.txt
-6d.txt
+*d.txt
