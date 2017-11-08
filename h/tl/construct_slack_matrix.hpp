@@ -2,6 +2,7 @@
 #define H_TL_CONSTRUCT_SLACK_MATRIX
 
 #include "alloc.hpp"
+#include "mem/alloc_matrix.hpp"
 #include "array/get_ones.hpp"
 #include "linalg/my_inner_prod.hpp"
 
@@ -30,26 +31,27 @@ namespace tl {
         return true;
     }
 
-    template <typename T,typename SIZE>
-	void free_all(T * A_indices,T * B_indices,T * temp_row,T ** all_rows, const SIZE num_all_rows) {
+    template <typename T>//,typename SIZE>
+	void free_all(T * A_indices,T * B_indices,T * temp_row,void * mem_all_rows) {//, const SIZE num_all_rows) {
 		free(A_indices);
 	    free(B_indices);
 	    free(temp_row);
-	    for (SIZE i = 0; i < num_all_rows; ++i) free(all_rows[i]);
-	    free(all_rows);
+	    free(mem_all_rows);
 	}
 
 	// slack matrix construction
 	template <typename T,typename SIZE>
-	bool construct_slack_matrix(T ** base_H,T ** ground_H,T * A,T * B,T ** slabs,T ** S,T **& S_new,const SIZE size_ground_H, const SIZE num_slabs,const SIZE num_cols_S, SIZE & num_rows_S_new, SIZE & num_cols_S_new,const T D) {
+	bool construct_slack_matrix(T ** base_H,T ** ground_H,T * A,T * B,T ** slabs,T ** S,void *& mem_S_new,T **& S_new,const SIZE size_ground_H, const SIZE num_slabs,const SIZE num_cols_S, SIZE & num_rows_S_new, SIZE & num_cols_S_new,const T D) {
 	    SIZE i, j;
-	    T ** all_rows;
-	    alloc(all_rows,2*num_slabs,T*);
 
 	    T * A_indices, * B_indices;
 	    T num_A_indices = array::get_ones(A,size_ground_H,A_indices);
 	    T num_B_indices = array::get_ones(B,num_slabs,B_indices);
 	    num_cols_S_new = num_cols_S + num_A_indices;
+
+	    void * mem_all_rows;
+	    T ** all_rows;
+	    mem::alloc_matrix(mem_all_rows,all_rows,2*num_slabs,num_cols_S_new);
 
 	    T * temp_row;
 	    alloc(temp_row,num_cols_S_new,T);
@@ -81,44 +83,40 @@ namespace tl {
 
             if ((num_cols_S_new - num_ones) >= D) {
             	if ((num_cols_S_new - num_ones) > num_cols_S) {
-            		free_all(A_indices,B_indices,temp_row,all_rows,num_all_rows);
+            		free_all(A_indices,B_indices,temp_row,all_rows);
             		return false;
             	}
-                alloc(all_rows[num_all_rows],num_cols_S_new,T);
                 std::memcpy(all_rows[num_all_rows],temp_row,num_cols_S_new * sizeof(T));
                 ++num_all_rows;
             }
             if (num_ones >= D) {
             	if (num_ones > num_cols_S){
-            		free_all(A_indices,B_indices,temp_row,all_rows,num_all_rows);
+            		free_all(A_indices,B_indices,temp_row,all_rows);
             		return false;
             	}
-                alloc(all_rows[num_all_rows],num_cols_S_new,T);
                 for (j = 0; j < num_cols_S_new; ++j) all_rows[num_all_rows][j] = 1-temp_row[j];
                 ++num_all_rows;
             }
 	    }
 	    free(A_indices);
 	    free(B_indices);
-	    free(temp_row);
 
 	    num_rows_S_new = 0;
-	    alloc(S_new,num_all_rows,T *);
+	    mem::alloc_matrix(mem_S_new,S_new,num_all_rows,num_cols_S_new);
+	    // alloc(S_new,num_all_rows,T *);
 	    // check maximality of rows
 	    for (i = 0; i < num_all_rows; i++) {
 	        if (is_maximal(all_rows, all_rows+i, all_rows+num_all_rows, num_cols_S_new)) {
-	            alloc(S_new[num_rows_S_new],num_cols_S_new,T);
+	            // alloc(S_new[num_rows_S_new],num_cols_S_new,T);
 	            std::memcpy(S_new[num_rows_S_new],all_rows[i],num_cols_S_new * sizeof(T));
 	            ++num_rows_S_new;
 	        }
 	    }
 
-	    for (i = 0; i < num_all_rows; ++i) free(all_rows[i]);
-	    free(all_rows);
+	    free(mem_all_rows);
 
 	    // rearranging rows of S_new
 	    T n_row = 0;
-	    alloc(temp_row,num_cols_S_new,T);
 	    for (i = n_row+1; (i < num_rows_S_new) && (n_row < D); ++i) {
 	        if (accept(S_new[i]+1,S[n_row],num_cols_S)) {
 	            std::memcpy(temp_row,S_new[i],num_cols_S_new * sizeof(T));

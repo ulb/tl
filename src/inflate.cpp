@@ -13,6 +13,10 @@
 #define FINAL_TEXT   "\e[93m"
 #define FINAL_DATA   "\e[91m"
 
+#include "alloc.hpp"
+#include "alloc_triangular_matrix.hpp"
+#include "alloc_matrix.hpp"
+
 #include "linalg/is_id.hpp"
 #include "linalg/invertM.hpp"
 
@@ -76,20 +80,19 @@ int main (int argc, const char* argv[]) {
             std::cerr << "Simplicial facet:" << std::endl;
             std::cerr << "Constructing slack-matrices of simplicial 2-level polytopes... ";
             int K;
+            void * mem_S_new;
             int ** S_new;
             int num_rows_S_new,num_cols_S_new;
 
             for (auto N : nt::factor(D)) {
                 K = D/N;
-                simpl::slack_matrix_simplicial_2L(K,N,S_new,num_rows_S_new,num_cols_S_new);
+                simpl::slack_matrix_simplicial_2L(K,N,mem_S_new,S_new,num_rows_S_new,num_cols_S_new);
                 simpl::push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,facet.matrix,D);
 
                 tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
 
-                for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-                free(S_new);
+                free(mem_S_new);
             }
-
         }
 
         // non simplicial case
@@ -97,107 +100,111 @@ int main (int argc, const char* argv[]) {
             int num_rows_S(facet.rows);
             int num_cols_S(facet.columns);
 
-            fprintf(stderr, "Simplicial core? ");
-            if (tl::checksimplicialcore(facet.matrix,D)) fprintf(stderr, "OK\n");
-            else {
-                fprintf(stderr, "Fail\n");
+            // fprintf(stderr, "Simplicial core? ");fprintf(stderr, "OK\n");else
+            if (!tl::checksimplicialcore(facet.matrix,D)) {
+                fprintf(stderr, "Fail. Simplicial core not found.\n");
                 return 1;
             }
 
             // Extract embedding transformation matrix M_d(0) and invert it
+            void * mem_M, * mem_Minv;
             int ** M, ** Minv;
-            alloc(M,D,int*);
-            for (int i = 0; i < D; ++i) alloc(M[i],D,int);
-            tl::extractM(facet.matrix,M,D,verbose);
+            alloc_matrix(mem_M,M,D,D);
+            alloc_matrix(mem_Minv,Minv,D,D);
 
-            alloc(Minv,D,int*);
-            for (int i = 0; i < D; ++i) alloc(Minv[i],D,int);
+            tl::extractM(facet.matrix,M,D,verbose);
             linalg::invertM(M,Minv,D,verbose);
 
-            for (int i = 0; i < D; ++i) free(M[i]);
-            free(M);
+            free(mem_M);
 
-            fprintf(stderr, "Constructing H-embedding of facets of the base... ");
+            // fprintf(stderr, "Constructing H-embedding of facets of the base... ");
+            void * mem_facets_base;
             int ** facets_base;
-            alloc(facets_base,num_rows_S,int*);
+            alloc_matrix(mem_facets_base,facets_base,num_rows_S,D);
             int num_facets_base = 0; // number of element currently in facets_base
-            base::construct_facets_base(facets_base,num_facets_base,facet.matrix,num_rows_S,D,verbose);
-            fprintf(stderr, "OK\n");
+            base::construct_facets_base(facets_base,num_facets_base,facet.matrix,num_rows_S,D);
+            // fprintf(stderr, "OK\n");
 
-            fprintf(stderr, "Constructing automorphism group of the base and extending it to R^D... ");
+            // fprintf(stderr, "Constructing automorphism group of the base and extending it to R^D... ");
+            void * mem_d_aut_collection;
             int ** d_aut_collection;
             int num_autom_base;
-            base::construct_d_aut_collection(d_aut_collection,num_autom_base,facet.matrix,num_rows_S,num_cols_S,D);
-            fprintf(stderr, "OK\n");
+            base::construct_d_aut_collection(mem_d_aut_collection,d_aut_collection,num_autom_base,facet.matrix,num_rows_S,num_cols_S,D);
+            // fprintf(stderr, "OK\n");
 
             // Create the set Vert(P_0) (in V-embedding)
-            fprintf(stderr, "Building V-embedding of base... ");
+            // fprintf(stderr, "Building V-embedding of base... ");
+            void * mem_base_V;
             int ** base_V;
-            alloc(base_V,num_cols_S,int *);
-            base::construct_base_V(base_V,facet.matrix,num_cols_S,D,verbose);
-            fprintf(stderr, "OK\n");
+            alloc_matrix(mem_base_V,base_V,num_cols_S,D);
+            base::construct_base_V(base_V,facet.matrix,num_cols_S,D);
+            // fprintf(stderr, "OK\n");
 
             // Create Vert(P_0) (H-embedding this time), the set of fixed points
-            fprintf(stderr, "Building H-embedding of base... ");
+            // fprintf(stderr, "Building H-embedding of base... ");
+            void * mem_base_H;
             int ** base_H;
-            alloc(base_H,num_cols_S,int *);
-            base::construct_base_H(base_H,base_V,Minv,num_cols_S,D,verbose);
-            fprintf(stderr, "OK\n");
+            alloc_matrix(mem_base_H,base_H,num_cols_S,D);
+            base::construct_base_H(base_H,base_V,Minv,num_cols_S,D);
+            // fprintf(stderr, "OK\n");
 
             // Create the V-embedding of the reduced ground set (by means of translations)
-            fprintf(stderr, "Building V-embedding of the ground set... ");
+            // fprintf(stderr, "Building V-embedding of the ground set... ");
+            void * mem_ground_V;
             int ** ground_V;
             int size_ground_V = (nt::my_pow(3,D-1)+1)/2;
-            alloc(ground_V,size_ground_V,int *);
-            base::construct_ground_V(ground_V,D,verbose);
-            fprintf(stderr, "OK\n");
+            alloc_matrix(mem_ground_V,ground_V,size_ground_V,D);
+            base::construct_ground_V(ground_V,D);
+            // fprintf(stderr, "OK\n");
 
             // Create ground set
-            fprintf(stderr, "Building H-embedding of the reduced ground set... ");
+            // fprintf(stderr, "Building H-embedding of the reduced ground set... ");
+            void * mem_ground_H;
             int ** ground_H;
-            alloc(ground_H,size_ground_V,int *);
+            alloc_matrix(mem_ground_H,ground_H,size_ground_V,D);
             int size_ground_H;
-            base::construct_ground_H(ground_H,size_ground_H,ground_V,size_ground_V,facets_base,num_facets_base,Minv,D,verbose);
-            fprintf(stderr, "OK\n");
+            base::construct_ground_H(ground_H,size_ground_H,ground_V,size_ground_V,facets_base,num_facets_base,Minv,D);
+            // fprintf(stderr, "OK\n");
 
             // It is possible to free the base_V and ground_V, we will use the H-embedding
-            for (int i = 0; i < size_ground_V; ++i) free(ground_V[i]);
-            free(ground_V);
-
-            for (int i = 0; i < num_cols_S; ++i) free(base_V[i]);
-            free(base_V);
+            free(mem_ground_V);
+            free(mem_base_V);
 
             fprintf(stderr, "-> Size of the ground set = %d\n",size_ground_V);
             fprintf(stderr, "-> Size of the reduced ground set = %d\n",size_ground_H);
             fprintf(stderr, "-> Size of the automorphism group of the base = %d\n",num_autom_base);
 
-            fprintf(stderr, "Generating orbits of point of the ground set... ");
+            // fprintf(stderr, "Generating orbits of point of the ground set... ");
+            void * mem_orbits;
             int ** orbits;
-            alloc(orbits,num_autom_base,int*);
+            alloc_matrix(mem_orbits,orbits,num_autom_base,size_ground_H);
             base::construct_orbits(orbits,num_autom_base,base_H,d_aut_collection,ground_H,size_ground_H,D);
-            fprintf(stderr, "OK\n");
+            // fprintf(stderr, "OK\n");
 
             // Compute the slabs: inequalities x(E) <= 1, x(E) >= 0 that are valid for the base_H
-            fprintf(stderr, "Building slabs... ");
+            // fprintf(stderr, "Building slabs... ");
+            void * mem_slabs;
             int ** slabs;
-            alloc(slabs,1 << D,int *);
+            alloc_matrix(mem_slabs,slabs,1 << D,D);
             int num_slabs;
             base::construct_slabs(slabs,num_slabs,num_cols_S,base_H,D,verbose);
-            fprintf(stderr, "OK\n");
+            // fprintf(stderr, "OK\n");
 
             // Check points versus slabs incidence (for each point, list the slabs containing it)
-            fprintf(stderr, "Building incidences between points and slabs... ");
+            // fprintf(stderr, "Building incidences between points and slabs... ");
+            void * mem_slab_points_sat;
             int ** slab_points_sat;
-            alloc(slab_points_sat,size_ground_H,int*);
+            alloc_matrix(mem_slab_points_sat,slab_points_sat,size_ground_H,num_slabs);
             base::construct_slab_point_sat(slab_points_sat,ground_H,slabs,size_ground_H,num_slabs,D,verbose);
-            fprintf(stderr, "OK\n");
+            // fprintf(stderr, "OK\n");
 
             // Construct the incompatibility matrix
-            fprintf(stderr, "Constructing the incompatibility matrix... ");
+            // fprintf(stderr, "Constructing the incompatibility matrix... ");
+            void * mem_incompatibility_adjM;
             int ** incompatibility_adjM;
-            alloc(incompatibility_adjM,size_ground_H,int*);
+            alloc_triangular_matrix(mem_incompatibility_adjM,incompatibility_adjM,size_ground_H);
             base::construct_incompatibility_adjM(incompatibility_adjM,ground_H,facets_base,size_ground_H,num_facets_base,D);
-            fprintf(stderr, "OK\n");
+            // fprintf(stderr, "OK\n");
 
             fprintf(stderr, "Lauching Ganter's next-closure algorithm and checking 2-levelness... ");
             if (verbose != 0) fprintf(stderr, "\n");
@@ -242,15 +249,15 @@ int main (int argc, const char* argv[]) {
                 }
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
+                void * mem_S_new;
                 int ** S_new;
                 int num_rows_S_new, num_cols_S_new;
 
-                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
 
                 if ( base_is_lex_max ) {
-                    tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
-                    for (int i = 0; i < num_rows_S_new; ++i) free(S_new[i]);
-                    free(S_new);
+                    tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
+                    free(mem_S_new);
                 }
 
             }
@@ -263,32 +270,15 @@ int main (int argc, const char* argv[]) {
             free(B);
             free(A);
 
-            for (int i = 0; i < size_ground_H; ++i) free(incompatibility_adjM[i]);
-            free(incompatibility_adjM);
-
-            for (int i = 0; i < size_ground_H; ++i) free(slab_points_sat[i]);
-            free(slab_points_sat);
-
-            for (int i = 0; i < num_slabs; ++i) free(slabs[i]);
-            free(slabs);
-
-            for (int i = 0; i < num_autom_base; ++i) free(orbits[i]);
-            free(orbits);
-
-            for (int i = 0; i < size_ground_V; ++i) free(ground_H[i]);
-            free(ground_H);
-
-            for (int i = 0; i < num_cols_S; ++i) free(base_H[i]);
-            free(base_H);
-
-            for (int i = 0; i < num_autom_base; ++i) free(d_aut_collection[i]);
-            free(d_aut_collection);
-
-            for (int i = 0; i < num_rows_S; ++i) free(facets_base[i]);
-            free(facets_base);
-
-            for (int i = 0; i < D; ++i) free(Minv[i]);
-            free(Minv);
+            free(mem_incompatibility_adjM);
+            free(mem_slab_points_sat);
+            free(mem_slabs);
+            free(mem_orbits);
+            free(mem_ground_H);
+            free(mem_base_H);
+            free(mem_d_aut_collection);
+            free(mem_facets_base);
+            free(mem_Minv);
         }
 
         facet.teardown();
