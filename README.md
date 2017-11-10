@@ -2,17 +2,30 @@
 
 All files are gzipped
 
-  - [x] [All 0-dimensional two-level polytopes](https://ipfs.io/ipfs/QmdozEnHBJjHRnHNhxNgJ4JM4VrVL3mfFVJNE6U4L9YVPm)
-  - [x] [All 1-dimensional two-level polytopes](https://ipfs.io/ipfs/QmUq9NFE3oAPPXVE78Sy54dpBjiFQ2azpocXb9on9XA4oD)
-  - [x] [All 2-dimensional two-level polytopes](https://ipfs.io/ipfs/QmWWKdPs4NpzgZjvFgSZtZb1sgPVmBXS3AErXsnucKwRuV)
-  - [x] [All 3-dimensional two-level polytopes](https://ipfs.io/ipfs/QmNUUmRPTeRa63R7ceoQtisAjC54JaNjhk2PDXbDV1zZQq)
-  - [x] [All 4-dimensional two-level polytopes](https://ipfs.io/ipfs/QmdgSWHK49c8zRYcbgrGU1ex3coQ4tHGeHmjypQdaeb6Go)
-  - [x] [All 5-dimensional two-level polytopes](https://ipfs.io/ipfs/QmQgyDwDdv23n22B3PenK8sqSaAh4aK5M13LVLTPNJaeyC)
-  - [x] [All 6-dimensional two-level polytopes](https://ipfs.io/ipfs/QmV7dHoT6L4PGN2uAGc7mN4bxvV5k8LTzkpNQRxbGCKitF)
-  - [x] [All 7-dimensional two-level polytopes](https://ipfs.io/ipfs/Qmc4pZZhEdHhbkdnToCBAJDf33Zk18nebSRpHfscejy74A)
-  - [x] [All 8-dimensional two-level polytopes](https://ipfs.io/ipfs/QmZj7JLMHF7Lr39mjQ2YfPrZwpqkipyWotGV8sBJZUPfxM)
+  - [x] [All 0-dimensional 2-level polytopes](https://ipfs.io/ipfs/QmdozEnHBJjHRnHNhxNgJ4JM4VrVL3mfFVJNE6U4L9YVPm)
+  - [x] [All 1-dimensional 2-level polytopes](https://ipfs.io/ipfs/QmUq9NFE3oAPPXVE78Sy54dpBjiFQ2azpocXb9on9XA4oD)
+  - [x] [All 2-dimensional 2-level polytopes](https://ipfs.io/ipfs/QmWWKdPs4NpzgZjvFgSZtZb1sgPVmBXS3AErXsnucKwRuV)
+  - [x] [All 3-dimensional 2-level polytopes](https://ipfs.io/ipfs/QmNUUmRPTeRa63R7ceoQtisAjC54JaNjhk2PDXbDV1zZQq)
+  - [x] [All 4-dimensional 2-level polytopes](https://ipfs.io/ipfs/QmdgSWHK49c8zRYcbgrGU1ex3coQ4tHGeHmjypQdaeb6Go)
+  - [x] [All 5-dimensional 2-level polytopes](https://ipfs.io/ipfs/QmQgyDwDdv23n22B3PenK8sqSaAh4aK5M13LVLTPNJaeyC)
+  - [x] [All 6-dimensional 2-level polytopes](https://ipfs.io/ipfs/QmV7dHoT6L4PGN2uAGc7mN4bxvV5k8LTzkpNQRxbGCKitF)
+  - [x] [All 7-dimensional 2-level polytopes](https://ipfs.io/ipfs/Qmc4pZZhEdHhbkdnToCBAJDf33Zk18nebSRpHfscejy74A)
+  - [x] [All 8-dimensional 2-level polytopes](https://ipfs.io/ipfs/QmZj7JLMHF7Lr39mjQ2YfPrZwpqkipyWotGV8sBJZUPfxM)
   - [ ] All 9-dimensional two-level polytopes (pending ...)
-
+  
+For example
+```
+$ curl https://ipfs.io/ipfs/QmNUUmRPTeRa63R7ceoQtisAjC54JaNjhk2PDXbDV1zZQq | gunzip                                                 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   103  100   103    0     0     20      0  0:00:05  0:00:05 --:--:--    24
+3 4 4 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
+3 8 6 1 0 0 0 1 1 0 1 0 0 1 1 1 0 1 0 1 0 1 0 0 1 0 1 0 1 1 0 1 0 0 1 0 1 0 1 1 0 1 1 0 0 0 1 1 1 0 0
+3 5 5 1 0 0 0 0 0 1 0 0 1 0 0 1 0 1 0 1 0 1 0 0 0 1 1 0
+3 5 6 1 0 0 0 0 1 0 1 0 0 1 1 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1 1 0 0
+3 6 8 1 0 0 0 0 1 1 1 0 1 0 0 1 0 1 1 0 0 1 0 1 1 0 1 1 1 0 1 0 0 1 0 0 1 1 1 1 0 0 0 1 0 1 1 0 1 0 0
+```
+yields the five 3-dimensional 2-level polytopes.
 
 # New version
 
