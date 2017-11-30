@@ -2,17 +2,12 @@
 #download from http://pallini.di.uniroma1.it/#howtogetit
 #and install
 
+NAUTYHOME := $(HOME)/.opt/nauty
+
+CXX := clang++
+CXXFLAGS := -std=c++14 -Wall -W -O3
+
 HEADER_DIR = h
-
-NAUTYHOME = $(HOME)/.opt/nauty
-
-ifeq ($(use),gcc)
-	CXX = g++
-	CXXFLAGS = -O3
-else
-	CXX = clang++
-	CXXFLAGS = -std=c++14 -Wall -W -O3
-endif
 
 OBJS = $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)
 HEADER_FILES = $(shell find $(HEADER_DIR) | grep '.hpp$$')

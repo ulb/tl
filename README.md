@@ -52,11 +52,11 @@ Jump inside the tl directory
 
 For clang
 
-    $ make use=clang
+    $ make
 
 For gcc
 
-    $ make use=gcc
+    $ make CXX=g++
 
 ## Running
 
