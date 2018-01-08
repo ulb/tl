@@ -73,11 +73,11 @@ if __name__ == '__main__':
 
                 if line == '-' :
 
-                    data = '{d} {r} {c} {m}\n'.format(
+                    data = 'g {d} {r} {c} {m}\n'.format(
                         d=dimension,
                         r=rows,
                         c=columns,
-                        m=' '.join(matrix),
+                        m=''.join(matrix),
                     )
 
                     _all.write(data)
