@@ -12,7 +12,7 @@ HEADER_DIR = h
 OBJS = $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)
 HEADER_FILES = $(shell find $(HEADER_DIR) | grep '.hpp$$')
 
-RUNNABLES = $(patsubst %,run/%,inflate dedup sift)
+RUNNABLES = $(patsubst %,run/%,inflate dedup sift count_polar)
 
 all: prepare $(RUNNABLES)
 

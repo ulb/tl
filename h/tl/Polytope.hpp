@@ -56,6 +56,26 @@ namespace tl {
 			free(this->data);
 		}
 
+		Polytope<T> dual ( ) {
+			int dimension = this->dimension ;
+			int rows = this->columns ;
+			int columns = this->rows ;
+
+			int* data;
+			alloc(data, 3 + rows * columns, int);
+
+			int* pt(data);
+
+			*(pt++) = dimension;
+			*(pt++) = rows;
+			*(pt++) = columns;
+			for ( int i = 0 ; i < rows ; ++i )
+				for ( int j = 0 ; j < columns ; ++j )
+					*(pt++) = this->matrix[j][i];
+
+			return Polytope<T>(dimension, rows, columns, data);
+		}
+
 	} ;
 
 }
