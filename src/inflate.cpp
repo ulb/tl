@@ -20,6 +20,9 @@
 #include "linalg/is_id.hpp"
 #include "linalg/invertM.hpp"
 
+#include "linalg/div_ceil.hpp"
+#include "linalg/transposeM.hpp"
+
 #include "nt/my_pow.hpp"
 #include "nt/factor.hpp"
 
@@ -43,9 +46,12 @@
 
 #include "array/is_all_ones.hpp"
 
+#include "array/pack.hpp"
+
 #include "clops/inc.hpp"
 #include "clops/is_sqsubseteq.hpp"
-#include "clops/discreteconvexhull_cl.hpp"
+//#include "clops/discreteconvexhull_cl.hpp"
+#include "clops/fast_discreteconvexhull_cl.hpp"
 #include "clops/incompatibility_cl.hpp"
 #include "clops/lexmax_symmetric_cl.hpp"
 
@@ -112,8 +118,8 @@ int main (int argc, const char* argv[]) {
             alloc_matrix(mem_M,M,D,D);
             alloc_matrix(mem_Minv,Minv,D,D);
 
-            tl::extractM(facet.matrix,M,D,verbose);
-            linalg::invertM(M,Minv,D,verbose);
+            tl::extractM(facet.matrix,M,D);
+            linalg::invertM(M,Minv,D);
 
             free(mem_M);
 
@@ -198,6 +204,26 @@ int main (int argc, const char* argv[]) {
             base::construct_slab_point_sat(slab_points_sat,ground_H,slabs,size_ground_H,num_slabs,D,verbose);
             // fprintf(stderr, "OK\n");
 
+            void * mem_slab_points_sat_t;
+            int ** slab_points_sat_t;
+            alloc_matrix(mem_slab_points_sat_t,slab_points_sat_t,num_slabs,size_ground_H);
+            linalg::transposeM(slab_points_sat,slab_points_sat_t,size_ground_H,num_slabs);
+
+            int n_cols_64 = linalg::div_ceil(num_slabs, 64);
+            int n_rows_64 = linalg::div_ceil(size_ground_H, 64);
+
+            // construct the block uint64_t
+            void * mem_sp_64;
+            uint64_t ** sp_64;
+            alloc_matrix(mem_sp_64,sp_64,size_ground_H,n_cols_64);
+            array::pack64_matrix(slab_points_sat,sp_64,size_ground_H,num_slabs,n_cols_64);
+
+            void * mem_sp_t_64;
+            uint64_t ** sp_t_64;
+            alloc_matrix(mem_sp_t_64,sp_t_64,num_slabs,n_rows_64);
+            array::pack64_matrix(slab_points_sat_t,sp_t_64,num_slabs,size_ground_H,n_rows_64);
+
+
             // Construct the incompatibility matrix
             // fprintf(stderr, "Constructing the incompatibility matrix... ");
             void * mem_incompatibility_adjM;
@@ -226,27 +252,26 @@ int main (int argc, const char* argv[]) {
             alloc(I,size_ground_H,int);
             alloc(CI,size_ground_H,int);
 
+            uint64_t * B_64;
+            alloc(B_64,n_cols_64,uint64_t);
+            uint64_t * dchcl_64;
+            alloc(dchcl_64,n_rows_64,uint64_t);
+
             while (!array::is_all_ones(A,size_ground_H)) {
                 int i = 0;
                 do {
                     while(A[i] == 1) ++i;
                     clops::inc(A,i,I,size_ground_H); // I = inc(A,i)
-                    clops::discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
+                    //clops::discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
+                    clops::fast_discreteconvexhull_cl(I,B_64,dchcl_64,sp_64,sp_t_64,size_ground_H,num_slabs,n_rows_64,n_cols_64);
+                    array::unpack64(dchcl,size_ground_H,dchcl_64,n_rows_64);
                     clops::incompatibility_cl(dchcl,inccl,incompatibility_adjM,size_ground_H);
                     clops::lexmax_symmetric_cl(inccl,CI,size_ground_H,orbits,num_autom_base);
                     ++i;
                 } while (!clops::is_sqsubseteq(I,CI,size_ground_H));
+                array::unpack64(B,num_slabs,B_64,n_cols_64);
                 std::memcpy(A,CI,size_ground_H * sizeof(int));
                 N_closed_sets_current_base++;
-
-                if (verbose != 0) {
-                    for (int j = 0; j < size_ground_H; ++j) fprintf(stderr, "%d",A[j]);
-                    fprintf(stderr, " ");
-                }
-                else {
-                    if ((N_closed_sets_current_base % 10000 == 0) && (N_closed_sets_current_base >= 10000))
-                        fprintf(stderr, "\n%dk",N_closed_sets_current_base/1000);
-                }
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
                 void * mem_S_new;
@@ -268,9 +293,14 @@ int main (int argc, const char* argv[]) {
             free(inccl);
             free(dchcl);
             free(B);
+            free(dchcl_64);
+            free(B_64);
             free(A);
 
             free(mem_incompatibility_adjM);
+            free(mem_slab_points_sat_t);
+            free(mem_sp_64);
+            free(mem_sp_t_64);
             free(mem_slab_points_sat);
             free(mem_slabs);
             free(mem_orbits);
