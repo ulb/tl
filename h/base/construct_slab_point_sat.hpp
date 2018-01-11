@@ -9,7 +9,7 @@
 
 namespace base {
     template <typename T,typename SIZE>
-    void construct_slab_point_sat(T ** slab_points_sat,T ** ground_H,T ** slabs,const SIZE size_ground_H,const SIZE num_slabs,const T D,const T verbose) {
+    void construct_slab_point_sat(T ** slab_points_sat,T ** ground_H,T ** slabs,const SIZE size_ground_H,const SIZE num_slabs,const T D) {
         SIZE i,j;
         T s;
         for (i = 0; i < size_ground_H; ++i) {
@@ -18,9 +18,7 @@ namespace base {
                 s = linalg::my_inner_prod(ground_H[i],slabs[j],D);
                 if ((s == 0) || (s == 1)) slab_points_sat[i][j] = 1;
                 else slab_points_sat[i][j] = 0;
-                if (verbose == 2) fprintf(stderr, "%d",slab_points_sat[i][j]);
             }
-            if (verbose == 2) fprintf(stderr," ");
         }
     }
 }

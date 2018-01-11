@@ -4,6 +4,7 @@
 #include <cstring> // std::fill
 #include "alloc.hpp"
 #include "array/get_ones.hpp"
+#include "array/dump.hpp"
 
 namespace clops {
 
@@ -26,10 +27,16 @@ namespace clops {
 	void fast_discreteconvexhull_cl(T* A, W* B, W* C, SP sp, SP sp_t, const SIZE n_rows,const SIZE n_cols,const SIZE n_rows_64,const SIZE n_cols_64) {
 		SIZE *A_ones;
 		const SIZE A_nones = array::get_ones(A,n_rows,A_ones);
+		// std::cerr << ANSI_RED << "A ------------------ " << n_rows << ' ' << n_rows_64 << ANSI_RESET << std::endl;
+		// array::dump(A, n_rows);
+		// array::dump(A_ones, A_nones);
 		clops::max_col_sat(A_ones,A_nones,B,n_cols_64,sp);
 		free(A_ones);
 		SIZE *B_ones;
 		const SIZE B_nones = array::get_ones_64(B,n_cols_64,B_ones,n_cols);
+		// std::cerr << ANSI_GREEN << "B ------------------ "  << n_cols << ' ' << n_cols_64 << ANSI_RESET << std::endl;
+		// array::dump_64(B, n_cols_64);
+		// array::dump(B_ones, B_nones);
 		clops::max_col_sat(B_ones,B_nones,C,n_rows_64,sp_t);
 		free(B_ones);
 	}

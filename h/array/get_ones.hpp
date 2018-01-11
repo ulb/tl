@@ -1,5 +1,5 @@
-#ifndef H_CLOPS_GET_ONES
-#define H_CLOPS_GET_ONES
+#ifndef H_ARRAY_GET_ONES
+#define H_ARRAY_GET_ONES
 
 #include "alloc.hpp"
 
@@ -27,4 +27,4 @@ namespace array {
 	}
 }
 
-#endif // H_CLOPS_GET_ONES
+#endif // H_ARRAY_GET_ONES

@@ -18,8 +18,7 @@ namespace base {
     }
 
 	template <typename T,typename SIZE>
-	void construct_slabs(T ** slabs,T & num_slabs,const SIZE num_cols_S,T ** base_H,const T D,const T verbose) {
-        SIZE i,j;
+	void construct_slabs(T ** slabs,T & num_slabs,const SIZE num_cols_S,T ** base_H,const T D) {
         T * count;
         alloc(count,D+1,T);
         // initialize count to e_1
@@ -35,18 +34,13 @@ namespace base {
 
             // Add normal vector of slab to the list if it contains all points of the base
             if (accept(normal_vector,base_H,num_cols_S,D)) {
-                if (verbose != 0) {
-                    // Print normal vector
-                    for (j = 0; j < D; ++j) fprintf(stderr, "%d",normal_vector[j]);
-                    fprintf(stderr, " ");
-                }
                 // alloc(slabs[num_slabs],D,T);
                 std::memcpy(slabs[num_slabs],normal_vector,D * sizeof(T));
                 num_slabs++;
             }
 
             // Increase counter, by performing mod-2 computations
-            i = 0;
+            SIZE i = 0;
             do {
                 carry = (count[i] == 1);
                 count[i] = (count[i] + 1) % 2;

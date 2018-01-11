@@ -5,11 +5,11 @@ namespace array {
 	template <typename T,typename SIZE>
 	void pack64(T* v,const SIZE length, uint64_t* word, const SIZE nwords) {
 		for (SIZE i = 0; i < nwords; ++i) {
-			word[i] = 0;
+			word[i] = uint64_t(0);
 			for (SIZE j = 0; j < 64; ++j) {
 				auto k = i*64+j;
 				if (k==length) break;
-				word[i] |= ( v[k] << j ) ;
+				word[i] |= ( uint64_t(v[k]) << j ) ;
 			}
 		}
 	}

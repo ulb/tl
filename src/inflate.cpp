@@ -47,6 +47,7 @@
 #include "array/is_all_ones.hpp"
 
 #include "array/pack.hpp"
+#include "array/dump.hpp"
 
 #include "clops/inc.hpp"
 #include "clops/is_sqsubseteq.hpp"
@@ -58,16 +59,11 @@
 #include "simpl/slack_matrix_simplicial_2L.hpp"
 #include "simpl/push_simplicial_core.hpp"
 
-int main (int argc, const char* argv[]) {
+int main () {
 
     std::ios_base::sync_with_stdio(true);
 
-    if (argc < 1 || argc > 2) {
-        std::cerr << "usage: inflate [<verbosity>]" << std::endl;
-        return 1;
-    }
-
-    int verbose = (argc == 2) ? atoi(argv[1]) : 0;
+    int tot_N_closed_sets = 0;
 
     // start the popcorn machine
     std::vector<tl::Polytope<int>> facets;
@@ -79,12 +75,12 @@ int main (int argc, const char* argv[]) {
 
         int D = facet.dimension + 1;
 
-        std::cerr << "Inflating facet..." << std::endl;
+        // std::cerr << "Inflating facet..." << std::endl;
 
         // use the characterization of simplicial 2-level polytopes
         if (linalg::is_id(facet.dimension+1, facet.matrix)) {
-            std::cerr << "Simplicial facet:" << std::endl;
-            std::cerr << "Constructing slack-matrices of simplicial 2-level polytopes... ";
+            // std::cerr << "Simplicial facet:" << std::endl;
+            // std::cerr << "Constructing slack-matrices of simplicial 2-level polytopes... ";
             int K;
             void * mem_S_new;
             int ** S_new;
@@ -193,7 +189,7 @@ int main (int argc, const char* argv[]) {
             int ** slabs;
             alloc_matrix(mem_slabs,slabs,1 << D,D);
             int num_slabs;
-            base::construct_slabs(slabs,num_slabs,num_cols_S,base_H,D,verbose);
+            base::construct_slabs(slabs,num_slabs,num_cols_S,base_H,D);
             // fprintf(stderr, "OK\n");
 
             // Check points versus slabs incidence (for each point, list the slabs containing it)
@@ -201,7 +197,7 @@ int main (int argc, const char* argv[]) {
             void * mem_slab_points_sat;
             int ** slab_points_sat;
             alloc_matrix(mem_slab_points_sat,slab_points_sat,size_ground_H,num_slabs);
-            base::construct_slab_point_sat(slab_points_sat,ground_H,slabs,size_ground_H,num_slabs,D,verbose);
+            base::construct_slab_point_sat(slab_points_sat,ground_H,slabs,size_ground_H,num_slabs,D);
             // fprintf(stderr, "OK\n");
 
             void * mem_slab_points_sat_t;
@@ -209,8 +205,8 @@ int main (int argc, const char* argv[]) {
             alloc_matrix(mem_slab_points_sat_t,slab_points_sat_t,num_slabs,size_ground_H);
             linalg::transposeM(slab_points_sat,slab_points_sat_t,size_ground_H,num_slabs);
 
-            int n_cols_64 = linalg::div_ceil(num_slabs, 64);
-            int n_rows_64 = linalg::div_ceil(size_ground_H, 64);
+            const int n_cols_64 = linalg::div_ceil(num_slabs, 64);
+            const int n_rows_64 = linalg::div_ceil(size_ground_H, 64);
 
             // construct the block uint64_t
             void * mem_sp_64;
@@ -223,6 +219,15 @@ int main (int argc, const char* argv[]) {
             alloc_matrix(mem_sp_t_64,sp_t_64,num_slabs,n_rows_64);
             array::pack64_matrix(slab_points_sat_t,sp_t_64,num_slabs,size_ground_H,n_rows_64);
 
+            // std::cerr << "slab_points_sat = " << std::endl;
+            // array::dump_matrix(slab_points_sat,size_ground_H,num_slabs);
+            // std::cerr << "\nslab_points_sat_t = " << std::endl;
+            // array::dump_matrix(slab_points_sat_t,num_slabs,size_ground_H);
+            // std::cerr << "\nsp_64 = " << std::endl;
+            // array::dump_matrix_64(sp_64,size_ground_H,n_cols_64);
+            // std::cerr << "\nsp_t_64 = " << std::endl;
+            // array::dump_matrix_64(sp_t_64,num_slabs,n_rows_64);
+            
 
             // Construct the incompatibility matrix
             // fprintf(stderr, "Constructing the incompatibility matrix... ");
@@ -232,12 +237,7 @@ int main (int argc, const char* argv[]) {
             base::construct_incompatibility_adjM(incompatibility_adjM,ground_H,facets_base,size_ground_H,num_facets_base,D);
             // fprintf(stderr, "OK\n");
 
-            fprintf(stderr, "Lauching Ganter's next-closure algorithm and checking 2-levelness... ");
-            if (verbose != 0) fprintf(stderr, "\n");
-
-            int N_closed_sets_current_base = 0;
-
-            if (verbose != 0) fprintf(stderr, "%*c  | 2-level | next_cl      | slack-matrix | 2-lev_time\n", size_ground_H, ' ');
+            // fprintf(stderr, "Lauching Ganter's next-closure algorithm and checking 2-levelness... ");
 
             int * A;
             alloc(A,size_ground_H,int);
@@ -260,18 +260,30 @@ int main (int argc, const char* argv[]) {
             while (!array::is_all_ones(A,size_ground_H)) {
                 int i = 0;
                 do {
+                    // std::cerr << "I am in" << std::endl;
                     while(A[i] == 1) ++i;
+                    // for (int s = 0; s < size_ground_H; ++s) std::cerr << A[s];
+                    // std::cerr << std::endl;
                     clops::inc(A,i,I,size_ground_H); // I = inc(A,i)
+                    // for (int s = 0; s < size_ground_H; ++s) std::cerr << I[s];
+                    // std::cerr << std::endl;
+                    // std::cerr << "0" << std::endl;
                     //clops::discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
                     clops::fast_discreteconvexhull_cl(I,B_64,dchcl_64,sp_64,sp_t_64,size_ground_H,num_slabs,n_rows_64,n_cols_64);
                     array::unpack64(dchcl,size_ground_H,dchcl_64,n_rows_64);
+                    // std::cerr << ANSI_YELLOW << "C" << ANSI_RESET << std::endl;
                     clops::incompatibility_cl(dchcl,inccl,incompatibility_adjM,size_ground_H);
+                    // std::cerr << ANSI_MAGENTA << "D" << ANSI_RESET << std::endl;
                     clops::lexmax_symmetric_cl(inccl,CI,size_ground_H,orbits,num_autom_base);
+                    // std::cerr << ANSI_BLUE << "E" << ANSI_RESET << std::endl;
                     ++i;
+                    // std::cerr << "I am testing" << std::endl;
                 } while (!clops::is_sqsubseteq(I,CI,size_ground_H));
+                // std::cerr << "I am out" << std::endl;
                 array::unpack64(B,num_slabs,B_64,n_cols_64);
+                // std::cerr << "unpack" << std::endl;
                 std::memcpy(A,CI,size_ground_H * sizeof(int));
-                N_closed_sets_current_base++;
+                tot_N_closed_sets++;
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
                 void * mem_S_new;
@@ -286,8 +298,7 @@ int main (int argc, const char* argv[]) {
                 }
 
             }
-            fprintf(stderr, "\nOK\n");
-
+            fprintf(stderr, "OK\n");
             free(CI);
             free(I);
             free(inccl);
@@ -315,7 +326,7 @@ int main (int argc, const char* argv[]) {
         facets.clear(); // ugly hack atm, we use a vector containing a single element
 
     }
-
+    std::cerr << tot_N_closed_sets << std::endl;
     return 0;
 
 }

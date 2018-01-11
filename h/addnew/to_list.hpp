@@ -38,43 +38,9 @@ namespace addnew {
 
 	        // tests for subclasses of 2-level polytopes
 	        if (verbose != 0) {
-	            int num_zeros, num_ones;
-	            bool has_simplicial = false;
-	            for (i = 0; i < num_rows_S_new && !has_simplicial; ++i) {
-	                num_zeros = 0;
-	                for (j = 0; j < num_cols_S_new; ++j) if (S_new[i][j] == 0) num_zeros++;
-	                has_simplicial = (num_zeros == D);
-	            }
-	            if (has_simplicial) simplicial_facet++;
-	            
-	            bool STAB = false;
-	            for (i = 0; i < num_cols_S_new && !STAB; ++i) {
-	                num_zeros = 0;
-	                for (j = 0; j < num_rows_S_new; ++j) if (S_new[j][i] == 0) num_zeros++;
-	                STAB = (num_zeros == D);
-	            }
-	            if (STAB) {
-	            	stab++;
-	            	std::cout << std::endl;
-	    			for (SIZE i = 0 ; i < D; ++i ) {
-						for (SIZE j = 0 ; j < num_cols_S_new; ++j) std::cout << S_new[i][j];
-						std::cout << std::endl;
-	    			}
-	            }
-	            
-	            bool CS = true;
-	            for (i = 0; i < num_rows_S_new && CS; ++i) {
-	                num_ones = 0;
-	                for (j = 0; j < num_cols_S_new; ++j) if (S_new[i][j] == 1) num_ones++;
-	                CS = (num_ones == num_cols_S_new/2);
-	            }
-	            if (CS) cs++;
-	            
 	            if (subcl::is_susp(S_new,num_rows_S_new,num_cols_S_new)) n_suspensions++;
 
 	            if (subcl::is_1sum(S_new,num_rows_S_new,num_cols_S_new)) n_1_sums++;
-	            
-	            subcl::is_polar(S_new,hash_S_new,canonical_S_new,num_rows_S_new,num_cols_S_new,n,m,LD_hash,LD,current_LD,D,n_polar);
 	        }
 	    }
 	    free(canonical_S_new);
