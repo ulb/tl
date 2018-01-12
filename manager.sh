@@ -3,12 +3,12 @@ d="$1"
 maxjobs=20
 jobs="hpc/jobs/$d"
 running="hpc/running/$d"
-done="hpc/done/$d"
+_done="hpc/done/$d"
 out="db/out/$d"
 
 mkdir -p "$jobs"
 mkdir -p "$running"
-mkdir -p "$done"
+mkdir -p "$_done"
 mkdir -p "$out"
 
 function submit {
@@ -24,7 +24,7 @@ n="$(wc -l < db/src/$d)"
 while true ; do
 
 	for base in $(find "$running" -type f -printf "%f\n"); do
-		if [ -e "$done/$base" ] ; then rm "$done/$running" fi
+		if [ -e "$_done/$base" ] ; then rm "$_done/$running" fi
 	done
 
 	nrunning="$(find "$running" -type f -printf "%f\n" | wc -l)"
