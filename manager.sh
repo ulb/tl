@@ -1,6 +1,7 @@
 d="$1"
 
-maxjobs=20
+slots=20
+interval=30
 jobs="hpc/jobs/$d"
 running="hpc/running/$d"
 _done="hpc/done/$d"
@@ -15,6 +16,7 @@ function submit {
 	base="$1"
 	job="$jobs/$base.sh"
 	sed -e "s/#d/$d/g" -e "s/#base/$base/g" job.sh > "$job"
+	>&2 echo "tl-$d-$base submission"
 	sbatch "$job"
 }
 
@@ -24,12 +26,17 @@ n="$(wc -l < db/src/$d)"
 while true ; do
 
 	for base in $(find "$running" -type f -printf "%f\n"); do
-		if [ -e "$_done/$base" ] ; then rm "$running/$base" ; fi
+		if [ -e "$_done/$base" ] ; then
+			>&2 echo "tl-$d-$base done"
+			rm "$running/$base"
+		fi
 	done
 
 	nrunning="$(find "$running" -type f -printf "%f\n" | wc -l)"
+	>&2 echo "$nrunning jobs running"
 
-	available="$(($maxjobs-$nrunning))"
+	available="$(($slots-$nrunning))"
+	>&2 echo "$available slots available"
 
 	for ((j=0;j<$available;j++)); do
 		base="$(($i+$j))"
@@ -38,6 +45,7 @@ while true ; do
 
 	i="$(($i+$available))"
 
-	sleep 30
+	>&2 echo "sleeping $interval seconds"
+	sleep "$interval"
 
 done
