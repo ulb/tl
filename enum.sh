@@ -1,12 +1,9 @@
 #!/usr/bin/env sh
 
-mkdir -p atoms/0
-echo 'g 0 1 1 1' > atoms/0/all
+mkdir -p db/src
+echo 'g 0 1 1 1' > db/src/0
 
 for d in $(seq 1 $1); do
-	if [ -e atoms/$d/all ] ; then
-		continue
-	fi
-	mkdir -p atoms/$d
-	sh list.sh $d | tee atoms/$d/all | wc -l
+	if [ -e db/src/$d ] ; then continue ; fi
+	sh list.sh $d | tee db/src/$d | wc -l
 done

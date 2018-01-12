@@ -19,16 +19,16 @@ function unknown {
     echo "  | $d | ? | ? | ? | ? |"
 }
 
-mkdir -p gz
-mkdir -p xz
+mkdir -p db/gz
+mkdir -p db/xz
 
 for d in $(seq 0 8); do
-	all="atoms/$d/all"
+	all="db/src/$d"
 	n="$(wc -l < "$all")"
 	size="$(wc -c < "$all" | human)"
 	>&2 echo "Generating line for dimension $d ~ $n items"
-	gz="gz/$d"
-	xz="xz/$d"
+	gz="db/gz/$d"
+	xz="db/xz/$d"
 	if [ ! -e "$gz" ] ; then
 		>&2 echo "Gzipping dimension $d to $gz"
 		gzip -cn -9 "$all" > "$gz"

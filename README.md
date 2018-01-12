@@ -72,19 +72,19 @@ For gcc
 
 Create directories to store all generated polytopes
 
-    $ mkdir -p atoms/{$(seq 0 9)}
+    $ mkdir -p db/src
 
 Generate all 0-dimensional 2-level polytopes (a single vertex)
 
-    $ echo 'g 0 1 1 1' > atoms/0/all
+    $ echo 'g 0 1 1 1' > db/src/0
 
 Generate all 1-dimensional 2-level polytopes
 
-    $ cat atoms/0/all | ./run/inflate | ./run/dedup | ./run/sift atoms/0/all > atoms/1/all
+    $ cat db/src/0 | ./run/inflate | ./run/dedup | ./run/sift db/src/0 > db/src/1
 
 Generate all 2-dimensional 2-level polytopes
 
-    $ cat atoms/1/all | ./run/inflate | ./run/dedup | ./run/sift atoms/1/all > atoms/2/all
+    $ cat db/src/1 | ./run/inflate | ./run/dedup | ./run/sift db/src/1 > db/src/2
 
 Et cetera. A script does all that for you:
 
