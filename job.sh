@@ -4,8 +4,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=3
 #SBATCH --job-name=tl-#d-#base
-#SBATCH -o tl-#d-#base.out
-#SBATCH -e tl-#d-#base.err
+#SBATCH -o hpc/log/#d/#base.out
+#SBATCH -e hpc/log/#d/#base.err
 
 d="#d"
 base="#base"

@@ -4,13 +4,15 @@ slots=20
 interval=30
 jobs="hpc/jobs/$d"
 running="hpc/running/$d"
-_done="hpc/done/$d"
+done="hpc/done/$d"
 out="hpc/out/$d"
+log="hpc/log/$d"
 
 mkdir -p "$jobs"
 mkdir -p "$running"
-mkdir -p "$_done"
+mkdir -p "$done"
 mkdir -p "$out"
+mkdir -p "$log"
 
 function submit {
 	base="$1"
@@ -26,7 +28,7 @@ n="$(wc -l < db/src/$d)"
 while true ; do
 
 	for base in $(find "$running" -type f -printf "%f\n"); do
-		if [ -e "$_done/$base" ] ; then
+		if [ -e "$done/$base" ] ; then
 			>&2 echo "tl-$d-$base done"
 			rm "$running/$base"
 		fi
