@@ -227,7 +227,7 @@ int main () {
             // array::dump_matrix_64(sp_64,size_ground_H,n_cols_64);
             // std::cerr << "\nsp_t_64 = " << std::endl;
             // array::dump_matrix_64(sp_t_64,num_slabs,n_rows_64);
-            
+
 
             // Construct the incompatibility matrix
             // fprintf(stderr, "Constructing the incompatibility matrix... ");
@@ -270,7 +270,7 @@ int main () {
                     // std::cerr << "0" << std::endl;
                     //clops::discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
                     clops::fast_discreteconvexhull_cl(I,B_64,dchcl_64,sp_64,sp_t_64,size_ground_H,num_slabs,n_rows_64,n_cols_64);
-                    array::unpack64(dchcl,size_ground_H,dchcl_64,n_rows_64);
+                    array::unpack64(dchcl,size_ground_H,dchcl_64);
                     // std::cerr << ANSI_YELLOW << "C" << ANSI_RESET << std::endl;
                     clops::incompatibility_cl(dchcl,inccl,incompatibility_adjM,size_ground_H);
                     // std::cerr << ANSI_MAGENTA << "D" << ANSI_RESET << std::endl;
@@ -280,7 +280,7 @@ int main () {
                     // std::cerr << "I am testing" << std::endl;
                 } while (!clops::is_sqsubseteq(I,CI,size_ground_H));
                 // std::cerr << "I am out" << std::endl;
-                array::unpack64(B,num_slabs,B_64,n_cols_64);
+                array::unpack64(B,num_slabs,B_64);
                 // std::cerr << "unpack" << std::endl;
                 std::memcpy(A,CI,size_ground_H * sizeof(int));
                 tot_N_closed_sets++;
