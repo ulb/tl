@@ -24,7 +24,7 @@ n="$(wc -l < db/src/$d)"
 while true ; do
 
 	for base in $(find "$running" -type f -printf "%f\n"); do
-		if [ -e "$_done/$base" ] ; then rm "$_done/$running" fi
+		if [ -e "$_done/$base" ] ; then rm "$running/$base" ; fi
 	done
 
 	nrunning="$(find "$running" -type f -printf "%f\n" | wc -l)"
