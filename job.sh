@@ -47,7 +47,7 @@ tail "-n+$base" "$bases" | head -n1 |
 ./run/dedup 2>/dev/null |
 ./run/sift 2>/dev/null "$bases" > polytopes
 
-cp polytopes "$CECIHOME/tl/db/out/$d/$base"
+cp polytopes "$CECIHOME/tl/hpc/out/$d/$base"
 
 touch "$CECIHOME/tl/hpc/done/$d/$base"
 

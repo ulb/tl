@@ -4,7 +4,7 @@ maxjobs=20
 jobs="hpc/jobs/$d"
 running="hpc/running/$d"
 _done="hpc/done/$d"
-out="db/out/$d"
+out="hpc/out/$d"
 
 mkdir -p "$jobs"
 mkdir -p "$running"
@@ -13,7 +13,7 @@ mkdir -p "$out"
 
 function submit {
 	base="$1"
-	job="jobs/$d/$base.sh"
+	job="$jobs/$base.sh"
 	sed -e "s/#d/$d/g" -e "s/#base/$base/g" job.sh > "$job"
 	sbatch "$job"
 }
