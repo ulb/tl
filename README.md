@@ -1,30 +1,40 @@
-# Databases
+# Database
 
-All files are gzipped
+All files are compressed
 
-  | Dimension | Status  | Number  | File                                                                        |
-  | --------- | ------- | ------- | --------------------------------------------------------------------------- |
-  |         0 |    Done |       1 | [gzip](https://ipfs.io/ipfs/QmbTCfFWSZw6gGKYN6znFEnN3p9x8fW5SEk3pg3f3aedtf) |
-  |         1 |    Done |       1 | [gzip](https://ipfs.io/ipfs/QmXttXoXYAq72HrThyy9DoFNAZMFpGiXBhTUjcHP62hkJD) |
-  |         2 |    Done |       2 | [gzip](https://ipfs.io/ipfs/QmYQ1NBCRyrEYCjTEf7367ZEK6ScNn6qZAfnZM3ofoMXBB) |
-  |         3 |    Done |       5 | [gzip](https://ipfs.io/ipfs/QmY8cnV5WuWDXw8dQWH85K4wVDGxENPij6yFhUB2CZwb7v) |
-  |         4 |    Done |      19 | [gzip](https://ipfs.io/ipfs/QmeZZ9zcJnzwNjnxYL6rEvU3LBsPneuaSr4kYR9U2BQAo9) |
-  |         5 |    Done |     106 | [gzip](https://ipfs.io/ipfs/QmP5Wmo6MTciWtvphifEDW5FGdwvTAaCJuAhHD8jjXTkiG) |
-  |         6 |    Done |    1150 | [gzip](https://ipfs.io/ipfs/QmQekyWQajSMfEJQy8HsFL3FWxQ4n69gxJaXrWC3v8MPTF) |
-  |         7 |    Done |   27292 | [gzip](https://ipfs.io/ipfs/QmVWnrQsH8sAWfN8WvVDJaffpVU7FRmfhGUFgh4MnhLRTh) |
-  |         8 |    Done | 1378447 | [gzip](https://ipfs.io/ipfs/Qmawgxfpa9mjCk1RcfUm5SbckHvXv8XEqEZ78TuivEPuYt) |
-  |         9 |       ? |       ? | ?                                                                           |
+  | Dimension | Status | Number | Size | Download |
+  | --------- | ------ | ------ | ---- | -------- |
+  | 0 | Done | 1 | 10B | [gzip (27B)](https://ipfs.io/ipfs/Qmb4HZF5JPQx4LD8PkhdJBku3YFYbz8bvvaATgtrorAHYi), [xz (68B)](https://ipfs.io/ipfs/QmbyrwKy4iGEnvdhNo3SQKwNCYYNYXeDJmnpCXZgMpq52S) |
+  | 1 | Done | 1 | 13B | [gzip (31B)](https://ipfs.io/ipfs/QmWUmuoNREeaCYZ49DvxM2wg9VgRGpEDQyqAJHii9v9fhV), [xz (72B)](https://ipfs.io/ipfs/QmZ4qRDzmhFUMxuFC4raL259BbhqbMAJ6kkwqU4Zrer6hv) |
+  | 2 | Done | 2 | 43B | [gzip (47B)](https://ipfs.io/ipfs/QmTnoXDxZU7oss8EYNiJ3sBgPn1H8dWE8hMZzR9M7iEGpc), [xz (88B)](https://ipfs.io/ipfs/QmQorFHAV6ho525uQDRivUJqXNKTMEcNA2iqGZut5TLDP8) |
+  | 3 | Done | 5 | 212B | [gzip (100B)](https://ipfs.io/ipfs/QmQTT1VpGQLr5va86uy5xVCzPvFRuXDvH7taHfqfpQe6f6), [xz (140B)](https://ipfs.io/ipfs/QmPPK5rd5XcPQuMsEEvTdpb6DQcVg9GiquWCwTC4ryPeaj) |
+  | 4 | Done | 19 | 2K | [gzip (351B)](https://ipfs.io/ipfs/QmTL6v8gyMVU5ivLx5VjxAPz7VMrsiLzFuxZdz6BqiL1PP), [xz (396B)](https://ipfs.io/ipfs/QmXTTSn1FewBtfXTboJeeh24Au7TsuF47e7V4fBQ84CKf6) |
+  | 5 | Done | 106 | 16K | [gzip (2K)](https://ipfs.io/ipfs/QmQ38UwegXkMfXqXa9ymoUgtzxkDyRwiXNAPyZcQEMDZrJ), [xz (2K)](https://ipfs.io/ipfs/Qmdwa4MVoL1ZMUF7aZj4C2dSw6xNmEyWXV1gkbCk2KhhiH) |
+  | 6 | Done | 1150 | 297K | [gzip (33K)](https://ipfs.io/ipfs/QmckTB7Atb75e3gFZh1ve4pi7QZfRAMc6KwG3Hb69d8h2Q), [xz (25K)](https://ipfs.io/ipfs/QmXeDfhTkz4tukPZDi9tQ7ZP9m7pYotSV8WtXmhurC4XWn) |
+  | 7 | Done | 27292 | 11M | [gzip (899K)](https://ipfs.io/ipfs/QmfNJhmLHgjJY6KTjagfjJGdSE7z2YtThFd3sYzR684ooQ), [xz (651K)](https://ipfs.io/ipfs/Qmf6cEa2Gr2zVcKUeVJTzjchmVseciVxKvRgFKkRNmrjEf) |
+  | 8 | Done | 1378447 | 868M | [gzip (52M)](https://ipfs.io/ipfs/QmNx3rfis2QKybmVhiTAdX7W8ELYqeDL5REB2k8JvK1qHf), [xz (38M)](https://ipfs.io/ipfs/Qmdoi6bQtqQCNVaXmfWvEM3a16UivnbuY7Pacnix8VgaRX) |
+  | 9 | ? | ? | ? | ? |
+
 
 For example
 
-    $ curl -Ss https://ipfs.io/ipfs/QmY8cnV5WuWDXw8dQWH85K4wVDGxENPij6yFhUB2CZwb7v | gunzip
+    $ curl -Ss https://ipfs.io/ipfs/QmQTT1VpGQLr5va86uy5xVCzPvFRuXDvH7taHfqfpQe6f6 | gunzip
     g 3 4 4 1000010000100001
     g 3 8 6 100011010011101010100101011010010101101100011100
     g 3 5 5 1000001001001010101000110
     g 3 5 6 100001010011001010010100101100
     g 3 6 8 100001110100101100101101110100100111100010110100
 
-yields the five 3-dimensional 2-level polytopes.
+and
+
+    $ curl -Ss https://ipfs.io/ipfs/QmPPK5rd5XcPQuMsEEvTdpb6DQcVg9GiquWCwTC4ryPeaj | unxz
+    g 3 4 4 1000010000100001
+    g 3 8 6 100011010011101010100101011010010101101100011100
+    g 3 5 5 1000001001001010101000110
+    g 3 5 6 100001010011001010010100101100
+    g 3 6 8 100001110100101100101101110100100111100010110100
+
+each yield the five 3-dimensional 2-level polytopes.
 
 # Running the program
 
