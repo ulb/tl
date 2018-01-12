@@ -9,47 +9,40 @@
 
 d="#d"
 base="#base"
+lockfile="$LOCALSCRATCH/.tl-prepare"
+lockdfile="$LOCALSCRATCH/.tl-prepare-$d"
 tl="$LOCALSCRATCH/tl"
 run="$tl/run"
 db="$tl/db"
 bases="$db/$d"
-out="$tl/$d"
+out="$tl/out/$d"
 workspace="$out/$base"
-lock=".tl-prepare"
-lockd=".tl-prepare-$d"
-prepared=".tl-prepared"
+polytopes="$workspace/$polytopes"
 
+exec {lock}>"$lockfile"
 flock -x "$lock"
-if [ ! -e "$prepared" ] ; then
-
-	mkdir "$tl"
-	mkdir "$db"
-
-	cp -r "$CECIHOME/tl/run" "$run"
-
-	touch "$prepared"
-
-fi
+if [ ! -e "$tl" ] ; then mkdir "$tl" ; fi
+if [ ! -e "$db" ] ; then mkdir "$db" ; fi
+if [ ! -e "$run" ] ; then cp -r "$CECIHOME/tl/run" "$run" ; fi
 flock -u "$lock"
+exec {lock}>&-
 
+exec {lockd}>"$lockdfile"
 flock -x "$lockd"
-if [ ! -e "$out" ] ; then
-	cp "$CECIHOME/tl/db/src/$d" "$bases"
-	mkdir "$out"
-fi
+if [ ! -e "$bases" ] ; then cp "$CECIHOME/tl/db/src/$d" "$bases" ; fi
+if [ ! -e "$out" ] ; then mkdir -p "$out" ; fi
 flock -u "$lockd"
+exec {lockd}>&-
 
 mkdir "$workspace"
-cd "$workspace"
 
 tail "-n+$base" "$bases" | head -n1 |
-./run/inflate 2>/dev/null |
-./run/dedup 2>/dev/null |
-./run/sift 2>/dev/null "$bases" > polytopes
+"$run/inflate" 2>/dev/null |
+"$run/dedup" 2>/dev/null |
+"$run/sift" 2>/dev/null "$bases" > "$polytopes"
 
-cp polytopes "$CECIHOME/tl/hpc/out/$d/$base"
+cp "$polytopes" "$CECIHOME/tl/hpc/out/$d/$base"
 
 touch "$CECIHOME/tl/hpc/done/$d/$base"
 
-cd "$tl"
 rm -r "$workspace"
