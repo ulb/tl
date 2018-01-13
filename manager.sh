@@ -42,7 +42,7 @@ while [ "$i" -le "$n" ] ; do
 
 	for ((j=0;j<$available;j++)); do
 		base="$(($i+$j))"
-		if [ "$base" -gt "$n" ] ; break ; fi
+		if [ "$base" -gt "$n" ] ; then break ; fi
 		submit "$base"
 	done
 
