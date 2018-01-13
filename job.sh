@@ -53,8 +53,10 @@ _do exec {lockd}>&-
 
 _do mkdir -p "$workspace"
 
->&2 echo "Enumerating 2-level polytopes from $d-dimensional base n°$base (writing to $polytopes)"
+>&2 echo "Enumerating 2-level polytopes from $d-dimensional base n°$base (writing to $polytopes):"
 tail "-n+$(($base+1))" "$bases" | head -n1 >&2
+
+module load GCCcore
 
 tail "-n+$(($base+1))" "$bases" | head -n1 |
 "$run/inflate" 2>/dev/null |
