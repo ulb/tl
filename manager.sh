@@ -19,6 +19,7 @@ jobs="$scratch/jobs"
 queue="$scratch/queue"
 running="$scratch/running"
 done="$scratch/done"
+fail="$scratch/fail"
 out="$scratch/out"
 log="$scratch/log"
 resume="$scratch/resume"
@@ -34,6 +35,7 @@ function variables {
 	info "queue=$queue"
 	info "running=$running"
 	info "done=$done"
+	info "fail=$fail"
 	info "out=$out"
 	info "log=$log"
 	info "resume=$resume"
@@ -52,6 +54,7 @@ if [ -e "$resume" ] ; then info "Resuming ..." ; else
 	mkdir -p "$queue"
 	mkdir -p "$running"
 	mkdir -p "$done"
+	mkdir -p "$fail"
 	mkdir -p "$out"
 	mkdir -p "$log"
 
@@ -127,5 +130,7 @@ DAYS="$(($HOURS/24))"
 D="$(($DAYS))"
 
 >&2 echo "All jobs finished in $D days $H hours $MIN minutes and $SEC seconds."
+
+>&2 echo "$(count "$fail") jobs failed (list is in $fail)."
 
 variables
