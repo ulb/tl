@@ -42,7 +42,7 @@ exec {lock}>&-
 
 exec {lockd}>"$lockdfile"
 _do flock -x "$lockd"
-if [ ! -e "$workspaces" ] ; then _do mkdir -p "$workspaces" ; fi
+if [ ! -e "$workspaces" ] ; then _do mkdir "$workspaces" ; fi
 _do flock -u "$lockd"
 exec {lockd}>&-
 
