@@ -22,10 +22,10 @@ function submit {
 	sbatch "$job" && touch "$running/$base"
 }
 
-i=0
+i=1
 n="$(wc -l < db/src/$d)"
 
-while true ; do
+while [ "$i" -le "$n" ] ; do
 
 	for base in $(find "$running" -type f -printf "%f\n"); do
 		if [ -e "$done/$base" ] ; then
@@ -42,6 +42,7 @@ while true ; do
 
 	for ((j=0;j<$available;j++)); do
 		base="$(($i+$j))"
+		if [ "$base" -gt "$n" ] ; break ; fi
 		submit "$base"
 	done
 
