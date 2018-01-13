@@ -73,9 +73,9 @@ function submit {
 	base="$1"
 	job="$jobs/$base.sh"
 	sed \
-		-e "s/#d/$d/g" \
-		-e "s/#base/$base/g" \
-		-e "s/#GLOBALSCRATCH/$GLOBALSCRATCH/g" \
+		-e "s:#d:$d:g" \
+		-e "s:#base:$base:g" \
+		-e "s:#GLOBALSCRATCH:$GLOBALSCRATCH:g" \
 		job.sh > "$job"
 	info "tl-$d-$base submission"
 	sbatch "$job" && touch "$running/$base" && rm "$queue/$base"
