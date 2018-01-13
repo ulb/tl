@@ -118,6 +118,8 @@ while true ; do
 
 done
 
+>&2 echo "================================================================"
+
 STOP_TIME="$SECONDS"
 
 SECONDS="$(($STOP_TIME-$START_TIME))"
@@ -129,8 +131,8 @@ H="$(($HOURS%24))"
 DAYS="$(($HOURS/24))"
 D="$(($DAYS))"
 
->&2 echo "All jobs finished in $D days $H hours $MIN minutes and $SEC seconds."
+info "All jobs finished in $D days $H hours $MIN minutes and $SEC seconds."
 
->&2 echo "$(count "$fail") jobs failed (list is in $fail)."
+info "$(count "$fail") jobs failed (list is in $fail)."
 
 variables
