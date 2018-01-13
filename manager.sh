@@ -19,7 +19,7 @@ function submit {
 	job="$jobs/$base.sh"
 	sed -e "s/#d/$d/g" -e "s/#base/$base/g" job.sh > "$job"
 	>&2 echo "tl-$d-$base submission"
-	sbatch "$job"
+	sbatch "$job" && touch "$running/$base"
 }
 
 i=0

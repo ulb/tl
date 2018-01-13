@@ -17,7 +17,7 @@ db="$tl/db"
 bases="$db/$d"
 out="$tl/out/$d"
 workspace="$out/$base"
-polytopes="$workspace/$polytopes"
+polytopes="$workspace/polytopes"
 
 exec {lock}>"$lockfile"
 flock -x "$lock"
