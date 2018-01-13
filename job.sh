@@ -36,20 +36,20 @@ function _do {
 	eval "$@"
 }
 
-_do exec {lock}>"$lockfile"
+exec {lock}>"$lockfile"
 _do flock -x "$lock"
 if [ ! -e "$tl" ] ; then _do mkdir "$tl" ; fi
 if [ ! -e "$db" ] ; then _do mkdir "$db" ; fi
 if [ ! -e "$run" ] ; then _do cp -r "$CECIHOME/tl/run" "$run" ; fi
 _do flock -u "$lock"
-_do exec {lock}>&-
+exec {lock}>&-
 
-_do exec {lockd}>"$lockdfile"
+exec {lockd}>"$lockdfile"
 _do flock -x "$lockd"
 if [ ! -e "$bases" ] ; then _do cp "$CECIHOME/tl/db/src/$d" "$bases" ; fi
 if [ ! -e "$out" ] ; then _do mkdir -p "$out" ; fi
 _do flock -u "$lockd"
-_do exec {lockd}>&-
+exec {lockd}>&-
 
 _do mkdir -p "$workspace"
 
