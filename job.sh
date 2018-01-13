@@ -34,7 +34,7 @@ if [ ! -e "$out" ] ; then mkdir -p "$out" ; fi
 flock -u "$lockd"
 exec {lockd}>&-
 
-mkdir "$workspace"
+mkdir -p "$workspace"
 
 tail "-n+$base" "$bases" | head -n1 |
 "$run/inflate" 2>/dev/null |
