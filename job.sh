@@ -19,30 +19,50 @@ out="$tl/out/$d"
 workspace="$out/$base"
 polytopes="$workspace/polytopes"
 
-exec {lock}>"$lockfile"
-flock -x "$lock"
-if [ ! -e "$tl" ] ; then mkdir "$tl" ; fi
-if [ ! -e "$db" ] ; then mkdir "$db" ; fi
-if [ ! -e "$run" ] ; then cp -r "$CECIHOME/tl/run" "$run" ; fi
-flock -u "$lock"
-exec {lock}>&-
+>&2 echo "d=$d"
+>&2 echo "base=$base"
+>&2 echo "lockfile=$lockfile"
+>&2 echo "lockdfile=$lockdfile"
+>&2 echo "tl=$tl"
+>&2 echo "run=$run"
+>&2 echo "db=$db"
+>&2 echo "bases=$bases"
+>&2 echo "out=$out"
+>&2 echo "workspace=$workspace"
+>&2 echo "polytopes=$polytopes"
 
-exec {lockd}>"$lockdfile"
-flock -x "$lockd"
-if [ ! -e "$bases" ] ; then cp "$CECIHOME/tl/db/src/$d" "$bases" ; fi
-if [ ! -e "$out" ] ; then mkdir -p "$out" ; fi
-flock -u "$lockd"
-exec {lockd}>&-
+function _do {
+	>&2 echo "$@"
+	eval "$@"
+}
 
-mkdir -p "$workspace"
+_do exec {lock}>"$lockfile"
+_do flock -x "$lock"
+if [ ! -e "$tl" ] ; then _do mkdir "$tl" ; fi
+if [ ! -e "$db" ] ; then _do mkdir "$db" ; fi
+if [ ! -e "$run" ] ; then _do cp -r "$CECIHOME/tl/run" "$run" ; fi
+_do flock -u "$lock"
+_do exec {lock}>&-
 
-tail "-n+$base" "$bases" | head -n1 |
+_do exec {lockd}>"$lockdfile"
+_do flock -x "$lockd"
+if [ ! -e "$bases" ] ; then _do cp "$CECIHOME/tl/db/src/$d" "$bases" ; fi
+if [ ! -e "$out" ] ; then _do mkdir -p "$out" ; fi
+_do flock -u "$lockd"
+_do exec {lockd}>&-
+
+_do mkdir -p "$workspace"
+
+>&2 echo "Enumerating 2-level polytopes from $d-dimensional base n°$base (writing to $polytopes)"
+tail "-n+$(($base+1))" "$bases" | head -n1 >&2
+
+tail "-n+$(($base+1))" "$bases" | head -n1 |
 "$run/inflate" 2>/dev/null |
 "$run/dedup" 2>/dev/null |
 "$run/sift" 2>/dev/null "$bases" > "$polytopes"
 
-cp "$polytopes" "$CECIHOME/tl/hpc/out/$d/$base"
+_do cp "$polytopes" "$CECIHOME/tl/hpc/out/$d/$base"
 
-touch "$CECIHOME/tl/hpc/done/$d/$base"
+_do touch "$CECIHOME/tl/hpc/done/$d/$base"
 
-rm -r "$workspace"
+_do rm -r "$workspace"
