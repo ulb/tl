@@ -11,7 +11,7 @@ out="hpc/out/$d"
 log="hpc/log/$d"
 resume="hpc/resume"
 
-if [ ! -e "$resume" ] ; then
+if [ -e "$resume" ] ; then >&2 echo "Resuming ..." ; else
 
 	# assumes no other manager is running
 	dangling="$(squeue -h -u "$USER" -o "%j %i" | grep -E "^tl-$d-[1-9][0-9]*" | cut -d' ' -f2)"
