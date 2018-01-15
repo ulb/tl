@@ -1,46 +1,13 @@
-function now {
-	date '+%Y-%m-%d_%H:%M:%S'
-}
+#!/usr/bin/env sh
+
+d="$1"
+
+source ceci/globals.sh
 
 START_TIME="$SECONDS"
 START_DATE="$(now)"
 
-function info {
-	>&2 echo "[$(now)]" "$@"
-}
-
-d="$1"
-n="$(wc -l < "db/src/$d")"
-
-slots=200
-interval=5
-scratch="$GLOBALSCRATCH/tl/$d"
-jobs="$scratch/jobs"
-queue="$scratch/queue"
-running="$scratch/running"
-done="$scratch/done"
-fail="$scratch/fail"
-out="$scratch/out"
-log="$scratch/log"
-resume="$scratch/resume"
-
-function variables {
-	info "START_DATE=$START_DATE"
-	info "d=$d"
-	info "n=$n"
-	info "slots=$slots"
-	info "interval=$interval"
-	info "scratch=$scratch"
-	info "jobs=$jobs"
-	info "queue=$queue"
-	info "running=$running"
-	info "done=$done"
-	info "fail=$fail"
-	info "out=$out"
-	info "log=$log"
-	info "resume=$resume"
-}
-
+info "START_DATE=$START_DATE"
 variables
 
 if [ -e "$resume" ] ; then info "Resuming ..." ; else
@@ -80,7 +47,7 @@ function submit {
 			-e "s:#d:$d:g" \
 			-e "s:#base:$base:g" \
 			-e "s:#GLOBALSCRATCH:$GLOBALSCRATCH:g" \
-			job.sh > "$job"
+			"$template_job" > "$job"
 	fi
 	info "tl-$d-$base submission"
 	sbatch "$job" && touch "$running/$base" && rm "$queue/$base"
@@ -137,4 +104,5 @@ info "All jobs finished in $D days $H hours $MIN minutes and $SEC seconds."
 
 info "$(count "$fail") jobs failed (list is in $fail)."
 
+info "START_DATE=$START_DATE"
 variables
