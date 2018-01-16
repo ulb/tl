@@ -6,6 +6,7 @@
 #include "nauty.h"
 #include "alloc.hpp"
 #include "tl/Polytope.hpp"
+#include "tl/CanonicalGraph.hpp"
 #include "array/get_zeros.hpp"
 
 namespace tl {
@@ -96,12 +97,16 @@ namespace tl {
 	            for (k = 0; k < fcolumns; ++k)
 	                *(fpt++) = S[rows_S_Fi[i][j]][zero_indices[i][k]];
 
-	        tl::Polytope<int> facet(fdimension,frows,fcolumns,fdata);
-			std::pair<setword*, setword*> pair(facet.cg, facet.cg_end);
+			tl::Polytope<int> facet(fdimension,frows,fcolumns,fdata);
+			tl::CanonicalGraph<int> cg(facet);
+
+			std::pair<setword*, setword*> pair(cg.begin, cg.end);
 
 			found = std::binary_search(cgs.begin(), cgs.end(), pair, comp);
 
-	        facet.teardown();
+			cg.teardown();
+			facet.teardown();
+
 	    }
 
 	    for (i = 0; i < rows; ++i) free(rows_S_Fi[i]);

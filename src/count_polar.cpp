@@ -4,6 +4,7 @@
 
 #include "tl/load.hpp"
 #include "tl/Polytope.hpp"
+#include "tl/CanonicalGraph.hpp"
 #include "subcl/inc_polar.hpp"
 #include "array/LexicographicOrder.hpp"
 
@@ -11,12 +12,8 @@ int main () {
 
     std::ios_base::sync_with_stdio(true);
 
-    //if (argc < 1 || argc > 2) {
-        //std::cerr << "usage: dedup [<verbosity>]" << std::endl;
-        //return 1;
-    //}
-
     std::vector<tl::Polytope<int>> polytopes;
+    std::vector<tl::CanonicalGraph<int>> graphs;
     array::LexicographicOrder<setword*> comp;
     std::set<std::pair<setword*,setword*>,array::LexicographicOrder<setword*>> cgs(comp);
     size_t n_polar = 0 ;
@@ -24,19 +21,32 @@ int main () {
 
         if ( !tl::load(std::cin, polytopes) ) break ;
 
-        auto& polytope = polytopes[polytopes.size()-1];
+        auto& polytope = polytopes[0];
 
-        std::pair<setword*,setword*> pair(polytope.cg, polytope.cg_end);
+        graphs.emplace_back(polytope);
+
+        const auto& graph = graphs[graphs.size()-1];
+
+        std::pair<setword*,setword*> pair(graph.begin, graph.end);
         cgs.insert(pair);
 
-        subcl::inc_polar(cgs, polytope, n_polar);
+        auto dualpolytope = polytope.dual();
+
+        tl::CanonicalGraph<int> dualgraph(dualpolytope);
+
+        n_polar += subcl::inc_polar(cgs, graph, dualgraph);
+
+        polytope.teardown();
+        dualpolytope.teardown();
+        dualgraph.teardown();
+        polytopes.clear();
 
     }
 
     std::cout << n_polar << std::endl ;
 
-    for (auto& polytope : polytopes) polytope.teardown();
-    polytopes.clear(); // should only use the setword vector and throw away the rest
+    for (auto& graph : graphs) graph.teardown();
+    graphs.clear();
 
     return 0;
 }

@@ -31,9 +31,19 @@ int main (int argc, const char* argv[]) {
     kernel.close();
     std::cerr << "Done. Loaded " << facets.size() << " facets." << std::endl;
 
+    std::vector<tl::CanonicalGraph<int>> graphs;
     std::vector<std::pair<setword*,setword*>> cgs;
+    graphs.reserve(facets.size());
     cgs.reserve(facets.size());
-    for (auto& facet : facets) cgs.emplace_back(facet.cg, facet.cg_end);
+    for (auto& facet : facets) {
+        graphs.emplace_back(facet);
+        auto& graph = graphs[graphs.size()-1];
+        cgs.emplace_back(graph.begin, graph.end);
+    }
+
+    for (auto& facet : facets) facet.teardown();
+    facets.clear();
+
     array::LexicographicOrder<setword*> comp;
     std::sort(cgs.begin(), cgs.end(), comp);
 
@@ -53,8 +63,8 @@ int main (int argc, const char* argv[]) {
     }
 
     cgs.clear();
-    for (auto& facet : facets) facet.teardown();
-    facets.clear();
+    for (auto& graph : graphs) graph.teardown();
+    graphs.clear();
 
     return 0;
 

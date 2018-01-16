@@ -1,9 +1,7 @@
 #ifndef H_TL_POLYTOPE
 #define H_TL_POLYTOPE
 
-#include "nauty.h"
 #include "alloc.hpp"
-#include "tl/canonicize.hpp"
 
 namespace tl {
 
@@ -26,8 +24,6 @@ namespace tl {
 		T* data;
 		T* vector;
 		T** matrix;
-		setword* cg;
-		setword* cg_end;
 
 		Polytope(const T dimension, const T rows, const T columns, T* data) :
 		dimension(dimension), rows(rows), columns(columns), data(data) {
@@ -38,25 +34,14 @@ namespace tl {
 			// proxy for indexed row-first iteration
 			alloc(this->matrix,rows,T*) ;
 			for (T i = 0; i < rows; ++i) this->matrix[i] = this->vector + i * columns ;
-
-			// compute canonical form (only needed for d-1 atoms, should skip)
-	        int n(this->rows + this->columns);
-	        int m(SETWORDSNEEDED(n));
-			setword* cg;
-	        alloc(cg, m*n, setword);
-	        tl::canonicize(this->matrix, this->rows, this->columns, n, m, cg);
-			this->cg = cg;
-			this->cg_end = cg + m*n;
-
 		}
 
 		void teardown ( ) {
-			free(this->cg);
 			free(this->matrix);
 			free(this->data);
 		}
 
-		Polytope<T> dual ( ) {
+		Polytope<T> dual ( ) const {
 			int dimension = this->dimension ;
 			int rows = this->columns ;
 			int columns = this->rows ;

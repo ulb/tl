@@ -283,7 +283,7 @@ int main () {
                 array::unpack64(B,num_slabs,B_64);
                 // std::cerr << "unpack" << std::endl;
                 std::memcpy(A,CI,size_ground_H * sizeof(int));
-                tot_N_closed_sets++;
+                ++tot_N_closed_sets;
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
                 void * mem_S_new;
