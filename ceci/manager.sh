@@ -24,6 +24,7 @@ if [ -e "$resume" ] ; then info "Resuming ..." ; else
 	mkdir -p "$fail"
 	mkdir -p "$out"
 	mkdir -p "$log"
+	mkdir -p "$duration"
 
 	for i in $(seq 1 "$n") ; do touch "$queue/$i" ; done
 
@@ -91,9 +92,9 @@ done
 
 STOP_TIME="$SECONDS"
 
-SECONDS="$(($STOP_TIME-$START_TIME))"
-SEC="$(($SECONDS%60))"
-MINUTES="$(($SECONDS/60))"
+SECS="$(($STOP_TIME-$START_TIME))"
+SEC="$(($SECS%60))"
+MINUTES="$(($SECS/60))"
 MIN="$(($MINUTES%60))"
 HOURS="$(($MINUTES/60))"
 H="$(($HOURS%24))"

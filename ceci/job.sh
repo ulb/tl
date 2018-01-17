@@ -18,6 +18,7 @@ src_bases="$CECIHOME/tl/db/src/$d"
 flag_fail="$GLOBALSCRATCH/tl/$d/fail/$base"
 flag_done="$GLOBALSCRATCH/tl/$d/done/$base"
 output="$GLOBALSCRATCH/tl/$d/out/$base"
+duration="$GLOBALSCRATCH/tl/$d/duration/$base"
 
 >&2 echo "d=$d"
 >&2 echo "base=$base"
@@ -46,10 +47,16 @@ _do module load GCCcore
 >&2 echo "Enumerating 2-level polytopes from $d-dimensional base n°$base (writing to $polytopes):"
 tail "-n+$base" "$bases" | head -n1 >&2
 
+START_TIME="$SECONDS"
+
 tail "-n+$base" "$bases" | head -n1 |
-"$run/inflate" 2>/dev/null |
+"$run/inflate" |
 "$run/dedup" 2>/dev/null |
 "$run/sift" 2>/dev/null "$bases" > "$polytopes"
+
+STOP_TIME="$SECONDS"
+
+_do echo "$(($STOP_TIME-$START_TIME))" > "$duration"
 
 if [ "$?" -ne 0 ] ; then _do touch "$flag_fail" ; fi
 
