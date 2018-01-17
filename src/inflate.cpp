@@ -18,10 +18,10 @@
 #include "alloc_matrix.hpp"
 
 #include "linalg/is_id.hpp"
-#include "linalg/invertM.hpp"
+#include "linalg/invert.hpp"
 
 #include "linalg/div_ceil.hpp"
-#include "linalg/transposeM.hpp"
+#include "linalg/transpose.hpp"
 
 #include "nt/my_pow.hpp"
 #include "nt/factor.hpp"
@@ -115,7 +115,7 @@ int main () {
             alloc_matrix(mem_Minv,Minv,D,D);
 
             tl::extractM(facet.matrix,M,D);
-            linalg::invertM(M,Minv,D);
+            linalg::invert(M,Minv,D);
 
             free(mem_M);
 
@@ -130,8 +130,7 @@ int main () {
             // fprintf(stderr, "Constructing automorphism group of the base and extending it to R^D... ");
             void * mem_d_aut_collection;
             int ** d_aut_collection;
-            int num_autom_base;
-            base::construct_d_aut_collection(mem_d_aut_collection,d_aut_collection,num_autom_base,facet.matrix,num_rows_S,num_cols_S,D);
+            const int num_autom_base = base::construct_d_aut_collection(mem_d_aut_collection,d_aut_collection,facet.matrix,num_rows_S,num_cols_S,D);
             // fprintf(stderr, "OK\n");
 
             // Create the set Vert(P_0) (in V-embedding)
@@ -203,7 +202,7 @@ int main () {
             void * mem_slab_points_sat_t;
             int ** slab_points_sat_t;
             alloc_matrix(mem_slab_points_sat_t,slab_points_sat_t,num_slabs,size_ground_H);
-            linalg::transposeM(slab_points_sat,slab_points_sat_t,size_ground_H,num_slabs);
+            linalg::transpose(slab_points_sat,slab_points_sat_t,size_ground_H,num_slabs);
 
             const int n_cols_64 = linalg::div_ceil(num_slabs, 64);
             const int n_rows_64 = linalg::div_ceil(size_ground_H, 64);
