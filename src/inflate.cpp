@@ -250,11 +250,10 @@ int main () {
             int * B;
             alloc(B,num_slabs,int);
 
-            int * dchcl, * inccl, * I, * CI;
+            int * dchcl, * inccl, * I;
             alloc(dchcl,size_ground_H,int);
             alloc(inccl,size_ground_H,int);
             alloc(I,size_ground_H,int);
-            alloc(CI,size_ground_H,int);
 
             uint64_t * B_64;
             alloc(B_64,n_cols_64,uint64_t);
@@ -269,15 +268,15 @@ int main () {
                     //clops::discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
                     clops::fast_discreteconvexhull_cl(I,B_64,dchcl_64,sp_64,sp_t_64,size_ground_H,num_slabs,n_rows_64,n_cols_64);
                     array::unpack64(dchcl,size_ground_H,dchcl_64);
-                    if ( clops::fast_compatibility_cl(dchcl,dchcl_64,incompatibility_adjM_64,size_ground_H) ) {
+                    if ( clops::fast_compatibility_cl(dchcl, dchcl_64, incompatibility_adjM_64, size_ground_H) ) {
                     //if ( clops::compatibility_cl(dchcl,incompatibility_adjM,size_ground_H) ) {
-                        clops::lexmax_symmetric_cl(dchcl,CI,size_ground_H,orbits,num_autom_base);
+                        clops::lexmax_symmetric_cl(dchcl, size_ground_H, orbits, num_autom_base);
                     }
-                    else std::fill(CI,CI+size_ground_H,1);
+                    else std::fill(dchcl,dchcl+size_ground_H,1);
                     ++i;
-                } while (!clops::is_sqsubseteq(I,CI,size_ground_H));
+                } while (!clops::is_sqsubseteq(I,dchcl,size_ground_H));
                 array::unpack64(B,num_slabs,B_64);
-                std::memcpy(A,CI,size_ground_H * sizeof(int));
+                std::memcpy(A,dchcl,size_ground_H * sizeof(int));
                 ++tot_N_closed_sets;
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
@@ -294,7 +293,6 @@ int main () {
 
             }
             fprintf(stderr, "OK\n");
-            free(CI);
             free(I);
             free(inccl);
             free(dchcl);
