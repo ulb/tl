@@ -3,8 +3,8 @@
 
 #include <algorithm>
 #include <utility>
-#include "nauty.h"
 #include "alloc.hpp"
+#include "alloc_matrix.hpp"
 #include "tl/Polytope.hpp"
 #include "tl/CanonicalGraph.hpp"
 #include "array/get_zeros.hpp"
@@ -40,36 +40,38 @@ namespace tl {
 	// by using the list of (D-1)-dimensional 2-level polytopes.
 	template <typename C, typename A, typename P>
 	bool istwolevelpolytope(C& comp, A& cgs, P& poly) {
-		auto& S = poly.matrix;
-		auto& rows = poly.rows;
-		auto& cols = poly.columns;
-		auto& D = poly.dimension;
-	    int i, j, k, l;
+		const auto& S = poly.matrix;
+		const auto& rows = poly.rows;
+		const auto& cols = poly.columns;
+		const auto& D = poly.dimension;
 	    // First test: check that every column contains at least D zeros
 	    // by construction, every row of S contains at least D zeros
-	    int num_facets_contain;
-	    for (j = 0; j < cols; ++j) {
-	        num_facets_contain = 0;
-	        for (i = 0; i < rows; ++i) if (S[i][j] == 0) num_facets_contain += 1;
+	    for (int j = 0; j < cols; ++j) {
+	        int num_facets_contain = 0;
+	        for (int i = 0; i < rows; ++i) if (S[i][j] == 0) ++num_facets_contain;
 	        if (num_facets_contain < D) return false;
 	    }
 
+		void * zero_indices_mem;
 		int ** zero_indices;
 	    int * num_zero_indices;
-	    alloc(zero_indices,rows,int *);
+	    alloc_matrix(zero_indices_mem, zero_indices, rows, cols);
 	    alloc(num_zero_indices,rows,int);
-	    for (i = 0; i < rows; ++i) num_zero_indices[i] = array::get_zeros(S[i],cols,zero_indices[i]);
+	    for (int i = 0; i < rows; ++i) {
+			num_zero_indices[i] = array::get_zeros_skip_alloc(S[i],cols,zero_indices[i]);
+		}
 
+	    void* rows_S_Fi_mem;
 	    int** rows_S_Fi;
 	    int* num_rows_S_Fi;
-	    alloc(rows_S_Fi,rows,int*);
+	    alloc_matrix(rows_S_Fi_mem, rows_S_Fi, rows, rows);
 	    alloc(num_rows_S_Fi,rows,int);
 
-	    for (i = 0; i < rows; ++i) {
-	        alloc(rows_S_Fi[i],rows,int);
-	        l = 0; // current number of rows of S_Fi
+	    for (int i = 0; i < rows; ++i) {
+	        int l = 0; // current number of rows of S_Fi
 			int* zeros = zero_indices[i];
 			const int * const end = zeros + num_zero_indices[i];
+			int j;
 	        for (j = 0; j < i; ++j)
 	            if (is_maximal(S,zeros,end,i,j,rows)) rows_S_Fi[i][l++] = j;
 	        for (++j; j < rows; ++j)
@@ -82,7 +84,9 @@ namespace tl {
 
 	    bool found = true;
 
-	    for (i = 0; i < rows && found; ++i) {
+	    for (int i = 0; i < rows && found; ++i) {
+			const auto zero_indices_i = zero_indices[i];
+			const auto rows_S_Fi_i = rows_S_Fi[i];
 	    	const int fdimension = D - 1;
 	    	const int frows = num_rows_S_Fi[i];
 	    	const int fcolumns = num_zero_indices[i];
@@ -93,9 +97,13 @@ namespace tl {
 			*(fpt++) = fdimension;
 			*(fpt++) = frows;
 			*(fpt++) = fcolumns;
-	        for (j = 0; j < frows; ++j)
-	            for (k = 0; k < fcolumns; ++k)
-	                *(fpt++) = S[rows_S_Fi[i][j]][zero_indices[i][k]];
+	        for (int j = 0; j < frows; ++j) {
+				const auto rows_S_Fi_ij = rows_S_Fi_i[j];
+				const auto Si = S[rows_S_Fi_ij];
+				for (int k = 0; k < fcolumns; ++k) {
+					*(fpt++) = Si[zero_indices_i[k]];
+				}
+			}
 
 			tl::Polytope<int> facet(fdimension,frows,fcolumns,fdata);
 			tl::CanonicalGraph<int> cg(facet);
@@ -109,12 +117,10 @@ namespace tl {
 
 	    }
 
-	    for (i = 0; i < rows; ++i) free(rows_S_Fi[i]);
-	    free(rows_S_Fi);
+	    free(rows_S_Fi_mem);
 	    free(num_rows_S_Fi);
 
-	    for (i = 0; i < rows; ++i) free(zero_indices[i]);
-	    free(zero_indices);
+	    free(zero_indices_mem);
 	    free(num_zero_indices);
 
 	    return found;
