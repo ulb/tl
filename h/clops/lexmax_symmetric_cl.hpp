@@ -8,7 +8,8 @@
 #include "array/is_all_ones.hpp"
 #include "array/is_all_zeros.hpp"
 #include "array/get_ones.hpp"
-#include "clops/is_preccurlyeq.hpp"
+#include "clops/precedes.hpp"
+#include "linalg/div_ceil.hpp"
 
 namespace clops {
 	template <typename T,typename SIZE>
@@ -40,7 +41,7 @@ namespace clops {
 
 			for (SIZE i = 0; i < num_autom_base; ++i) {
 				if (!clops::is_outside_X(orbits[i],A_sym,A_indices,num_A_indices,length_A))
-					if (clops::is_preccurlyeq(symcl,A_sym,length_A))
+					if (clops::precedes(symcl,A_sym,length_A))
 						std::memcpy(symcl,A_sym,length_A * sizeof(T));
 			}
 

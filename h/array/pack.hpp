@@ -2,6 +2,7 @@
 #define H_CLOPS_PACK
 
 #include <cstring> // std::fill
+#include "linalg/div_ceil.hpp"
 
 namespace array {
 
@@ -33,6 +34,13 @@ namespace array {
 	void pack64_matrix(T** M, uint64_t** M_64,const SIZE nrows,const SIZE ncols,const SIZE ncols_64) {
 
 		for (SIZE i = 0; i < nrows; ++i) pack64(M[i],ncols,M_64[i],ncols_64);
+
+	}
+
+	template <typename T,typename SIZE>
+	void pack64_matrix_triangular(T** M, uint64_t** M_64,const SIZE nrows) {
+
+		for (SIZE i = 1; i < nrows; ++i) pack64(M[i],i,M_64[i],linalg::div_ceil(i,64));
 
 	}
 

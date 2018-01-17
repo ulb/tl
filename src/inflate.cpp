@@ -53,7 +53,7 @@
 #include "clops/is_sqsubseteq.hpp"
 //#include "clops/discreteconvexhull_cl.hpp"
 #include "clops/fast_discreteconvexhull_cl.hpp"
-#include "clops/incompatibility_cl.hpp"
+#include "clops/compatibility_cl.hpp"
 #include "clops/lexmax_symmetric_cl.hpp"
 
 #include "simpl/slack_matrix_simplicial_2L.hpp"
@@ -186,7 +186,7 @@ int main () {
             // fprintf(stderr, "Building slabs... ");
             void * mem_slabs;
             int ** slabs;
-            alloc_matrix(mem_slabs,slabs,1 << D,D);
+            alloc_matrix(mem_slabs,slabs,1 << D,D); // 1 << D = 2^D
             int num_slabs;
             base::construct_slabs(slabs,num_slabs,num_cols_S,base_H,D);
             // fprintf(stderr, "OK\n");
@@ -234,6 +234,11 @@ int main () {
             int ** incompatibility_adjM;
             alloc_triangular_matrix(mem_incompatibility_adjM,incompatibility_adjM,size_ground_H);
             base::construct_incompatibility_adjM(incompatibility_adjM,ground_H,facets_base,size_ground_H,num_facets_base,D);
+
+            void * mem_incompatibility_adjM_64;
+            uint64_t ** incompatibility_adjM_64;
+            alloc_triangular_matrix_64(mem_incompatibility_adjM_64,incompatibility_adjM_64,size_ground_H);
+            array::pack64_matrix_triangular(incompatibility_adjM,incompatibility_adjM_64,size_ground_H);
             // fprintf(stderr, "OK\n");
 
             // fprintf(stderr, "Lauching Ganter's next-closure algorithm and checking 2-levelness... ");
@@ -259,28 +264,19 @@ int main () {
             while (!array::is_all_ones(A,size_ground_H)) {
                 int i = 0;
                 do {
-                    // std::cerr << "I am in" << std::endl;
                     while(A[i] == 1) ++i;
-                    // for (int s = 0; s < size_ground_H; ++s) std::cerr << A[s];
-                    // std::cerr << std::endl;
                     clops::inc(A,i,I,size_ground_H); // I = inc(A,i)
-                    // for (int s = 0; s < size_ground_H; ++s) std::cerr << I[s];
-                    // std::cerr << std::endl;
-                    // std::cerr << "0" << std::endl;
                     //clops::discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
                     clops::fast_discreteconvexhull_cl(I,B_64,dchcl_64,sp_64,sp_t_64,size_ground_H,num_slabs,n_rows_64,n_cols_64);
                     array::unpack64(dchcl,size_ground_H,dchcl_64);
-                    // std::cerr << ANSI_YELLOW << "C" << ANSI_RESET << std::endl;
-                    clops::incompatibility_cl(dchcl,inccl,incompatibility_adjM,size_ground_H);
-                    // std::cerr << ANSI_MAGENTA << "D" << ANSI_RESET << std::endl;
-                    clops::lexmax_symmetric_cl(inccl,CI,size_ground_H,orbits,num_autom_base);
-                    // std::cerr << ANSI_BLUE << "E" << ANSI_RESET << std::endl;
+                    if ( clops::fast_compatibility_cl(dchcl,dchcl_64,incompatibility_adjM_64,size_ground_H) ) {
+                    //if ( clops::compatibility_cl(dchcl,incompatibility_adjM,size_ground_H) ) {
+                        clops::lexmax_symmetric_cl(dchcl,CI,size_ground_H,orbits,num_autom_base);
+                    }
+                    else std::fill(CI,CI+size_ground_H,1);
                     ++i;
-                    // std::cerr << "I am testing" << std::endl;
                 } while (!clops::is_sqsubseteq(I,CI,size_ground_H));
-                // std::cerr << "I am out" << std::endl;
                 array::unpack64(B,num_slabs,B_64);
-                // std::cerr << "unpack" << std::endl;
                 std::memcpy(A,CI,size_ground_H * sizeof(int));
                 ++tot_N_closed_sets;
 
@@ -308,6 +304,7 @@ int main () {
             free(A);
 
             free(mem_incompatibility_adjM);
+            free(mem_incompatibility_adjM_64);
             free(mem_slab_points_sat_t);
             free(mem_sp_64);
             free(mem_sp_t_64);
