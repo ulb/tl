@@ -11,7 +11,7 @@ namespace tl {
 		auto& dimension = polytope.dimension;
 		auto& rows = polytope.rows;
 		auto& cols = polytope.columns;
-		auto pt = polytope.vector;
+		auto pt = *(polytope.matrix);
 
 		ostream << 'g' << ' ' ;
 		ostream << dimension << ' ' ;
@@ -31,7 +31,7 @@ namespace tl {
 		auto& dimension = polytope.dimension;
 		auto& rows = polytope.rows;
 		auto& cols = polytope.columns;
-		auto pt = polytope.vector;
+		auto pt = *(polytope.matrix);
 
 		ostream << 's' << ' ' ;
 		ostream << dimension << ' ' ;

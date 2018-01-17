@@ -84,19 +84,17 @@ namespace tl {
 
 	    bool found = true;
 
-	    for (int i = 0; i < rows && found; ++i) {
+	    for (int i = 0; i < rows; ++i) {
 			const auto zero_indices_i = zero_indices[i];
 			const auto rows_S_Fi_i = rows_S_Fi[i];
 	    	const int fdimension = D - 1;
 	    	const int frows = num_rows_S_Fi[i];
 	    	const int fcolumns = num_zero_indices[i];
-	    	int* fdata;
-	        alloc(fdata,3+frows*fcolumns,int);
-	        int* fpt = fdata;
+	    	void* fdata;
+			int** fmatrix;
+	        alloc_matrix(fdata,fmatrix,frows,fcolumns);
+	        int* fpt(*fmatrix);
 
-			*(fpt++) = fdimension;
-			*(fpt++) = frows;
-			*(fpt++) = fcolumns;
 	        for (int j = 0; j < frows; ++j) {
 				const auto rows_S_Fi_ij = rows_S_Fi_i[j];
 				const auto Si = S[rows_S_Fi_ij];
@@ -105,7 +103,7 @@ namespace tl {
 				}
 			}
 
-			tl::Polytope<int> facet(fdimension,frows,fcolumns,fdata);
+			tl::Polytope<int> facet(fdimension,frows,fcolumns,fdata,fmatrix);
 			tl::CanonicalGraph<int> cg(facet);
 
 			std::pair<setword*, setword*> pair(cg.begin, cg.end);
@@ -114,6 +112,8 @@ namespace tl {
 
 			cg.teardown();
 			facet.teardown();
+
+			if ( !found ) break ;
 
 	    }
 
