@@ -14,19 +14,15 @@
 namespace clops {
 	template <typename T,typename SIZE>
 	bool is_outside_X(T* phi, T * A_sym, T * A_indices,const SIZE num_A_indices,const SIZE length_A) {
-		for (SIZE j = 1; j < num_A_indices; ++j) {
-			if (phi[A_indices[j]] == length_A) return true;
-		}
+		for (SIZE j = 1; j < num_A_indices; ++j) if (phi[A_indices[j]] == length_A) return true;
 		std::memset(A_sym+1,0,(length_A-1) * sizeof(T));
-		for (SIZE j = 1; j < num_A_indices; ++j) {
-			A_sym[phi[A_indices[j]]] = 1;
-		}
+		for (SIZE j = 1; j < num_A_indices; ++j) A_sym[phi[A_indices[j]]] = 1;
 		return false;
 	}
 
 	// compute the lexmax symmetric copy of a set A
 	template <typename T,typename SIZE>
-	void lexmax_symmetric_cl(T * A,T *& symcl, const SIZE length_A,T ** orbits,const SIZE num_autom_base) {
+	void lexmax_symmetric_cl(T * A, T *& symcl, const SIZE length_A,T ** orbits,const SIZE num_autom_base) {
 
 		std::memcpy(symcl,A,length_A * sizeof(T));
 
@@ -40,9 +36,13 @@ namespace clops {
 			A_sym[0] = 1;
 
 			for (SIZE i = 0; i < num_autom_base; ++i) {
-				if (!clops::is_outside_X(orbits[i],A_sym,A_indices,num_A_indices,length_A))
-					if (clops::precedes(symcl,A_sym,length_A))
-						std::memcpy(symcl,A_sym,length_A * sizeof(T));
+				if (!clops::is_outside_X(orbits[i],A_sym,A_indices,num_A_indices,length_A)) {
+					if (clops::precedes(symcl,A_sym,length_A)) {
+						T* tmp = symcl;
+						symcl = A_sym;
+						A_sym = tmp;
+					}
+				}
 			}
 
 			free(A_sym);
