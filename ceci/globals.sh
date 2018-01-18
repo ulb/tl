@@ -3,7 +3,7 @@
 bases="db/src/$d"
 n="$(wc -l < "$bases")"
 polytopes="db/src/$(($d+1))"
-slots=200
+slots=275
 interval=5
 scratch="$GLOBALSCRATCH/tl/$d"
 jobs="$scratch/jobs"
