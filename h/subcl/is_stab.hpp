@@ -8,6 +8,7 @@ namespace subcl {
 		const auto S = polytope.matrix;
 		const auto rows = polytope.rows;
 		const auto cols = polytope.columns;
+		const auto D = polytope.dimension;
 		size_t num_zeros;
 		
         for (size_t i = 0; i < cols; ++i) {
