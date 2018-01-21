@@ -2,13 +2,15 @@
 #define H_MEM_ALLOC
 
 #include <cstdlib>
+#include <iostream>
 
 namespace mem {
 	template<typename T,typename SIZE>
 	void alloc(T *& p, SIZE num) {
-		p = (T *) malloc(num * sizeof(T));
+		const size_t bytes(num * sizeof(T));
+		p = (T *) malloc(bytes);
 		if (p == NULL) {
-			fprintf(stderr,"run out of memory.\n");
+			std::cerr << "ran out of memory." << std::endl ;
 			exit(1);
 		}
 	}

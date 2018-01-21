@@ -7,7 +7,7 @@
 
 int main () {
 
-    std::ios_base::sync_with_stdio(true);
+    std::ios_base::sync_with_stdio(false);
 
     std::vector<tl::Polytope<int>> polytopes;
     size_t n_cs = 0 ;

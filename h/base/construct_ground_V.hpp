@@ -4,14 +4,14 @@
 #include <stdio.h>
 #include <cstring> // std::memcpy, std::memset, std::fill
 
-#include "../alloc.hpp"
+#include "mem/alloc.hpp"
 
 namespace base {
 	template <typename T>
 	void construct_ground_V(T ** ground_V, const T D) {
         int i,j,k;
         T * count;
-        alloc(count,D,T);
+        mem::alloc(count,D);
         // initialize count to 0
         bool carry;
 
@@ -23,7 +23,6 @@ namespace base {
             std::memset(count,0,D * sizeof(T));
 
             while (count[i] == 0) {
-                // alloc(ground_V[k],D,T);
                 ground_V[k][0] = 1;
                 std::memset(ground_V[k]+1,0,(i-1) * sizeof(T));
                 ground_V[k][i] = 1;

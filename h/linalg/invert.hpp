@@ -3,7 +3,7 @@
 
 #include <cstring> // std::equal, std::memcpy, std::memset, std::fill
 
-#include "alloc.hpp"
+#include "mem/alloc.hpp"
 #include "generate_id_matrix.hpp"
 
 namespace linalg {

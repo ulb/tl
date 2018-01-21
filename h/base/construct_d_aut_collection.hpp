@@ -5,8 +5,8 @@
 #include "nauty.h"
 #include <vector> // std::memcpy, std::memset, std::fill
 
-#include "alloc.hpp"
-#include "alloc_matrix.hpp"
+#include "mem/alloc.hpp"
+#include "mem/alloc_matrix.hpp"
 #include "base/construct_automorphism_base.hpp"
 
 namespace base {
@@ -17,7 +17,7 @@ namespace base {
 		std::vector<std::vector<T>> automorphism_base;
 		T num_autom_base = base::construct_automorphism_base(S,num_rows_S,num_cols_S,n,m,automorphism_base);
 
-		alloc_matrix(mem_d_aut_collection,d_aut_collection,num_autom_base,D);
+		mem::alloc_matrix(mem_d_aut_collection,d_aut_collection,num_autom_base,D);
 
 		for (SIZE i = 0; i < num_autom_base; ++i)
 			for (SIZE j = num_rows_S; j < num_rows_S + D; ++j) d_aut_collection[i][j - num_rows_S] = automorphism_base[i][j] - num_rows_S;

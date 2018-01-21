@@ -13,7 +13,7 @@ namespace subcl {
 		for (size_t i = 0; i < rows; ++i) {
 			size_t num_ones = 0;
 			for (size_t j = 0; j < cols; ++j) if (S[i][j] == 1) ++num_ones;
-			if (!(num_ones == cols/2)) return false;
+			if (num_ones != cols/2) return false;
 		}
 
 		return true;

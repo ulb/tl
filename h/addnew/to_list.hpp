@@ -6,11 +6,11 @@
 #include <iostream>
 #include <cstring> // std::equal, std::memcpy, std::memset, std::fill
 
-#include "../alloc.hpp"
-#include "../tl/canonicize.hpp"
-#include "../tl/dump.hpp"
-#include "../subcl/is_susp.hpp"
-#include "../subcl/is_polar.hpp"
+#include "mem/alloc.hpp"
+#include "tl/canonicize.hpp"
+#include "tl/dump.hpp"
+#include "subcl/is_susp.hpp"
+#include "subcl/is_polar.hpp"
 
 namespace addnew {
 	// check if the slack matrix S is already listed in LD; if not, add it to LD //int *& LD_hash, setword **& LD

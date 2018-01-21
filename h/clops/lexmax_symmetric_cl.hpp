@@ -3,7 +3,7 @@
 
 #include <cstring> // std::equal
 
-#include "alloc.hpp"
+#include "mem/alloc.hpp"
 #include "array/is_equal.hpp"
 #include "array/is_all_ones.hpp"
 #include "array/is_all_zeros.hpp"
@@ -30,7 +30,7 @@ namespace clops {
 			SIZE num_A_indices = array::get_ones(A,length_A,A_indices);
 
 			T * A_sym;
-			alloc(A_sym,length_A,T);
+			mem::alloc(A_sym,length_A);
 			A_sym[0] = 1;
 
 			for (SIZE i = 0; i < num_autom_base; ++i) {
@@ -75,7 +75,7 @@ namespace clops {
 
 		SIZE n64(linalg::div_ceil(n,64));
 		uint64_t* B;
-		alloc(B, n64, uint64_t);
+		mem::alloc(B, n64);
 		B[0] = uint64_t(1);
 
 		for (SIZE i = 0; i < num_autom_base; ++i) {

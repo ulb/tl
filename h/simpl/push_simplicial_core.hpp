@@ -2,7 +2,7 @@
 #define H_SIMPL_PUSH_SIMPLICIAL_CORE
 
 #include <cstring> // std::equal, std::memcpy, std::memset, std::fill
-#include "../alloc.hpp"
+#include "mem/alloc.hpp"
 
 namespace simpl {
 	template <typename T,typename SIZE>
@@ -12,7 +12,7 @@ namespace simpl {
 	    // rearrange the columns in such a way that the first row begins with [1,0,...,0,...] (D zeros)
 	    // remember that every row has precisely D zeros and D ones since it is the slack matrix of a simplicial 2-level polytope
 	    T * temp_col;
-	    alloc(temp_col,num_rows_M,T);
+		mem::alloc(temp_col,num_rows_M);
 	    bool found = false;
 	    if (M[0][0] != 1) {
 	        for (j = 1; j < num_cols_M && !found; ++j) {
@@ -42,15 +42,15 @@ namespace simpl {
 	        }
 	    }
 	    free(temp_col);
-	    
+
 	    // rearranging rows of M
 	    T * temp_row;
-	    alloc(temp_row,num_cols_M,T);
+		mem::alloc(temp_row,num_cols_M);
 	    int temp_idx = 0;
 	    for (i = temp_idx+1; i < num_rows_M && temp_idx < D; ++i) {
 	        accept = true;
 	        for (j = 0; j < D && accept; ++j) accept = (M[i][j+1] == Id[temp_idx][j]);
-	        
+
 	        if (accept) {
 	            std::memcpy(temp_row,M[i],num_cols_M * sizeof(T));
 	            std::memcpy(M[i],M[temp_idx+1],num_cols_M * sizeof(T));

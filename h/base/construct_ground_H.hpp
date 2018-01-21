@@ -8,7 +8,7 @@
 #include <vector> // std::vector
 
 
-#include "alloc.hpp"
+#include "mem/alloc.hpp"
 #include "linalg/my_matrix_prod.hpp"
 
 namespace base {
@@ -35,7 +35,7 @@ namespace base {
         size_ground_H = 0;
         for (SIZE i = 0; i < size_ground_V; ++i) {
             T * point;
-            alloc(point,D,T);
+            mem::alloc(point,D);
             linalg::my_matrix_prod(Minv,ground_V[i],point,D,D);
 
             if (accept(facets_base,num_facets_base,point,D)) {

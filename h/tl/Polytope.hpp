@@ -1,7 +1,7 @@
 #ifndef H_TL_POLYTOPE
 #define H_TL_POLYTOPE
 
-#include "alloc_matrix.hpp"
+#include "mem/alloc_matrix.hpp"
 #include "linalg/transpose.hpp"
 
 namespace tl {
@@ -31,7 +31,7 @@ namespace tl {
 
 			void* data;
 			T** matrix;
-			alloc_matrix(data, matrix, rows, columns);
+			mem::alloc_matrix(data, matrix, rows, columns);
 
 			linalg::transpose(this->matrix, matrix, this->rows, this->columns);
 

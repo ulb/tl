@@ -3,7 +3,7 @@
 
 #include <cstring> // std::memcpy, std::memset, std::fill
 
-#include "alloc.hpp"
+#include "mem/alloc.hpp"
 #include "linalg/my_inner_prod.hpp"
 
 namespace base {
@@ -20,7 +20,7 @@ namespace base {
 	template <typename T,typename SIZE>
 	void construct_slabs(T ** slabs,T & num_slabs,const SIZE num_cols_S,T ** base_H,const T D) {
         T * count;
-        alloc(count,D+1,T);
+        mem::alloc(count,D+1);
         // initialize count to e_1
         count[0] = 1;
         std::memset(count+1,0,D * sizeof(T));
@@ -28,13 +28,12 @@ namespace base {
 
         num_slabs = 0;
         T * normal_vector;
-        alloc(normal_vector,D,T);
+        mem::alloc(normal_vector,D);
         while (count[D] == 0) {
             std::memcpy(normal_vector, count, D * sizeof(T));
 
             // Add normal vector of slab to the list if it contains all points of the base
             if (accept(normal_vector,base_H,num_cols_S,D)) {
-                // alloc(slabs[num_slabs],D,T);
                 std::memcpy(slabs[num_slabs],normal_vector,D * sizeof(T));
                 num_slabs++;
             }

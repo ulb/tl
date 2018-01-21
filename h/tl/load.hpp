@@ -2,7 +2,7 @@
 #define H_TL_LOAD
 
 #include <iostream>
-#include "alloc_matrix.hpp"
+#include "mem/alloc_matrix.hpp"
 #include "loadheader.hpp"
 #include "loadmatrix_g.hpp"
 #include "loadmatrix_s.hpp"
@@ -19,7 +19,7 @@ namespace tl {
 
 		void* data;
 		int** matrix;
-		alloc_matrix(data, matrix, rows, columns);
+		mem::alloc_matrix(data, matrix, rows, columns);
 
 		int* pt(*matrix);
 

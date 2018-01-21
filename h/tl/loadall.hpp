@@ -2,7 +2,7 @@
 #define H_TL_LOADALL
 
 #include <iostream>
-#include "tl/load.hpp"
+#include "load.hpp"
 
 namespace tl {
 

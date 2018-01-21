@@ -1,7 +1,7 @@
 #ifndef H_ARRAY_GET_ZEROS
 #define H_ARRAY_GET_ZEROS
 
-#include "alloc.hpp"
+#include "mem/alloc.hpp"
 
 namespace array {
 
@@ -14,7 +14,7 @@ namespace array {
 
 	template <typename T,typename SIZE>
 	SIZE get_zeros(T * v,const SIZE length,T *& zero_indices_v) {
-		alloc(zero_indices_v,length,T);
+		mem::alloc(zero_indices_v,length);
 		return get_zeros_skip_alloc(v, length, zero_indices_v);
 	}
 

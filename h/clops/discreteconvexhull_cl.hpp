@@ -2,7 +2,7 @@
 #define H_CLOPS_DISCRETECONVEXHULL_CL
 
 #include <cstring> // std::fill
-#include "alloc.hpp"
+#include "mem/alloc.hpp"
 #include "array/get_ones.hpp"
 
 namespace clops {

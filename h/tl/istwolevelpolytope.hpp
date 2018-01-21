@@ -3,10 +3,10 @@
 
 #include <algorithm>
 #include <utility>
-#include "alloc.hpp"
-#include "alloc_matrix.hpp"
-#include "tl/Polytope.hpp"
-#include "tl/CanonicalGraph.hpp"
+#include "mem/alloc.hpp"
+#include "mem/alloc_matrix.hpp"
+#include "Polytope.hpp"
+#include "CanonicalGraph.hpp"
 #include "array/get_zeros.hpp"
 
 namespace tl {
@@ -55,8 +55,8 @@ namespace tl {
 		void * zero_indices_mem;
 		int ** zero_indices;
 	    int * num_zero_indices;
-	    alloc_matrix(zero_indices_mem, zero_indices, rows, cols);
-	    alloc(num_zero_indices,rows,int);
+		mem::alloc_matrix(zero_indices_mem, zero_indices, rows, cols);
+		mem::alloc(num_zero_indices,rows);
 	    for (int i = 0; i < rows; ++i) {
 			num_zero_indices[i] = array::get_zeros_skip_alloc(S[i],cols,zero_indices[i]);
 		}
@@ -64,8 +64,8 @@ namespace tl {
 	    void* rows_S_Fi_mem;
 	    int** rows_S_Fi;
 	    int* num_rows_S_Fi;
-	    alloc_matrix(rows_S_Fi_mem, rows_S_Fi, rows, rows);
-	    alloc(num_rows_S_Fi,rows,int);
+		mem::alloc_matrix(rows_S_Fi_mem, rows_S_Fi, rows, rows);
+		mem::alloc(num_rows_S_Fi,rows);
 
 	    for (int i = 0; i < rows; ++i) {
 	        int l = 0; // current number of rows of S_Fi
@@ -92,7 +92,7 @@ namespace tl {
 	    	const int fcolumns = num_zero_indices[i];
 	    	void* fdata;
 			int** fmatrix;
-	        alloc_matrix(fdata,fmatrix,frows,fcolumns);
+			mem::alloc_matrix(fdata,fmatrix,frows,fcolumns);
 	        int* fpt(*fmatrix);
 
 	        for (int j = 0; j < frows; ++j) {

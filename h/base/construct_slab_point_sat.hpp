@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <cstring> // std::memcpy, std::memset, std::fill
 
-#include "alloc.hpp"
+#include "mem/alloc.hpp"
 #include "linalg/my_inner_prod.hpp"
 
 namespace base {

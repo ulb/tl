@@ -3,22 +3,20 @@
 
 #include <cstring> // std::memcpy, std::memset, std::fill
 
-#include "alloc.hpp"
+#include "mem/alloc.hpp"
 #include "array/index_in_collection.hpp"
 
 namespace base {
     template <typename T,typename SIZE>
     void construct_orbits(T ** orbits,const SIZE num_autom_base,T ** base_H,T ** d_aut_collection,T ** ground_H,const SIZE size_ground_H,const T D) {
-        // alloc(orbits[0],size_ground_H,T);
         for (SIZE j = 0; j < size_ground_H; ++j) orbits[0][j] = j ;
 
         T* image;
-        alloc(image,D,T);
+        mem::alloc(image,D);
         image[0] = 1;
 
         for (SIZE i = 1; i < num_autom_base; ++i) {
 
-            // alloc(orbits[i],size_ground_H,T);
             orbits[i][0] = 0;
 
             for (SIZE j = 1; j < size_ground_H; ++j) {

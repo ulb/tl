@@ -13,9 +13,9 @@
 #define FINAL_TEXT   "\e[93m"
 #define FINAL_DATA   "\e[91m"
 
-#include "alloc.hpp"
-#include "alloc_triangular_matrix.hpp"
-#include "alloc_matrix.hpp"
+#include "mem/alloc.hpp"
+#include "mem/alloc_triangular_matrix.hpp"
+#include "mem/alloc_matrix.hpp"
 
 #include "linalg/is_id.hpp"
 #include "linalg/invert.hpp"
@@ -102,106 +102,105 @@ int main () {
             int num_rows_S(facet.rows);
             int num_cols_S(facet.columns);
 
-            // fprintf(stderr, "Simplicial core? ");fprintf(stderr, "OK\n");else
+            // std::cerr << "Cheking for simplicial core." << std::endl ;
             if (!tl::checksimplicialcore(facet.matrix,D)) {
-                fprintf(stderr, "Fail. Simplicial core not found.\n");
+                std::cerr << "Fail. Simplicial core not found.\n" << std::endl ;
                 return 1;
             }
 
             // Extract embedding transformation matrix M_d(0) and invert it
             void * mem_M, * mem_Minv;
             int ** M, ** Minv;
-            alloc_matrix(mem_M,M,D,D);
-            alloc_matrix(mem_Minv,Minv,D,D);
+            mem::alloc_matrix(mem_M,M,D,D);
+            mem::alloc_matrix(mem_Minv,Minv,D,D);
 
             tl::extractM(facet.matrix,M,D);
             linalg::invert(M,Minv,D);
 
             free(mem_M);
 
-            // fprintf(stderr, "Constructing H-embedding of facets of the base... ");
+            // std::cerr << "Constructing H-embedding of facets of the base... " ;
             void * mem_facets_base;
             int ** facets_base;
-            alloc_matrix(mem_facets_base,facets_base,num_rows_S,D);
+            mem::alloc_matrix(mem_facets_base,facets_base,num_rows_S,D);
             int num_facets_base = 0; // number of element currently in facets_base
             base::construct_facets_base(facets_base,num_facets_base,facet.matrix,num_rows_S,D);
-            // fprintf(stderr, "OK\n");
+            // std::cerr << "OK" << std::endl ;
 
-            // fprintf(stderr, "Constructing automorphism group of the base and extending it to R^D... ");
+            // std::cerr << "Constructing automorphism group of the base and extending it to R^D" ;
             void * mem_d_aut_collection;
             int ** d_aut_collection;
             const int num_autom_base = base::construct_d_aut_collection(mem_d_aut_collection,d_aut_collection,facet.matrix,num_rows_S,num_cols_S,D);
-            // fprintf(stderr, "OK\n");
+            // std::cerr << "OK" << std::endl ;
 
             // Create the set Vert(P_0) (in V-embedding)
-            // fprintf(stderr, "Building V-embedding of base... ");
+            // std::cerr << "Building V-embedding of base... " ;
             void * mem_base_V;
             int ** base_V;
-            alloc_matrix(mem_base_V,base_V,num_cols_S,D);
+            mem::alloc_matrix(mem_base_V,base_V,num_cols_S,D);
             base::construct_base_V(base_V,facet.matrix,num_cols_S,D);
-            // fprintf(stderr, "OK\n");
+            // std::cerr << "OK" << std::endl ;
 
             // Create Vert(P_0) (H-embedding this time), the set of fixed points
-            // fprintf(stderr, "Building H-embedding of base... ");
+            // std::cerr << "Building H-embedding of base... " ;
             void * mem_base_H;
             int ** base_H;
-            alloc_matrix(mem_base_H,base_H,num_cols_S,D);
+            mem::alloc_matrix(mem_base_H,base_H,num_cols_S,D);
             base::construct_base_H(base_H,base_V,Minv,num_cols_S,D);
-            // fprintf(stderr, "OK\n");
-
+            // std::cerr << "OK" << std::endl ;
             // Create the V-embedding of the reduced ground set (by means of translations)
-            // fprintf(stderr, "Building V-embedding of the ground set... ");
+            // std::cerr << "Building V-embedding of the ground set... " ;
             void * mem_ground_V;
             int ** ground_V;
             int size_ground_V = (nt::my_pow(3,D-1)+1)/2;
-            alloc_matrix(mem_ground_V,ground_V,size_ground_V,D);
+            mem::alloc_matrix(mem_ground_V,ground_V,size_ground_V,D);
             base::construct_ground_V(ground_V,D);
-            // fprintf(stderr, "OK\n");
+            // std::cerr << "OK" << std::endl ;
 
             // Create ground set
-            // fprintf(stderr, "Building H-embedding of the reduced ground set... ");
+            // std::cerr << "Building H-embedding of the reduced ground set... " ;
             void * mem_ground_H;
             int ** ground_H;
-            alloc_matrix(mem_ground_H,ground_H,size_ground_V,D);
+            mem::alloc_matrix(mem_ground_H,ground_H,size_ground_V,D);
             int size_ground_H;
             base::construct_ground_H(ground_H,size_ground_H,ground_V,size_ground_V,facets_base,num_facets_base,Minv,D);
-            // fprintf(stderr, "OK\n");
+            // std::cerr << "OK" << std::endl ;
 
             // It is possible to free the base_V and ground_V, we will use the H-embedding
             free(mem_ground_V);
             free(mem_base_V);
 
-            fprintf(stderr, "-> Size of the ground set = %d\n",size_ground_V);
-            fprintf(stderr, "-> Size of the reduced ground set = %d\n",size_ground_H);
-            fprintf(stderr, "-> Size of the automorphism group of the base = %d\n",num_autom_base);
+            std::cerr << "-> Size of the ground set = " << size_ground_V << std::endl ;
+            std::cerr << "-> Size of the reduced ground set = " << size_ground_H << std::endl ;
+            std::cerr << "-> Size of the automorphism group of the base = " << num_autom_base << std::endl ;
 
-            // fprintf(stderr, "Generating orbits of point of the ground set... ");
+            // std::cerr << "Generating orbits of point of the ground set... " ;
             void * mem_orbits;
             int ** orbits;
-            alloc_matrix(mem_orbits,orbits,num_autom_base,size_ground_H);
+            mem::alloc_matrix(mem_orbits,orbits,num_autom_base,size_ground_H);
             base::construct_orbits(orbits,num_autom_base,base_H,d_aut_collection,ground_H,size_ground_H,D);
-            // fprintf(stderr, "OK\n");
+            // std::cerr << "OK" << std::endl ;
 
             // Compute the slabs: inequalities x(E) <= 1, x(E) >= 0 that are valid for the base_H
-            // fprintf(stderr, "Building slabs... ");
+            // std::cerr << "Building slabs... " ;
             void * mem_slabs;
             int ** slabs;
-            alloc_matrix(mem_slabs,slabs,1 << D,D); // 1 << D = 2^D
+            mem::alloc_matrix(mem_slabs,slabs,1 << D,D); // 1 << D = 2^D
             int num_slabs;
             base::construct_slabs(slabs,num_slabs,num_cols_S,base_H,D);
-            // fprintf(stderr, "OK\n");
+            // std::cerr << "OK" << std::endl ;
 
             // Check points versus slabs incidence (for each point, list the slabs containing it)
-            // fprintf(stderr, "Building incidences between points and slabs... ");
+            // std::cerr << "Building incidences between points and slabs... " ;
             void * mem_slab_points_sat;
             int ** slab_points_sat;
-            alloc_matrix(mem_slab_points_sat,slab_points_sat,size_ground_H,num_slabs);
+            mem::alloc_matrix(mem_slab_points_sat,slab_points_sat,size_ground_H,num_slabs);
             base::construct_slab_point_sat(slab_points_sat,ground_H,slabs,size_ground_H,num_slabs,D);
-            // fprintf(stderr, "OK\n");
+            // std::cerr << "OK" << std::endl ;
 
             void * mem_slab_points_sat_t;
             int ** slab_points_sat_t;
-            alloc_matrix(mem_slab_points_sat_t,slab_points_sat_t,num_slabs,size_ground_H);
+            mem::alloc_matrix(mem_slab_points_sat_t,slab_points_sat_t,num_slabs,size_ground_H);
             linalg::transpose(slab_points_sat,slab_points_sat_t,size_ground_H,num_slabs);
 
             const int n_cols_64 = linalg::div_ceil(num_slabs, 64);
@@ -210,55 +209,55 @@ int main () {
             // construct the block uint64_t
             void * mem_sp_64;
             uint64_t ** sp_64;
-            alloc_matrix(mem_sp_64,sp_64,size_ground_H,n_cols_64);
+            mem::alloc_matrix(mem_sp_64,sp_64,size_ground_H,n_cols_64);
             array::pack64_matrix(slab_points_sat,sp_64,size_ground_H,num_slabs,n_cols_64);
 
             void * mem_sp_t_64;
             uint64_t ** sp_t_64;
-            alloc_matrix(mem_sp_t_64,sp_t_64,num_slabs,n_rows_64);
+            mem::alloc_matrix(mem_sp_t_64,sp_t_64,num_slabs,n_rows_64);
             array::pack64_matrix(slab_points_sat_t,sp_t_64,num_slabs,size_ground_H,n_rows_64);
 
             // std::cerr << "slab_points_sat = " << std::endl;
             // array::dump_matrix(slab_points_sat,size_ground_H,num_slabs);
-            // std::cerr << "\nslab_points_sat_t = " << std::endl;
+            // std::cerr << std::endl << "slab_points_sat_t = " << std::endl;
             // array::dump_matrix(slab_points_sat_t,num_slabs,size_ground_H);
-            // std::cerr << "\nsp_64 = " << std::endl;
+            // std::cerr << std::endl << "sp_64 = " << std::endl;
             // array::dump_matrix_64(sp_64,size_ground_H,n_cols_64);
-            // std::cerr << "\nsp_t_64 = " << std::endl;
+            // std::cerr << std::endl << "sp_t_64 = " << std::endl;
             // array::dump_matrix_64(sp_t_64,num_slabs,n_rows_64);
 
 
             // Construct the incompatibility matrix
-            // fprintf(stderr, "Constructing the incompatibility matrix... ");
+            // std::cerr << "Constructing the incompatibility matrix... " ;
             void * mem_incompatibility_adjM;
             int ** incompatibility_adjM;
-            alloc_triangular_matrix(mem_incompatibility_adjM,incompatibility_adjM,size_ground_H);
+            mem::alloc_triangular_matrix(mem_incompatibility_adjM,incompatibility_adjM,size_ground_H);
             base::construct_incompatibility_adjM(incompatibility_adjM,ground_H,facets_base,size_ground_H,num_facets_base,D);
 
             void * mem_incompatibility_adjM_64;
             uint64_t ** incompatibility_adjM_64;
-            alloc_triangular_matrix_64(mem_incompatibility_adjM_64,incompatibility_adjM_64,size_ground_H);
+            mem::alloc_triangular_matrix_64(mem_incompatibility_adjM_64,incompatibility_adjM_64,size_ground_H);
             array::pack64_matrix_triangular(incompatibility_adjM,incompatibility_adjM_64,size_ground_H);
-            // fprintf(stderr, "OK\n");
+            // std::cerr << "OK" << std::endl ;
 
-            // fprintf(stderr, "Lauching Ganter's next-closure algorithm and checking 2-levelness... ");
+            // std::cerr << "Lauching Ganter's next-closure algorithm and checking 2-levelness... " ;
 
             int * A;
-            alloc(A,size_ground_H,int);
+            mem::alloc(A,size_ground_H);
             std::memset(A,0,size_ground_H * sizeof(int));
 
             int * B;
-            alloc(B,num_slabs,int);
+            mem::alloc(B,num_slabs);
 
             int * dchcl, * inccl, * I;
-            alloc(dchcl,size_ground_H,int);
-            alloc(inccl,size_ground_H,int);
-            alloc(I,size_ground_H,int);
+            mem::alloc(dchcl,size_ground_H);
+            mem::alloc(inccl,size_ground_H);
+            mem::alloc(I,size_ground_H);
 
             uint64_t * B_64;
-            alloc(B_64,n_cols_64,uint64_t);
+            mem::alloc(B_64,n_cols_64);
             uint64_t * dchcl_64;
-            alloc(dchcl_64,n_rows_64,uint64_t);
+            mem::alloc(dchcl_64,n_rows_64);
 
             while (!array::is_all_ones(A,size_ground_H)) {
                 int i = 0;
@@ -292,7 +291,7 @@ int main () {
                 }
 
             }
-            fprintf(stderr, "OK\n");
+            std::cerr << "OK" << std::endl ;
             free(I);
             free(inccl);
             free(dchcl);

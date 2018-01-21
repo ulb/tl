@@ -9,7 +9,7 @@ namespace mem {
 	void alloc_matrix(void *& mem,T **& matrix, const SIZE m,const SIZE n) {
 		mem = malloc(m * sizeof(T *) + (m*n) * sizeof(T));
 		if (mem == NULL) {
-			fprintf(stderr,"run out of memory.\n");
+			std::cerr << "ran out of memory while allocating matrix." << std::endl ;
 			exit(1);
 		}
 		matrix = (T **)mem;
