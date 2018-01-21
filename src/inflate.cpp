@@ -61,7 +61,7 @@
 
 int main () {
 
-    std::ios_base::sync_with_stdio(true);
+    std::ios_base::sync_with_stdio(false);
 
     int tot_N_closed_sets = 0;
 

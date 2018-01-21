@@ -13,7 +13,7 @@
 
 int main (int argc, const char* argv[]) {
 
-    std::ios_base::sync_with_stdio(true);
+    std::ios_base::sync_with_stdio(false);
 
     if (argc < 2 || argc > 3) {
         std::cerr << "usage: sift <kernel> [<verbosity>]" << std::endl;

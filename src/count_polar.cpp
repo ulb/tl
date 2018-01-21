@@ -10,7 +10,7 @@
 
 int main () {
 
-    std::ios_base::sync_with_stdio(true);
+    std::ios_base::sync_with_stdio(false);
 
     std::vector<tl::Polytope<int>> polytopes;
     std::vector<tl::CanonicalGraph<int>> graphs;

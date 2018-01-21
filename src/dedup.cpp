@@ -12,7 +12,7 @@
 
 int main () {
 
-    std::ios_base::sync_with_stdio(true);
+    std::ios_base::sync_with_stdio(false);
 
     //if (argc < 1 || argc > 2) {
         //std::cerr << "usage: dedup [<verbosity>]" << std::endl;
