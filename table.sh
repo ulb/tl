@@ -1,28 +1,10 @@
 #!/usr/bin/env sh
 
-echo "  | Dimension | Status | Number | Size | Download |"
-echo "  | --------- | ------ | ------ | ---- | -------- |"
+echo "  | Dimension | Status | Number | # simplicial | # polar | # stab | # cs | Size | Download |"
+echo "  | --------- | ------ | ------ | ------------ | ------- | ------ | ---- | ---- | -------- |"
 
 function known {
-    d="$1"
-    n="$2"
-    size="$3"
-    gz="$4"
-    sgz="$5"
-    xz="$6"
-    sxz="$7"
-    echo "  | $d | Done | $n | $size | [gzip ($sgz)](https://ipfs.io/ipfs/$gz), [xz ($sxz)](https://ipfs.io/ipfs/$xz) |"
-}
-
-function unknown {
-    d="$1"
-    echo "  | $d | ? | ? | ? | ? |"
-}
-
-mkdir -p db/gz
-mkdir -p db/xz
-
-for d in $(seq 0 8); do
+	d="$1"
 	all="db/src/$d"
 	n="$(wc -l < "$all")"
 	size="$(wc -c < "$all" | human)"
@@ -45,7 +27,27 @@ for d in $(seq 0 8); do
 	ixz="$(ipfs add -q "$xz")"
 	sxz="$(wc -c < "$xz" | human)"
 	>&2 echo "$xz hash is $ixz"
-	known "$d" "$n" "$size" "$igz" "$sgz" "$ixz" "$sxz"
+	>&2 echo "Counting simplicial for dimension $d"
+	nsimplicial="$(./run/count_has_simplicial < "$all" 2>/dev/null)"
+	>&2 echo "Counting polar for dimension $d"
+	npolar="$(./run/count_polar < "$all" 2>/dev/null)"
+	>&2 echo "Counting stab for dimension $d"
+	nstab="$(./run/count_stab < "$all" 2>/dev/null)"
+	>&2 echo "Counting cs for dimension $d"
+	ncs="$(./run/count_cs < "$all" 2>/dev/null)"
+	echo "  | $d | Done | $n | $nsimplicial | $npolar | $nstab | $ncs | $size | [gzip ($sgz)](https://ipfs.io/ipfs/$igz), [xz ($sxz)](https://ipfs.io/ipfs/$ixz) |"
+}
+
+function unknown {
+	d="$1"
+	echo "  | $d | ? | ? | ? | ? | ? | ? | ? | ? |"
+}
+
+mkdir -p db/gz
+mkdir -p db/xz
+
+for d in $(seq 0 8); do
+	known "$d"
 done
 
 unknown 9
