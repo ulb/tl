@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
-echo "  | Dimension | Status | Number | # simplicial | # polar | # stab | # cs | Size | Download |"
-echo "  | --------- | ------ | ------ | ------------ | ------- | ------ | ---- | ---- | -------- |"
+echo "  | Dimension | Status | Number | # polar | # simplicial | # stab | # cs | Size | Download |"
+echo "  | --------- | ------ | ------ | ------- | ------------ | ------ | ---- | ---- | -------- |"
 
 function known {
 	d="$1"
@@ -28,14 +28,14 @@ function known {
 	sxz="$(wc -c < "$xz" | human)"
 	>&2 echo "$xz hash is $ixz"
 	>&2 echo "Counting simplicial for dimension $d"
-	nsimplicial="$(./run/count_has_simplicial < "$all" 2>/dev/null)"
-	>&2 echo "Counting polar for dimension $d"
 	npolar="$(./run/count_polar < "$all" 2>/dev/null)"
 	>&2 echo "Counting stab for dimension $d"
+	nsimplicial="$(./run/count_has_simplicial < "$all" 2>/dev/null)"
+	>&2 echo "Counting polar for dimension $d"
 	nstab="$(./run/count_stab < "$all" 2>/dev/null)"
 	>&2 echo "Counting cs for dimension $d"
 	ncs="$(./run/count_cs < "$all" 2>/dev/null)"
-	echo "  | $d | Done | $n | $nsimplicial | $npolar | $nstab | $ncs | $size | [gzip ($sgz)](https://ipfs.io/ipfs/$igz), [xz ($sxz)](https://ipfs.io/ipfs/$ixz) |"
+	echo "  | $d | Done | $n | $npolar | $nsimplicial | $nstab | $ncs | $size | [gzip ($sgz)](https://ipfs.io/ipfs/$igz), [xz ($sxz)](https://ipfs.io/ipfs/$ixz) |"
 }
 
 function unknown {
