@@ -6,9 +6,12 @@ namespace subcl {
 	template <typename P>
 	bool is_cs(P& polytope) {
 
+		const size_t cols = polytope.columns;
+
+		if (cols % 2 == 1) return false;
+
 		const auto S = polytope.matrix;
 		const size_t rows = polytope.rows;
-		const size_t cols = polytope.columns;
 
 		for (size_t i = 0; i < rows; ++i) {
 			size_t num_ones = 0;
