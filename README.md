@@ -6,7 +6,7 @@ All files are compressed
   | --------- | ------ | ------ | ------- | ------------ | ------ | ---- | ---- | -------- |
   | 0 | Done | 1 | 1 | 1 | 1 | 0 | 10B | [gzip (27B)](https://ipfs.io/ipfs/Qmb4HZF5JPQx4LD8PkhdJBku3YFYbz8bvvaATgtrorAHYi), [xz (68B)](https://ipfs.io/ipfs/QmbyrwKy4iGEnvdhNo3SQKwNCYYNYXeDJmnpCXZgMpq52S) |
   | 1 | Done | 1 | 1 | 1 | 1 | 1 | 13B | [gzip (31B)](https://ipfs.io/ipfs/QmWUmuoNREeaCYZ49DvxM2wg9VgRGpEDQyqAJHii9v9fhV), [xz (72B)](https://ipfs.io/ipfs/QmZ4qRDzmhFUMxuFC4raL259BbhqbMAJ6kkwqU4Zrer6hv) |
-  | 2 | Done | 2 | 2 | 2 | 2 | 2 | 43B | [gzip (47B)](https://ipfs.io/ipfs/QmTnoXDxZU7oss8EYNiJ3sBgPn1H8dWE8hMZzR9M7iEGpc), [xz (88B)](https://ipfs.io/ipfs/QmQorFHAV6ho525uQDRivUJqXNKTMEcNA2iqGZut5TLDP8) |
+  | 2 | Done | 2 | 2 | 2 | 2 | 1 | 43B | [gzip (47B)](https://ipfs.io/ipfs/QmTnoXDxZU7oss8EYNiJ3sBgPn1H8dWE8hMZzR9M7iEGpc), [xz (88B)](https://ipfs.io/ipfs/QmQorFHAV6ho525uQDRivUJqXNKTMEcNA2iqGZut5TLDP8) |
   | 3 | Done | 5 | 4 | 4 | 4 | 2 | 212B | [gzip (100B)](https://ipfs.io/ipfs/QmQTT1VpGQLr5va86uy5xVCzPvFRuXDvH7taHfqfpQe6f6), [xz (140B)](https://ipfs.io/ipfs/QmPPK5rd5XcPQuMsEEvTdpb6DQcVg9GiquWCwTC4ryPeaj) |
   | 4 | Done | 19 | 12 | 12 | 11 | 4 | 2K | [gzip (351B)](https://ipfs.io/ipfs/QmTL6v8gyMVU5ivLx5VjxAPz7VMrsiLzFuxZdz6BqiL1PP), [xz (396B)](https://ipfs.io/ipfs/QmXTTSn1FewBtfXTboJeeh24Au7TsuF47e7V4fBQ84CKf6) |
   | 5 | Done | 106 | 42 | 41 | 33 | 13 | 16K | [gzip (2K)](https://ipfs.io/ipfs/QmQ38UwegXkMfXqXa9ymoUgtzxkDyRwiXNAPyZcQEMDZrJ), [xz (2K)](https://ipfs.io/ipfs/Qmdwa4MVoL1ZMUF7aZj4C2dSw6xNmEyWXV1gkbCk2KhhiH) |
