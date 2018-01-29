@@ -123,8 +123,7 @@ int main () {
             void * mem_facets_base;
             int ** facets_base;
             mem::alloc_matrix(mem_facets_base,facets_base,num_rows_S,D);
-            int num_facets_base = 0; // number of element currently in facets_base
-            base::construct_facets_base(facets_base,num_facets_base,facet.matrix,num_rows_S,D);
+            const int num_facets_base = base::construct_facets_base(facets_base,facet.matrix,num_rows_S,D);
             // std::cerr << "OK" << std::endl ;
 
             // std::cerr << "Constructing automorphism group of the base and extending it to R^D" ;
