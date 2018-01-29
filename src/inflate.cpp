@@ -162,8 +162,7 @@ int main () {
             void * mem_ground_H;
             int ** ground_H;
             mem::alloc_matrix(mem_ground_H,ground_H,size_ground_V,D);
-            int size_ground_H;
-            base::construct_ground_H(ground_H,size_ground_H,ground_V,size_ground_V,facets_base,num_facets_base,Minv,D);
+            const int size_ground_H = base::construct_ground_H(ground_H,ground_V,size_ground_V,facets_base,num_facets_base,Minv,D);
             // std::cerr << "OK" << std::endl ;
 
             // It is possible to free the base_V and ground_V, we will use the H-embedding

@@ -7,8 +7,8 @@ namespace base {
     template <typename T,typename SIZE>
     bool is_incompat(const T* i, const T* j, T ** facets_base, const SIZE num_facets_base, const T D) {
         for (SIZE k = 0; k < num_facets_base; ++k) {
-            T s_i = linalg::my_inner_prod(facets_base[k], i, D);
-            T s_j = linalg::my_inner_prod(facets_base[k], j, D);
+            T s_i = linalg::my_inner_prod(facets_base[k]+1, i+1, D-1);
+            T s_j = linalg::my_inner_prod(facets_base[k]+1, j+1, D-1);
             if (s_i * s_j == -1) return true;
         }
         return false;
