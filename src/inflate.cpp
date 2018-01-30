@@ -258,7 +258,7 @@ int main () {
 
             while (!array::is_all_ones(A,size_ground_H)) {
                 int i = 0;
-                do {
+                while (true) {
                     while(A[i] == 1) ++i;
                     clops::inc(A,i,I,size_ground_H); // I = inc(A,i)
                     //clops::discreteconvexhull_cl(I,B,CI,slab_points_sat,size_ground_H,num_slabs);
@@ -270,7 +270,8 @@ int main () {
                     }
                     else std::fill(CI,CI+size_ground_H,1);
                     ++i;
-                } while (!clops::is_sqsubseteq(I,CI,size_ground_H));
+                    if (clops::is_sqsubseteq(I,CI,size_ground_H)) break;
+                }
                 array::unpack64(B,num_slabs,B_64);
                 int *tmp(A);
                 A = CI;
