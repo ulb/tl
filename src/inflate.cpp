@@ -42,6 +42,7 @@
 #include "base/construct_base_V.hpp"
 #include "base/construct_base_H.hpp"
 #include "base/construct_ground_V.hpp"
+#include "base/construct_big_ground_V.hpp"
 #include "base/construct_ground_H.hpp"
 
 #include "array/is_all_ones.hpp"
@@ -156,6 +157,23 @@ int main () {
             base::construct_ground_V(ground_V,D);
             // std::cerr << "OK" << std::endl ;
 
+            void * mem_big_ground_V;
+            int ** big_ground_V;
+            int size_big_ground_V = nt::my_pow(3,D-2) * 2;
+            mem::alloc_matrix(mem_big_ground_V,big_ground_V,size_big_ground_V,D);
+            base::construct_ground_V(big_ground_V,D);
+            // std::cerr << "OK" << std::endl ;
+
+            void * mem_big_ground_H;
+            int ** big_ground_H;
+            mem::alloc_matrix(mem_big_ground_H,big_ground_H,size_big_ground_V,D);
+            const int size_big_ground_H = base::construct_ground_H(big_ground_H,big_ground_V,size_big_ground_V,facets_base,num_facets_base,Minv,D);
+
+
+            int pos_e1 = (nt::my_pow(3,D-2) - 1) / 2;
+            free(mem_big_ground_V);
+            free(mem_big_ground_H);
+
             // Create ground set
             // std::cerr << "Building H-embedding of the reduced ground set... " ;
             void * mem_ground_H;
@@ -256,8 +274,9 @@ int main () {
             uint64_t * CI_64;
             mem::alloc(CI_64,n_rows_64);
 
+            pos_e1 = 0;// set pos_e1 to 0 temporarily
             while (!array::is_all_ones(A,size_ground_H)) {
-                int i = 0;
+                int i = pos_e1;
                 while (true) {
                     while(A[i] == 1) ++i;
                     clops::inc(A,i,I,size_ground_H); // I = inc(A,i)
@@ -283,7 +302,7 @@ int main () {
                 int ** S_new;
                 int num_rows_S_new, num_cols_S_new;
 
-                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,pos_e1,D);
 
                 if ( base_is_lex_max ) {
                     tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);

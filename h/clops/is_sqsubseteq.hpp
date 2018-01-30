@@ -9,7 +9,7 @@ namespace clops {
 	// Check if A \sqsubseteq B
 	template <typename T,typename SIZE>
 	bool is_sqsubseteq(T * A, T * B,const SIZE length) {
-	    T min_A = min_A_idx(A,length);
+	    T min_A = clops::min_A_idx(A,length);
 	    if (clops::is_subseteq(A,B,length)) return array::is_equal(B+min_A,A+min_A,length-min_A);
 	    else return false;
 	}
