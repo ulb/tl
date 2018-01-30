@@ -247,33 +247,34 @@ int main () {
             int * B;
             mem::alloc(B,num_slabs);
 
-            int * dchcl, * inccl, * I;
-            mem::alloc(dchcl,size_ground_H);
-            mem::alloc(inccl,size_ground_H);
+            int * CI, * I;
+            mem::alloc(CI,size_ground_H);
             mem::alloc(I,size_ground_H);
 
             uint64_t * B_64;
             mem::alloc(B_64,n_cols_64);
-            uint64_t * dchcl_64;
-            mem::alloc(dchcl_64,n_rows_64);
+            uint64_t * CI_64;
+            mem::alloc(CI_64,n_rows_64);
 
             while (!array::is_all_ones(A,size_ground_H)) {
                 int i = 0;
                 do {
                     while(A[i] == 1) ++i;
                     clops::inc(A,i,I,size_ground_H); // I = inc(A,i)
-                    //clops::discreteconvexhull_cl(I,B,dchcl,slab_points_sat,size_ground_H,num_slabs);
-                    clops::fast_discreteconvexhull_cl(I,B_64,dchcl_64,sp_64,sp_t_64,size_ground_H,num_slabs,n_rows_64,n_cols_64);
-                    array::unpack64(dchcl,size_ground_H,dchcl_64);
-                    if ( clops::fast_compatibility_cl(dchcl, dchcl_64, incompatibility_adjM_64, size_ground_H) ) {
-                    //if ( clops::compatibility_cl(dchcl,incompatibility_adjM,size_ground_H) ) {
-                        clops::lexmax_symmetric_cl(dchcl, size_ground_H, orbits, num_autom_base);
+                    //clops::discreteconvexhull_cl(I,B,CI,slab_points_sat,size_ground_H,num_slabs);
+                    clops::fast_discreteconvexhull_cl(I,B_64,CI_64,sp_64,sp_t_64,size_ground_H,num_slabs,n_rows_64,n_cols_64);
+                    array::unpack64(CI,size_ground_H,CI_64);
+                    if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, size_ground_H) ) {
+                    //if ( clops::compatibility_cl(CI,incompatibility_adjM,size_ground_H) ) {
+                        clops::lexmax_symmetric_cl(CI, size_ground_H, orbits, num_autom_base);
                     }
-                    else std::fill(dchcl,dchcl+size_ground_H,1);
+                    else std::fill(CI,CI+size_ground_H,1);
                     ++i;
-                } while (!clops::is_sqsubseteq(I,dchcl,size_ground_H));
+                } while (!clops::is_sqsubseteq(I,CI,size_ground_H));
                 array::unpack64(B,num_slabs,B_64);
-                std::memcpy(A,dchcl,size_ground_H * sizeof(int));
+                int *tmp(A);
+                A = CI;
+                CI = tmp;
                 ++tot_N_closed_sets;
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
@@ -291,10 +292,9 @@ int main () {
             }
             std::cerr << "OK" << std::endl ;
             free(I);
-            free(inccl);
-            free(dchcl);
+            free(CI);
             free(B);
-            free(dchcl_64);
+            free(CI_64);
             free(B_64);
             free(A);
 
