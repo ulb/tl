@@ -312,10 +312,9 @@ int main () {
                     if (st::is_sqsubseteq(I,CI,size_ground_H)) break;
                 }
                 array::unpack64(B,num_slabs,B_64);
-                std::memcpy(A, CI, size_ground_H * sizeof(int));
-                //int *tmp(A);
-                //A = CI;
-                //CI = tmp;
+                int *tmp(A);
+                A = CI;
+                CI = tmp;
                 ++tot_N_closed_sets;
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
