@@ -162,9 +162,9 @@ int main () {
             void * mem_big_ground_V;
             int ** big_ground_V;
             mem::alloc_matrix(mem_big_ground_V,big_ground_V,size_big_ground_V,D);
-            base::construct_big_ground_V(big_ground_V,D);
-            // array::dump_matrix(big_ground_V,size_big_ground_V, D);
-            // std::cerr << std::endl;
+            base::construct_big_ground_V_rec(big_ground_V,D);
+            array::dump_matrix(big_ground_V,size_big_ground_V, D);
+            std::cerr << std::endl;
 
             // Create ground set, H-embedding
             void * mem_ground_H;
@@ -282,13 +282,13 @@ int main () {
             int * I;
             mem::alloc(I,size_ground_H);
 
-            int * CI_big; 
+            int * CI_big;
             mem::alloc(CI_big,size_big_ground_H);
             uint64_t * CI_big_64;
             mem::alloc(CI_big_64,n_rows_big_64);
-            
+
             // int *CI(CI_big + pos_e1);
-            int * CI; 
+            int * CI;
             mem::alloc(CI,size_ground_H);
             uint64_t * CI_64;
             mem::alloc(CI_64,n_rows_64);
