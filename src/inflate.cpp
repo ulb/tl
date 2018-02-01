@@ -172,7 +172,6 @@ int main () {
 
             int pos_e1 = (nt::my_pow(3,D-2) - 1) / 2;
             free(mem_big_ground_V);
-            free(mem_big_ground_H);
 
             // Create ground set
             // std::cerr << "Building H-embedding of the reduced ground set... " ;
@@ -327,6 +326,7 @@ int main () {
             free(mem_slabs);
             free(mem_orbits);
             free(mem_ground_H);
+            free(mem_big_ground_H);
             free(mem_base_H);
             free(mem_d_aut_collection);
             free(mem_facets_base);
