@@ -1,7 +1,7 @@
-#ifndef H_CLOPS_PRECEDES
-#define H_CLOPS_PRECEDES
+#ifndef H_ST_PRECEDES
+#define H_ST_PRECEDES
 
-namespace clops {
+namespace st {
 	// Check if A \preccurly B
 	template <typename T,typename SIZE>
 	bool precedes(T* A, T* B, const SIZE length) {
@@ -19,4 +19,4 @@ namespace clops {
 	}
 }
 
-#endif // H_CLOPS_PRECEDES
+#endif // H_ST_PRECEDES

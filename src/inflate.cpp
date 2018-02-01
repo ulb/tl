@@ -50,8 +50,9 @@
 #include "array/pack.hpp"
 #include "array/dump.hpp"
 
-#include "clops/inc.hpp"
-#include "clops/is_sqsubseteq.hpp"
+#include "st/inc.hpp"
+#include "st/is_sqsubseteq.hpp"
+
 //#include "clops/discreteconvexhull_cl.hpp"
 #include "clops/fast_discreteconvexhull_cl.hpp"
 #include "clops/compatibility_cl.hpp"
@@ -82,20 +83,23 @@ int main () {
         if (linalg::is_id(facet.dimension+1, facet.matrix)) {
             // std::cerr << "Simplicial facet:" << std::endl;
             // std::cerr << "Constructing slack-matrices of simplicial 2-level polytopes... ";
-            int K;
-            void * mem_S_new;
-            int ** S_new;
-            int num_rows_S_new,num_cols_S_new;
-
             for (auto N : nt::factor(D)) {
-                K = D/N;
+
+                const int K = D/N;
+
+                void * mem_S_new;
+                int ** S_new;
+                int num_rows_S_new,num_cols_S_new;
+
                 simpl::slack_matrix_simplicial_2L(K,N,mem_S_new,S_new,num_rows_S_new,num_cols_S_new);
                 simpl::push_simplicial_core(S_new,num_rows_S_new,num_cols_S_new,facet.matrix,D);
 
                 tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
 
                 free(mem_S_new);
+
             }
+
         }
 
         // non simplicial case
@@ -150,18 +154,22 @@ int main () {
             // std::cerr << "OK" << std::endl ;
             // Create the V-embedding of the reduced ground set (by means of translations)
             // std::cerr << "Building V-embedding of the ground set... " ;
+            const int size_big_ground_V = nt::my_pow(3,D-2) * 2;
+            const int size_ground_V = (nt::my_pow(3,D-1)+1) / 2;
+            const int pos_e1 = (nt::my_pow(3,D-2) - 1) / 2;
+
             void * mem_ground_V;
             int ** ground_V;
-            int size_ground_V = (nt::my_pow(3,D-1)+1)/2;
             mem::alloc_matrix(mem_ground_V,ground_V,size_ground_V,D);
             base::construct_ground_V(ground_V,D);
             // std::cerr << "OK" << std::endl ;
 
             void * mem_big_ground_V;
             int ** big_ground_V;
-            int size_big_ground_V = nt::my_pow(3,D-2) * 2;
             mem::alloc_matrix(mem_big_ground_V,big_ground_V,size_big_ground_V,D);
-            base::construct_ground_V(big_ground_V,D);
+            base::construct_big_ground_V(big_ground_V,D);
+            array::dump_matrix(big_ground_V,size_big_ground_V, D);
+            std::cerr << std::endl;
             // std::cerr << "OK" << std::endl ;
 
             void * mem_big_ground_H;
@@ -169,8 +177,6 @@ int main () {
             mem::alloc_matrix(mem_big_ground_H,big_ground_H,size_big_ground_V,D);
             const int size_big_ground_H = base::construct_ground_H(big_ground_H,big_ground_V,size_big_ground_V,facets_base,num_facets_base,Minv,D);
 
-
-            int pos_e1 = (nt::my_pow(3,D-2) - 1) / 2;
             free(mem_big_ground_V);
 
             // Create ground set
@@ -232,6 +238,31 @@ int main () {
             mem::alloc_matrix(mem_sp_t_64,sp_t_64,num_slabs,n_rows_64);
             array::pack64_matrix(slab_points_sat_t,sp_t_64,num_slabs,size_ground_H,n_rows_64);
 
+            // BIG ONES
+            void * mem_slab_points_sat_big;
+            int ** slab_points_sat_big;
+            mem::alloc_matrix(mem_slab_points_sat_big,slab_points_sat_big,size_big_ground_H,num_slabs);
+            base::construct_slab_point_sat(slab_points_sat_big,big_ground_H,slabs,size_big_ground_H,num_slabs,D);
+            // std::cerr << "OK" << std::endl ;
+
+            void * mem_slab_points_sat_big_t;
+            int ** slab_points_sat_big_t;
+            mem::alloc_matrix(mem_slab_points_sat_big_t,slab_points_sat_big_t,num_slabs,size_big_ground_H);
+            linalg::transpose(slab_points_sat_big,slab_points_sat_big_t,size_big_ground_H,num_slabs);
+
+            const int n_rows_big_64 = linalg::div_ceil(size_big_ground_H, 64);
+
+            // construct the block uint64_t
+            void * mem_sp_big_64;
+            uint64_t ** sp_big_64;
+            mem::alloc_matrix(mem_sp_big_64,sp_big_64,size_big_ground_H,n_cols_64);
+            array::pack64_matrix(slab_points_sat_big,sp_big_64,size_big_ground_H,num_slabs,n_cols_64);
+
+            void * mem_sp_t_big_64;
+            uint64_t ** sp_t_big_64;
+            mem::alloc_matrix(mem_sp_t_big_64,sp_t_big_64,num_slabs,n_rows_big_64);
+            array::pack64_matrix(slab_points_sat_big_t,sp_t_big_64,num_slabs,size_big_ground_H,n_rows_big_64);
+
             // std::cerr << "slab_points_sat = " << std::endl;
             // array::dump_matrix(slab_points_sat,size_ground_H,num_slabs);
             // std::cerr << std::endl << "slab_points_sat_t = " << std::endl;
@@ -264,36 +295,44 @@ int main () {
             int * B;
             mem::alloc(B,num_slabs);
 
-            int * CI, * I;
-            mem::alloc(CI,size_ground_H);
+            int * CI_big, * I;
+            mem::alloc(CI_big,size_big_ground_H);
             mem::alloc(I,size_ground_H);
+            int *CI(CI_big + pos_e1);
 
             uint64_t * B_64;
             mem::alloc(B_64,n_cols_64);
             uint64_t * CI_64;
             mem::alloc(CI_64,n_rows_64);
 
-            pos_e1 = 0;// set pos_e1 to 0 temporarily
+            uint64_t * CI_big_64;
+            mem::alloc(CI_big_64,n_rows_big_64);
+
             while (!array::is_all_ones(A,size_ground_H)) {
-                int i = pos_e1;
+                int i = 0;
                 while (true) {
                     while(A[i] == 1) ++i;
-                    clops::inc(A,i,I,size_ground_H); // I = inc(A,i)
+                    st::inc(A,i,I,size_ground_H); // I = inc(A,i)
                     //clops::discreteconvexhull_cl(I,B,CI,slab_points_sat,size_ground_H,num_slabs);
-                    clops::fast_discreteconvexhull_cl(I,B_64,CI_64,sp_64,sp_t_64,size_ground_H,num_slabs,n_rows_64,n_cols_64);
-                    array::unpack64(CI,size_ground_H,CI_64);
-                    if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, size_ground_H) ) {
-                    //if ( clops::compatibility_cl(CI,incompatibility_adjM,size_ground_H) ) {
-                        clops::lexmax_symmetric_cl(CI, size_ground_H, orbits, num_autom_base);
+                    clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, sp_64, sp_t_big_64, size_ground_H, num_slabs, n_rows_big_64, n_cols_64);
+                    if ( array::is_all_zeros_64(CI_big_64, pos_e1) ) std::fill(CI,CI+size_ground_H,1);
+                    else {
+                        array::unpack64(CI_big,size_big_ground_H,CI_big_64);
+                        array::pack64(CI, size_ground_H, CI_64, n_rows_64);
+                        if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, size_ground_H) ) {
+                        //if ( clops::compatibility_cl(CI,incompatibility_adjM,size_ground_H) ) {
+                            clops::lexmax_symmetric_cl(CI, size_ground_H, orbits, num_autom_base);
+                        }
+                        else std::fill(CI,CI+size_ground_H,1);
                     }
-                    else std::fill(CI,CI+size_ground_H,1);
                     ++i;
-                    if (clops::is_sqsubseteq(I,CI,size_ground_H)) break;
+                    if (st::is_sqsubseteq(I,CI,size_ground_H)) break;
                 }
                 array::unpack64(B,num_slabs,B_64);
-                int *tmp(A);
-                A = CI;
-                CI = tmp;
+                std::memcpy(A, CI, size_ground_H * sizeof(int));
+                //int *tmp(A);
+                //A = CI;
+                //CI = tmp;
                 ++tot_N_closed_sets;
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
@@ -301,7 +340,7 @@ int main () {
                 int ** S_new;
                 int num_rows_S_new, num_cols_S_new;
 
-                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,pos_e1,D);
+                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
 
                 if ( base_is_lex_max ) {
                     tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
@@ -311,18 +350,26 @@ int main () {
             }
             std::cerr << "OK" << std::endl ;
             free(I);
-            free(CI);
             free(B);
+            free(CI_big);
             free(CI_64);
+            free(CI_big_64);
             free(B_64);
             free(A);
 
             free(mem_incompatibility_adjM);
             free(mem_incompatibility_adjM_64);
+
+            free(mem_slab_points_sat);
             free(mem_slab_points_sat_t);
             free(mem_sp_64);
             free(mem_sp_t_64);
-            free(mem_slab_points_sat);
+
+            free(mem_slab_points_sat_big);
+            free(mem_slab_points_sat_big_t);
+            free(mem_sp_big_64);
+            free(mem_sp_t_big_64);
+
             free(mem_slabs);
             free(mem_orbits);
             free(mem_ground_H);
@@ -331,6 +378,7 @@ int main () {
             free(mem_d_aut_collection);
             free(mem_facets_base);
             free(mem_Minv);
+
         }
 
         facet.teardown();

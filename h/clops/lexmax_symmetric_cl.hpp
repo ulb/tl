@@ -8,7 +8,7 @@
 #include "array/is_all_ones.hpp"
 #include "array/is_all_zeros.hpp"
 #include "array/get_ones.hpp"
-#include "clops/precedes.hpp"
+#include "st/precedes.hpp"
 #include "linalg/div_ceil.hpp"
 
 namespace clops {
@@ -34,8 +34,8 @@ namespace clops {
 			A_sym[0] = 1;
 
 			for (SIZE i = 0; i < num_autom_base; ++i) {
-				if (!clops::is_outside_X(orbits[i],A_sym,A_indices,num_A_indices,length_A)) {
-					if (clops::precedes(A,A_sym,length_A)) {
+				if (!is_outside_X(orbits[i],A_sym,A_indices,num_A_indices,length_A)) {
+					if (st::precedes(A,A_sym,length_A)) {
 						T* tmp = A;
 						A = A_sym;
 						A_sym = tmp;
@@ -79,8 +79,8 @@ namespace clops {
 		B[0] = uint64_t(1);
 
 		for (SIZE i = 0; i < num_autom_base; ++i) {
-			if (!clops::fast_is_outside_X(orbits[i], B, ones, nones, n, n64)) {
-				if (clops::precedes_64(A, B, n64)) {
+			if (!fast_is_outside_X(orbits[i], B, ones, nones, n, n64)) {
+				if (st::precedes_64(A, B, n64)) {
 					uint64_t* tmp = A;
 					A = B;
 					B = tmp;

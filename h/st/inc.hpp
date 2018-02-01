@@ -1,9 +1,9 @@
-#ifndef H_CLOPS_INC
-#define H_CLOPS_INC
+#ifndef H_ST_INC
+#define H_ST_INC
 
 #include <cstring> // std::equal
 
-namespace clops {
+namespace st {
 	// I = inc(A,i)
 	template <typename T,typename SIZE>
 	void inc(const T * const A, T i, T* I,const SIZE length) {
@@ -13,4 +13,4 @@ namespace clops {
 	}
 }
 
-#endif // H_CLOPS_INC
+#endif // H_ST_INC
