@@ -68,7 +68,7 @@ namespace tl {
 				temp_row[1+j] = s;
 				num_ones += s;
 			}
-			for (j = 0; j < num_A_indices; ++j) {
+			for (j = 1; j < num_A_indices; ++j) {
 				s = linalg::my_inner_prod(ground_H[A_indices[j]],slabs[B_i],D);
 				temp_row[num_cols_S+j] = s;
 				num_ones += s;
