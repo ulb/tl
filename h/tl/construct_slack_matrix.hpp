@@ -41,7 +41,7 @@ namespace tl {
 
 	// slack matrix construction
 	template <typename T,typename SIZE>
-	bool construct_slack_matrix(T ** base_H,T ** ground_H,T * A,T * B,T ** slabs,T ** S,void *& mem_S_new,T **& S_new,const SIZE size_ground_H, const SIZE num_slabs,const SIZE num_cols_S, SIZE & num_rows_S_new, SIZE & num_cols_S_new,const T pos_e1, const T D) {
+	bool construct_slack_matrix(T ** base_H,T ** ground_H,T * A,T * B,T ** slabs,T ** S,void *& mem_S_new,T **& S_new,const SIZE size_ground_H, const SIZE num_slabs,const SIZE num_cols_S, SIZE & num_rows_S_new, SIZE & num_cols_S_new, const T D) {
 		SIZE i, j;
 
 		T * A_indices, * B_indices;
@@ -60,7 +60,7 @@ namespace tl {
 		for (i = 0; i < num_B_indices; ++i) {
 			num_ones = 0;
 			B_i = B_indices[i];
-			s = linalg::my_inner_prod(ground_H[pos_e1],slabs[B_i],D);
+			s = linalg::my_inner_prod(ground_H[0],slabs[B_i],D);
 			temp_row[0] = s;
 			num_ones += s;
 			for (j = 0; j < num_cols_S; ++j) {
@@ -68,12 +68,7 @@ namespace tl {
 				temp_row[1+j] = s;
 				num_ones += s;
 			}
-			for (j = 0; j < pos_e1; ++j) {
-				s = linalg::my_inner_prod(ground_H[A_indices[j]],slabs[B_i],D);
-				temp_row[num_cols_S+j] = s;
-				num_ones += s;
-			}
-			for (++j; j < num_A_indices; ++j) {
+			for (j = 0; j < num_A_indices; ++j) {
 				s = linalg::my_inner_prod(ground_H[A_indices[j]],slabs[B_i],D);
 				temp_row[num_cols_S+j] = s;
 				num_ones += s;
