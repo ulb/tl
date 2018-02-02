@@ -5,13 +5,13 @@
 #include "mem/alloc_matrix.hpp"
 #include "array/get_ones.hpp"
 #include "linalg/my_inner_prod.hpp"
+#include "st/is_subseteq.hpp"
 
 namespace tl {
 	// Check if the indices of zeros in all_rows[i] is a subset of all_rows[j]s
 	template <typename T,typename SIZE>
-	bool is_subset(T * all_rows_i,T * all_rows_j,const SIZE num_cols_S_new) {
-		for (SIZE k = 0; k < num_cols_S_new; ++k) if ((all_rows_i[k] == 0) && (all_rows_j[k] != 0)) return false;
-		return true;
+	bool is_subset(const T * const A, const T * const B, const SIZE n) {
+		return st::is_subseteq(B, A, n); // note that we work on the complement
 	}
 
 	// check maximality of zero sets of rows
@@ -29,14 +29,6 @@ namespace tl {
 	bool accept(T* Sn, T* S,const SIZE d) {
 		for (SIZE j = 0; j < d; ++j) if (Sn[j] != S[j]) return false;
 		return true;
-	}
-
-	template <typename T>//,typename SIZE>
-	void free_all(T * A_indices,T * B_indices,T * temp_row,void * mem_all_rows) {//, const SIZE num_all_rows) {
-		free(A_indices);
-		free(B_indices);
-		free(temp_row);
-		free(mem_all_rows);
 	}
 
 	// slack matrix construction
@@ -81,7 +73,10 @@ namespace tl {
 
 			if ((num_cols_S_new - num_ones) >= D) {
 				if ((num_cols_S_new - num_ones) > num_cols_S) {
-					free_all(A_indices,B_indices,temp_row,all_rows);
+					free(A_indices);
+					free(B_indices);
+					free(temp_row);
+					free(mem_all_rows);
 					return false;
 				}
 				std::memcpy(all_rows[num_all_rows],temp_row,num_cols_S_new * sizeof(T));
@@ -89,7 +84,10 @@ namespace tl {
 			}
 			if (num_ones >= D) {
 				if (num_ones > num_cols_S){
-					free_all(A_indices,B_indices,temp_row,all_rows);
+					free(A_indices);
+					free(B_indices);
+					free(temp_row);
+					free(mem_all_rows);
 					return false;
 				}
 				for (SIZE j = 0; j < num_cols_S_new; ++j) all_rows[num_all_rows][j] = 1-temp_row[j];
@@ -104,7 +102,7 @@ namespace tl {
 		// check maximality of rows
 		for (SIZE i = 0; i < num_all_rows; i++) {
 			if (is_maximal(all_rows, all_rows+i, all_rows+num_all_rows, num_cols_S_new)) {
-				std::memcpy(S_new[num_rows_S_new],all_rows[i],num_cols_S_new * sizeof(T));
+				std::memcpy(S_new[num_rows_S_new], all_rows[i], num_cols_S_new * sizeof(T));
 				++num_rows_S_new;
 			}
 		}
@@ -121,6 +119,7 @@ namespace tl {
 				++n_row;
 			}
 		}
+
 		free(temp_row);
 
 		return true;
