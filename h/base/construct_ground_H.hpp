@@ -22,7 +22,7 @@ namespace base {
         // for x(E) >= 0, x(E) <= 1 facet of the base, E subset of {2,...,d}
         for (SIZE i = 0; i < num_facets_base; ++i) {
             T xE = linalg::my_inner_prod(facets_base[i]+1,point+1,D-1);
-            if (xE != -1 && xE != 0 && xE != 1) return false;
+            if (xE < -1 || xE > 1) return false;
         }
         return true;
     }

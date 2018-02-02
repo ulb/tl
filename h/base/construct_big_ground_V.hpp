@@ -1,10 +1,6 @@
 #ifndef H_BASE_CONSTRUCT_BIG_GROUND_V
 #define H_BASE_CONSTRUCT_BIG_GROUND_V
 
-#include <cstring>
-
-#include "mem/alloc.hpp"
-
 namespace base {
 
     template<typename T, typename SIZE>

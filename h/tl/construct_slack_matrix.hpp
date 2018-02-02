@@ -42,7 +42,6 @@ namespace tl {
 	// slack matrix construction
 	template <typename T,typename SIZE>
 	bool construct_slack_matrix(T ** base_H,T ** ground_H,T * A,T * B,T ** slabs,T ** S,void *& mem_S_new,T **& S_new,const SIZE size_ground_H, const SIZE num_slabs,const SIZE num_cols_S, SIZE & num_rows_S_new, SIZE & num_cols_S_new, const T D) {
-		SIZE i, j;
 
 		T * A_indices, * B_indices;
 		T num_A_indices = array::get_ones(A,size_ground_H,A_indices);
@@ -56,22 +55,21 @@ namespace tl {
 		T * temp_row;
 		mem::alloc(temp_row,num_cols_S_new);
 		SIZE num_all_rows = 0;
-		T num_ones, B_i,s;
-		for (i = 0; i < num_B_indices; ++i) {
-			num_ones = 0;
-			B_i = B_indices[i];
-			s = linalg::my_inner_prod(ground_H[0],slabs[B_i],D);
-			temp_row[0] = s;
-			num_ones += s;
-			for (j = 0; j < num_cols_S; ++j) {
-				s = linalg::my_inner_prod(base_H[j],slabs[B_i],D);
-				temp_row[1+j] = s;
-				num_ones += s;
+		for (SIZE i = 0; i < num_B_indices; ++i) {
+			T num_ones = 0;
+			T B_i = B_indices[i];
+			const T s1 = linalg::my_inner_prod(ground_H[0],slabs[B_i],D);
+			temp_row[0] = s1;
+			num_ones += s1;
+			for (SIZE j = 0; j < num_cols_S; ++j) {
+				const T s2 = linalg::my_inner_prod(base_H[j],slabs[B_i],D);
+				temp_row[1+j] = s2;
+				num_ones += s2;
 			}
-			for (j = 1; j < num_A_indices; ++j) {
-				s = linalg::my_inner_prod(ground_H[A_indices[j]],slabs[B_i],D);
-				temp_row[num_cols_S+j] = s;
-				num_ones += s;
+			for (SIZE j = 1; j < num_A_indices; ++j) {
+				const T s2 = linalg::my_inner_prod(ground_H[A_indices[j]],slabs[B_i],D);
+				temp_row[num_cols_S+j] = s2;
+				num_ones += s2;
 			}
 
 			/**
@@ -94,7 +92,7 @@ namespace tl {
 					free_all(A_indices,B_indices,temp_row,all_rows);
 					return false;
 				}
-				for (j = 0; j < num_cols_S_new; ++j) all_rows[num_all_rows][j] = 1-temp_row[j];
+				for (SIZE j = 0; j < num_cols_S_new; ++j) all_rows[num_all_rows][j] = 1-temp_row[j];
 				++num_all_rows;
 			}
 		}
@@ -104,7 +102,7 @@ namespace tl {
 		num_rows_S_new = 0;
 		mem::alloc_matrix(mem_S_new,S_new,num_all_rows,num_cols_S_new);
 		// check maximality of rows
-		for (i = 0; i < num_all_rows; i++) {
+		for (SIZE i = 0; i < num_all_rows; i++) {
 			if (is_maximal(all_rows, all_rows+i, all_rows+num_all_rows, num_cols_S_new)) {
 				std::memcpy(S_new[num_rows_S_new],all_rows[i],num_cols_S_new * sizeof(T));
 				++num_rows_S_new;
@@ -115,7 +113,7 @@ namespace tl {
 
 		// rearranging rows of S_new
 		T n_row = 0;
-		for (i = n_row+1; (i < num_rows_S_new) && (n_row < D); ++i) {
+		for (SIZE i = n_row+1; (i < num_rows_S_new) && (n_row < D); ++i) {
 			if (accept(S_new[i]+1,S[n_row],num_cols_S)) {
 				std::memcpy(temp_row,S_new[i],num_cols_S_new * sizeof(T));
 				std::memcpy(S_new[i],S_new[n_row+1],num_cols_S_new * sizeof(T));

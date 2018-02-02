@@ -5,7 +5,8 @@
 NAUTYHOME := $(HOME)/.opt/nauty
 
 CXX := clang++
-CXXFLAGS := -std=c++14 -Wall -W -O3
+CXXFLAGS := -std=c++14 -Wall -W -g
+#CXXFLAGS := -std=c++14 -Wall -W -O3
 
 HEADER_DIR := h
 

@@ -150,7 +150,6 @@ int main () {
             // Compute sizes
             const int size_big_ground_V = nt::my_pow(3,D-2) * 2;
             const int size_ground_V = (nt::my_pow(3,D-1)+1) / 2;
-            const int pos_e1 = (nt::my_pow(3,D-2) - 1) / 2;
 
             // Create ground set, V-embedding
             void * mem_ground_V;
@@ -175,6 +174,8 @@ int main () {
             int ** big_ground_H;
             mem::alloc_matrix(mem_big_ground_H,big_ground_H,size_big_ground_V,D);
             const int size_big_ground_H = base::construct_ground_H(big_ground_H,big_ground_V,size_big_ground_V,facets_base,num_facets_base,Minv,D);
+
+            const int pos_e1 = size_big_ground_H - size_ground_H;
 
             // It is possible to free the base_V and ground_V, we will use the H-embedding
             free(mem_big_ground_V);
@@ -290,14 +291,19 @@ int main () {
             uint64_t * CI_64;
             mem::alloc(CI_64,n_rows_64);
 
-            while (!array::is_all_ones(A,size_ground_H)) {
+            while (true) {
                 int i = 0;
                 while (true) {
                     while(A[i] == 1) ++i;
+
                     st::inc(A,i,I,size_ground_H); // I = inc(A,i)
+
+                    // BEGIN CLOSURE OPERATOR
+
                     //clops::discreteconvexhull_cl(I,B,CI,slab_points_sat,size_ground_H,num_slabs);
                     clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, sp_64, sp_t_big_64, size_ground_H, num_slabs, n_rows_big_64, n_cols_64);
-                    if ( array::is_all_zeros_64(CI_big_64, pos_e1) ) {
+                    if ( !array::is_all_zeros_64(CI_big_64, pos_e1) ) std::fill(CI,CI+size_ground_H,1);
+                    else {
                         array::unpack64(CI_big,size_big_ground_H,CI_big_64);
                         std::memcpy(CI,CI_big+pos_e1,size_ground_H * sizeof(int));
                         array::pack64(CI,size_ground_H,CI_64,n_rows_64);
@@ -307,9 +313,12 @@ int main () {
                         }
                         else std::fill(CI,CI+size_ground_H,1);
                     }
-                    else std::fill(CI,CI+size_ground_H,1);
+
+                    // END CLOSURE OPERATOR
+
                     ++i;
                     if (st::is_sqsubseteq(I,CI,size_ground_H)) break;
+
                 }
                 array::unpack64(B,num_slabs,B_64);
                 int *tmp(A);
@@ -328,6 +337,8 @@ int main () {
                     tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
                     free(mem_S_new);
                 }
+
+                if ( array::is_all_ones(A,size_ground_H) ) break ;
 
             }
             // std::cerr << "OK" << std::endl ;

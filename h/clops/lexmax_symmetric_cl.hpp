@@ -27,7 +27,7 @@ namespace clops {
 		if (!array::is_all_ones(A,length_A) && !array::is_all_zeros(A + 1,length_A - 1)) {
 
 			T * A_indices;
-			SIZE num_A_indices = array::get_ones(A,length_A,A_indices);
+			const SIZE num_A_indices = array::get_ones(A,length_A,A_indices);
 
 			T * A_sym;
 			mem::alloc(A_sym,length_A);
@@ -36,7 +36,7 @@ namespace clops {
 			for (SIZE i = 0; i < num_autom_base; ++i) {
 				if (!is_outside_X(orbits[i],A_sym,A_indices,num_A_indices,length_A)) {
 					if (st::precedes(A,A_sym,length_A)) {
-						T* tmp = A;
+						T* tmp(A);
 						A = A_sym;
 						A_sym = tmp;
 					}
