@@ -249,10 +249,10 @@ int main () {
             linalg::transpose(slab_points_sat_big,slab_points_sat_big_t,size_big_ground_H,num_slabs);
 
             // Construct the block uint64_t - BIG
-            void * mem_sp_big_64;
-            uint64_t ** sp_big_64;
-            mem::alloc_matrix(mem_sp_big_64,sp_big_64,size_big_ground_H,n_cols_64);
-            array::pack64_matrix(slab_points_sat_big,sp_big_64,size_big_ground_H,num_slabs,n_cols_64);
+            //void * mem_sp_big_64;
+            //uint64_t ** sp_big_64;
+            //mem::alloc_matrix(mem_sp_big_64,sp_big_64,size_big_ground_H,n_cols_64);
+            //array::pack64_matrix(slab_points_sat_big,sp_big_64,size_big_ground_H,num_slabs,n_cols_64);
 
             // Transpose-64 - BIG
             void * mem_sp_t_big_64;
@@ -275,7 +275,6 @@ int main () {
             // Lauching Ganter's next-closure algorithm and checking 2-levelness
             int * A;
             mem::alloc(A,size_ground_H);
-            std::memset(A,0,size_ground_H * sizeof(int));
 
             int * B;
             mem::alloc(B,num_slabs);
@@ -295,8 +294,24 @@ int main () {
             uint64_t * CI_64;
             mem::alloc(CI_64,n_rows_64);
 
+            // special case for e_1 only
+
+            std::memset(A,0,size_ground_H * sizeof(int));
+            A[0] = 1;
+            std::fill(B,B+num_slabs,1);
+            ++tot_N_closed_sets;
+
+            // construct the slack matrix S with embedding transformation matrix in top left position
+            void * mem_S_new;
+            int ** S_new;
+            int num_rows_S_new, num_cols_S_new;
+            tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+            tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
+            free(mem_S_new);
+
             while (true) {
-                int i = 0;
+                int i = 1;
+
                 while (true) {
                     while(A[i] == 1) ++i;
 
@@ -310,9 +325,9 @@ int main () {
                     else {
                         array::unpack64(CI_big+(pos_e1/64)*64,size_big_ground_H-(pos_e1/64)*64,CI_big_64+(pos_e1/64));
                         std::memcpy(CI,CI_big+pos_e1,size_ground_H * sizeof(int));
-                        array::pack64(CI,size_ground_H,CI_64,n_rows_64);
-                        if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, size_ground_H) ) {
-                        //if ( clops::compatibility_cl(CI,incompatibility_adjM,size_ground_H) ) {
+                        //array::pack64(CI,size_ground_H,CI_64,n_rows_64);
+                        //if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, size_ground_H) ) {
+                        if ( clops::compatibility_cl(CI,incompatibility_adjM,size_ground_H) ) {
                             clops::lexmax_symmetric_cl(CI, size_ground_H, orbits, num_autom_base);
                         }
                         else std::fill(CI,CI+size_ground_H,1);
@@ -331,12 +346,7 @@ int main () {
                 ++tot_N_closed_sets;
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
-                void * mem_S_new;
-                int ** S_new;
-                int num_rows_S_new, num_cols_S_new;
-
                 bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
-
                 if ( base_is_lex_max ) {
                     tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
                     free(mem_S_new);
@@ -365,7 +375,7 @@ int main () {
 
             free(mem_slab_points_sat_big);
             free(mem_slab_points_sat_big_t);
-            free(mem_sp_big_64);
+            //free(mem_sp_big_64);
             free(mem_sp_t_big_64);
 
             free(mem_slabs);

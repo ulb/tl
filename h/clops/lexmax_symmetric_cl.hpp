@@ -28,30 +28,26 @@ namespace clops {
 	template <typename T,typename SIZE>
 	void lexmax_symmetric_cl(T *& A, const SIZE length_A,T ** orbits,const SIZE num_autom_base) {
 
-		if (!array::is_all_ones(A,length_A) && !array::is_all_zeros(A + 1,length_A - 1)) {
+		T * A_indices;
+		const SIZE num_A_indices = array::get_ones(A,length_A,A_indices);
 
-			T * A_indices;
-			const SIZE num_A_indices = array::get_ones(A,length_A,A_indices);
+		T * A_sym;
+		mem::alloc(A_sym,length_A);
+		A_sym[0] = 1;
 
-			T * A_sym;
-			mem::alloc(A_sym,length_A);
-			A_sym[0] = 1;
-
-			for (SIZE i = 0; i < num_autom_base; ++i) {
-				if (is_inside_X(orbits[i],A_indices,num_A_indices,length_A)) {
-					build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A);
-					if (st::precedes(A,A_sym,length_A)) {
-						T* tmp(A);
-						A = A_sym;
-						A_sym = tmp;
-					}
+		for (SIZE i = 0; i < num_autom_base; ++i) {
+			if (is_inside_X(orbits[i],A_indices,num_A_indices,length_A)) {
+				build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A);
+				if (st::precedes(A,A_sym,length_A)) {
+					T* tmp(A);
+					A = A_sym;
+					A_sym = tmp;
 				}
 			}
-
-			free(A_sym);
-			free(A_indices);
-
 		}
+
+		free(A_sym);
+		free(A_indices);
 	}
 
 	template <typename T,typename SIZE>
@@ -71,9 +67,6 @@ namespace clops {
 	// compute the lexmax symmetric copy of a set A
 	template <typename T,typename SIZE>
 	void fast_lexmax_symmetric_cl(uint64_t *& A, const SIZE n, T ** orbits, const SIZE num_autom_base) {
-
-		if (array::is_all_ones_64(A,n)) return ;
-		if (((*A) & (~uint64_t(0) << 1)) && ( n <= 64 || array::is_all_zeros_64(A+1,n-64))) return ;
 
 		T* ones;
 		SIZE nones = array::get_ones_64(A,n,ones);
