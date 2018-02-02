@@ -1,7 +1,7 @@
-#ifndef H_BASE_CONSTRUCT_BIG_GROUND_V
-#define H_BASE_CONSTRUCT_BIG_GROUND_V
+#ifndef H_EMB_CONSTRUCT_BIG_GROUND_V
+#define H_EMB_CONSTRUCT_BIG_GROUND_V
 
-namespace base {
+namespace emb {
 
     template<typename T, typename SIZE>
     T ** rec_ground_3(T ** begin, const SIZE d, const SIZE j) {
@@ -49,4 +49,4 @@ namespace base {
 
 }
 
-#endif // H_BASE_CONSTRUCT_BIG_GROUND_V
+#endif // H_EMB_CONSTRUCT_BIG_GROUND_V

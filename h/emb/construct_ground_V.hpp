@@ -1,12 +1,12 @@
-#ifndef H_BASE_CONSTRUCT_GROUND_V
-#define H_BASE_CONSTRUCT_GROUND_V
+#ifndef H_EMB_CONSTRUCT_GROUND_V
+#define H_EMB_CONSTRUCT_GROUND_V
 
 #include <stdio.h>
 #include <cstring> // std::memcpy, std::memset, std::fill
 
 #include "mem/alloc.hpp"
 
-namespace base {
+namespace emb {
 	template <typename T>
 	void construct_ground_V(T ** ground_V, const T D) {
         int i,j,k;
@@ -44,4 +44,4 @@ namespace base {
 	}
 }
 
-#endif // H_BASE_CONSTRUCT_GROUND_V
+#endif // H_EMB_CONSTRUCT_GROUND_V

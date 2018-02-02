@@ -41,8 +41,7 @@
 #include "base/construct_facets_base.hpp"
 #include "base/construct_base_V.hpp"
 #include "base/construct_base_H.hpp"
-#include "base/construct_ground_V.hpp"
-#include "base/construct_big_ground_V.hpp"
+#include "emb/V.hpp"
 #include "base/construct_ground_H.hpp"
 
 #include "array/is_all_ones.hpp"
@@ -147,48 +146,22 @@ int main () {
             mem::alloc_matrix(mem_base_H,base_H,num_cols_S,D);
             base::construct_base_H(base_H,base_V,Minv,num_cols_S,D);
 
-            // Compute sizes
-            const int size_big_ground_V = nt::my_pow(3,D-2) * 2;
-            const int size_ground_V = (nt::my_pow(3,D-1)+1) / 2;
-            const int pos_e1_in_big_ground_V = (nt::my_pow(3,D-2)-1) / 2;
+            // Create V-embedding
+            auto V = emb::V(D);
 
-            // Create ground set, V-embedding
-            //void * mem_ground_V;
-            //int ** ground_V;
-            //mem::alloc_matrix(mem_ground_V,ground_V,size_ground_V,D);
-            //base::construct_ground_V(ground_V,D);
-
-            // Create BIG ground set, V-embedding
-            void * mem_big_ground_V;
-            int ** big_ground_V;
-            mem::alloc_matrix(mem_big_ground_V,big_ground_V,size_big_ground_V,D);
-            base::construct_big_ground_V(big_ground_V,D);
-            int ** ground_V(big_ground_V+pos_e1_in_big_ground_V);
-
-            // Create BIG ground set, H-embedding
+            // Create H-embedding
             void * mem_big_ground_H;
             int ** big_ground_H;
-            mem::alloc_matrix(mem_big_ground_H,big_ground_H,size_big_ground_V,D);
-            const int pos_e1 = base::construct_ground_H(big_ground_H,big_ground_V,pos_e1_in_big_ground_V,facets_base,num_facets_base,Minv,D);
+            mem::alloc_matrix(mem_big_ground_H,big_ground_H,V.fullsize,D);
+            const int pos_e1 = base::construct_ground_H(big_ground_H,V.full,V.e1,facets_base,num_facets_base,Minv,D);
             int ** ground_H(big_ground_H+pos_e1);
-            const int size_ground_H = base::construct_ground_H(ground_H,ground_V,size_ground_V,facets_base,num_facets_base,Minv,D);
+            const int size_ground_H = base::construct_ground_H(ground_H,V.final,V.finalsize,facets_base,num_facets_base,Minv,D);
 
             const int size_big_ground_H = pos_e1 + size_ground_H;
 
-            // Create ground set, H-embedding (as a subset of BIG)
-            //void * mem_ground_H;
-            //int ** ground_H;
-            //mem::alloc_matrix(mem_ground_H,ground_H,size_ground_V,D);
-            //const int size_ground_H = base::construct_ground_H(ground_H,ground_V,size_ground_V,facets_base,num_facets_base,Minv,D);
-
-            // It is possible to free the base_V and ground_V, we will use the H-embedding
-            free(mem_big_ground_V);
-            //free(mem_ground_V);
+            // It is possible to free the memory used for the V-embedding, we will use the H-embedding
+            V.teardown();
             free(mem_base_V);
-
-            // std::cerr << "-> Size of the ground set = " << size_ground_V << std::endl ;
-            // std::cerr << "-> Size of the reduced ground set = " << size_ground_H << std::endl ;
-            // std::cerr << "-> Size of the automorphism group of the base = " << num_autom_base << std::endl ;
 
             // Generating orbits of point of the ground set
             void * mem_orbits;
