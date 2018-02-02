@@ -308,7 +308,7 @@ int main () {
                     clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, sp_64, sp_t_big_64, size_ground_H, num_slabs, n_rows_big_64, n_cols_64);
                     if ( !array::is_all_zeros_64(CI_big_64, pos_e1) ) std::fill(CI,CI+size_ground_H,1);
                     else {
-                        array::unpack64(CI_big,size_big_ground_H,CI_big_64);
+                        array::unpack64(CI_big+(pos_e1/64)*64,size_big_ground_H-(pos_e1/64)*64,CI_big_64+(pos_e1/64));
                         std::memcpy(CI,CI_big+pos_e1,size_ground_H * sizeof(int));
                         array::pack64(CI,size_ground_H,CI_64,n_rows_64);
                         if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, size_ground_H) ) {
