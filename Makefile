@@ -29,7 +29,7 @@ run/%: src/%.cpp $(OBJS) $(HEADER_FILES)
 	$(CXX) $(CXXFLAGS) -O3 $< -o $@ $(OBJS) -I$(NAUTYHOME) -I$(HEADER_DIR)
 
 prof/%: src/%.cpp $(OBJS) $(HEADER_FILES)
-	$(CXX) $(CXXFLAGS) -O3 -pg $< -o $@ $(OBJS) -I$(NAUTYHOME) -I$(HEADER_DIR)
+	$(CXX) $(CXXFLAGS) -O3 -no-pie -pg $< -o $@ $(OBJS) -I$(NAUTYHOME) -I$(HEADER_DIR)
 
 debug/%: src/%.cpp $(OBJS) $(HEADER_FILES)
 	$(CXX) $(CXXFLAGS) -g $< -o $@ $(OBJS) -I$(NAUTYHOME) -I$(HEADER_DIR)
