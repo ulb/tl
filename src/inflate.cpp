@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <map>
 
 #define ANSI_RED     "\e[91m"
 #define ANSI_YELLOW  "\e[93m"
@@ -42,12 +43,14 @@
 #include "base/construct_base_V.hpp"
 #include "base/construct_base_H.hpp"
 #include "emb/V.hpp"
-#include "base/construct_ground_H.hpp"
+#include "emb/X.hpp"
+#include "emb/Xr.hpp"
+#include "emb/VEmbedding.hpp"
+#include "emb/HEmbedding.hpp"
 
 #include "array/is_all_ones.hpp"
 
 #include "array/pack.hpp"
-#include "array/dump.hpp"
 
 #include "st/inc.hpp"
 #include "st/is_sqsubseteq.hpp"
@@ -66,6 +69,8 @@ int main () {
 
     int tot_N_closed_sets = 0;
 
+    std::map<int,emb::VEmbedding<int,int>> Vs;
+
     // start the popcorn machine
     std::vector<tl::Polytope<int>> facets;
     while ( true ) {
@@ -76,12 +81,8 @@ int main () {
 
         int D = facet.dimension + 1;
 
-        // std::cerr << "Inflating facet..." << std::endl;
-
         // use the characterization of simplicial 2-level polytopes
         if (linalg::is_id(facet.dimension+1, facet.matrix)) {
-            // std::cerr << "Simplicial facet:" << std::endl;
-            // std::cerr << "Constructing slack-matrices of simplicial 2-level polytopes... ";
             for (auto N : nt::factor(D)) {
 
                 const int K = D/N;
@@ -146,32 +147,6 @@ int main () {
             mem::alloc_matrix(mem_base_H,base_H,num_cols_S,D);
             base::construct_base_H(base_H,base_V,Minv,num_cols_S,D);
 
-            // Create V-embedding
-            auto V = emb::V(D);
-
-            // Create H-embedding
-            void * mem_big_ground_H;
-            int ** big_ground_H;
-            mem::alloc_matrix(mem_big_ground_H,big_ground_H,V.fullsize,D);
-            const int pos_e1 = base::construct_ground_H(big_ground_H,V.full,V.e1,facets_base,num_facets_base,Minv,D);
-            int ** ground_H(big_ground_H+pos_e1);
-            const int size_ground_H = base::construct_ground_H(ground_H,V.final,V.finalsize,facets_base,num_facets_base,Minv,D);
-
-            const int size_big_ground_H = pos_e1 + size_ground_H;
-
-            // It is possible to free the memory used for the V-embedding, we will use the H-embedding
-            V.teardown();
-            free(mem_base_V);
-
-            // Generating orbits of point of the ground set
-            void * mem_orbits;
-            int ** orbits;
-            mem::alloc_matrix(mem_orbits,orbits,num_autom_base,size_ground_H);
-            base::construct_orbits(orbits,num_autom_base,base_H,d_aut_collection,ground_H,size_ground_H,D);
-
-            // Free mem_d_aut_collection, since we constructed the orbits
-            free(mem_d_aut_collection);
-
             // Compute the slabs: inequalities x(E) <= 1, x(E) >= 0 that are valid for the base_H
             void * mem_slabs;
             int ** slabs;
@@ -181,73 +156,48 @@ int main () {
 
             // Compute sizes for block-64 version
             const int n_cols_64 = linalg::div_ceil(num_slabs, 64);
-            const int n_rows_64 = linalg::div_ceil(size_ground_H, 64);
-            const int n_rows_big_64 = linalg::div_ceil(size_big_ground_H, 64);
 
-            // Check points versus slabs incidence
-            void * mem_slab_points_sat;
-            int ** slab_points_sat;
-            mem::alloc_matrix(mem_slab_points_sat,slab_points_sat,size_ground_H,num_slabs);
-            base::construct_slab_point_sat(slab_points_sat,ground_H,slabs,size_ground_H,num_slabs,D);
+            // Create V-embedding
+            if (Vs.count(D) == 0) Vs.emplace(D, emb::V(D));
+            auto& V = Vs.at(D);
 
-            // // Transpose
-            // void * mem_slab_points_sat_t;
-            // int ** slab_points_sat_t;
-            // mem::alloc_matrix(mem_slab_points_sat_t,slab_points_sat_t,num_slabs,size_ground_H);
-            // linalg::transpose(slab_points_sat,slab_points_sat_t,size_ground_H,num_slabs);
+            // Create H-embedding
+            auto X = emb::X(D,V,facets_base,num_facets_base,slabs,num_slabs,n_cols_64,Minv);
+            auto Xr = X;
 
-            // Construct the block uint64_t
-            void * mem_sp_64;
-            uint64_t ** sp_64;
-            mem::alloc_matrix(mem_sp_64,sp_64,size_ground_H,n_cols_64);
-            array::pack64_matrix(slab_points_sat,sp_64,size_ground_H,num_slabs,n_cols_64);
+            // It is possible to free the memory used for the mem_base_V, we will use the H-embedding
+            free(mem_base_V);
 
-            // // Transpose-64
-            // void * mem_sp_t_64;
-            // uint64_t ** sp_t_64;
-            // mem::alloc_matrix(mem_sp_t_64,sp_t_64,num_slabs,n_rows_64);
-            // array::pack64_matrix(slab_points_sat_t,sp_t_64,num_slabs,size_ground_H,n_rows_64);
+            // Generating orbits of point of the ground set
+            void * mem_orbits;
+            int ** orbits;
+            mem::alloc_matrix(mem_orbits,orbits,num_autom_base,X.finalsize);
+            base::construct_orbits(orbits,num_autom_base,base_H,d_aut_collection,X.final,X.finalsize,D);
 
-            // BIG ONES
-            // Check points versus slabs incidence - BIG
-            void * mem_slab_points_sat_big;
-            int ** slab_points_sat_big;
-            mem::alloc_matrix(mem_slab_points_sat_big,slab_points_sat_big,size_big_ground_H,num_slabs);
-            base::construct_slab_point_sat(slab_points_sat_big,big_ground_H,slabs,size_big_ground_H,num_slabs,D);
-
-            // Transpose - BIG
-            void * mem_slab_points_sat_big_t;
-            int ** slab_points_sat_big_t;
-            mem::alloc_matrix(mem_slab_points_sat_big_t,slab_points_sat_big_t,num_slabs,size_big_ground_H);
-            linalg::transpose(slab_points_sat_big,slab_points_sat_big_t,size_big_ground_H,num_slabs);
-
-            // Construct the block uint64_t - BIG
-            //void * mem_sp_big_64;
-            //uint64_t ** sp_big_64;
-            //mem::alloc_matrix(mem_sp_big_64,sp_big_64,size_big_ground_H,n_cols_64);
-            //array::pack64_matrix(slab_points_sat_big,sp_big_64,size_big_ground_H,num_slabs,n_cols_64);
-
-            // Transpose-64 - BIG
-            void * mem_sp_t_big_64;
-            uint64_t ** sp_t_big_64;
-            mem::alloc_matrix(mem_sp_t_big_64,sp_t_big_64,num_slabs,n_rows_big_64);
-            array::pack64_matrix(slab_points_sat_big_t,sp_t_big_64,num_slabs,size_big_ground_H,n_rows_big_64);
+            // Free mem_d_aut_collection, since we constructed the orbits
+            free(mem_d_aut_collection);
 
             // Construct the incompatibility matrix
             void * mem_incompatibility_adjM;
             int ** incompatibility_adjM;
-            mem::alloc_triangular_matrix(mem_incompatibility_adjM,incompatibility_adjM,size_ground_H);
-            base::construct_incompatibility_adjM(incompatibility_adjM,ground_H,facets_base,size_ground_H,num_facets_base,D);
+            mem::alloc_triangular_matrix(mem_incompatibility_adjM,incompatibility_adjM,X.finalsize);
+            base::construct_incompatibility_adjM(incompatibility_adjM,X.final,facets_base,X.finalsize,num_facets_base,D);
 
             // Pack-64
             void * mem_incompatibility_adjM_64;
             uint64_t ** incompatibility_adjM_64;
-            mem::alloc_triangular_matrix_64(mem_incompatibility_adjM_64,incompatibility_adjM_64,size_ground_H);
-            array::pack64_matrix_triangular(incompatibility_adjM,incompatibility_adjM_64,size_ground_H);
+            mem::alloc_triangular_matrix_64(mem_incompatibility_adjM_64,incompatibility_adjM_64,X.finalsize);
+            array::pack64_matrix_triangular(incompatibility_adjM,incompatibility_adjM_64,X.finalsize);
+
+            // Compute Xr
+            //auto Xr = emb::Xr(D, X, num_slabs, n_cols_64);
+            //X.teardown();
+            const int n_rows_64 = linalg::div_ceil(Xr.finalsize, 64);
+            const int n_rows_big_64 = linalg::div_ceil(Xr.compsize, 64);
 
             // Lauching Ganter's next-closure algorithm and checking 2-levelness
             int * A;
-            mem::alloc(A,size_ground_H);
+            mem::alloc(A,Xr.finalsize);
 
             int * B;
             mem::alloc(B,num_slabs);
@@ -255,21 +205,21 @@ int main () {
             mem::alloc(B_64,n_cols_64);
 
             int * I;
-            mem::alloc(I,size_ground_H);
+            mem::alloc(I,Xr.finalsize);
 
             int * CI_big;
-            mem::alloc(CI_big,size_big_ground_H);
+            mem::alloc(CI_big,Xr.compsize);
             uint64_t * CI_big_64;
             mem::alloc(CI_big_64,n_rows_big_64);
 
             int * CI;
-            mem::alloc(CI,size_ground_H);
+            mem::alloc(CI,Xr.finalsize);
             uint64_t * CI_64;
             mem::alloc(CI_64,n_rows_64);
 
             // special case for e_1 only
 
-            std::memset(A,0,size_ground_H * sizeof(int));
+            std::memset(A,0,Xr.finalsize * sizeof(int));
             A[0] = 1;
             std::fill(B,B+num_slabs,1);
             ++tot_N_closed_sets;
@@ -278,7 +228,7 @@ int main () {
             void * mem_S_new;
             int ** S_new;
             int num_rows_S_new, num_cols_S_new;
-            tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+            tl::construct_slack_matrix(base_H,Xr.final,A,B,slabs,facet.matrix,mem_S_new,S_new,Xr.finalsize,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
             tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
             free(mem_S_new);
 
@@ -288,28 +238,28 @@ int main () {
                 while (true) {
                     while(A[i] == 1) ++i;
 
-                    st::inc(A,i,I,size_ground_H); // I = inc(A,i)
+                    st::inc(A,i,I,Xr.finalsize); // I = inc(A,i)
 
                     // BEGIN CLOSURE OPERATOR
 
-                    //clops::discreteconvexhull_cl(I,B,CI,slab_points_sat,size_ground_H,num_slabs);
-                    clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, sp_64, sp_t_big_64, size_ground_H, num_slabs, n_rows_big_64, n_cols_64);
-                    if ( !array::is_all_zeros_64(CI_big_64, pos_e1) ) std::fill(CI,CI+size_ground_H,1);
+                    //clops::discreteconvexhull_cl(I,B,CI,slab_points_sat,Xr.finalsize,num_slabs);
+                    clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, Xr.ps_64, Xr.sp_64_comp, Xr.finalsize, num_slabs, n_rows_big_64, n_cols_64);
+                    if ( !array::is_all_zeros_64(CI_big_64, Xr.e1) ) std::fill(CI,CI+Xr.finalsize,1);
                     else {
-                        array::unpack64(CI_big+(pos_e1/64)*64,size_big_ground_H-(pos_e1/64)*64,CI_big_64+(pos_e1/64));
-                        std::memcpy(CI,CI_big+pos_e1,size_ground_H * sizeof(int));
-                        //array::pack64(CI,size_ground_H,CI_64,n_rows_64);
-                        //if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, size_ground_H) ) {
-                        if ( clops::compatibility_cl(CI,incompatibility_adjM,size_ground_H) ) {
-                            clops::lexmax_symmetric_cl(CI, size_ground_H, orbits, num_autom_base);
+                        array::unpack64(CI_big+(Xr.e1/64)*64,Xr.compsize-(Xr.e1/64)*64,CI_big_64+(Xr.e1/64));
+                        std::memcpy(CI,CI_big+Xr.e1,Xr.finalsize * sizeof(int));
+                        //array::pack64(CI,Xr.finalsize,CI_64,n_rows_64);
+                        //if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, Xr.finalsize) ) {
+                        if ( clops::compatibility_cl(CI,incompatibility_adjM,Xr.finalsize) ) {
+                            clops::lexmax_symmetric_cl(CI, Xr.finalsize, orbits, num_autom_base);
                         }
-                        else std::fill(CI,CI+size_ground_H,1);
+                        else std::fill(CI,CI+Xr.finalsize,1);
                     }
 
                     // END CLOSURE OPERATOR
 
                     ++i;
-                    if (st::is_sqsubseteq(I,CI,size_ground_H)) break;
+                    if (st::is_sqsubseteq(I,CI,Xr.finalsize)) break;
 
                 }
                 array::unpack64(B,num_slabs,B_64);
@@ -319,13 +269,13 @@ int main () {
                 ++tot_N_closed_sets;
 
                 // construct the slack matrix S with embedding transformation matrix in top left position
-                bool base_is_lex_max = tl::construct_slack_matrix(base_H,ground_H,A,B,slabs,facet.matrix,mem_S_new,S_new,size_ground_H,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
+                bool base_is_lex_max = tl::construct_slack_matrix(base_H,Xr.final,A,B,slabs,facet.matrix,mem_S_new,S_new,Xr.finalsize,num_slabs,num_cols_S,num_rows_S_new,num_cols_S_new,D);
                 if ( base_is_lex_max ) {
                     tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
                     free(mem_S_new);
                 }
 
-                if ( array::is_all_ones(A,size_ground_H) ) break ;
+                if ( array::is_all_ones(A,Xr.finalsize) ) break ;
 
             }
             // std::cerr << "OK" << std::endl ;
@@ -341,20 +291,9 @@ int main () {
             free(mem_incompatibility_adjM);
             free(mem_incompatibility_adjM_64);
 
-            free(mem_slab_points_sat);
-            // free(mem_slab_points_sat_t);
-            free(mem_sp_64);
-            // free(mem_sp_t_64);
-
-            free(mem_slab_points_sat_big);
-            free(mem_slab_points_sat_big_t);
-            //free(mem_sp_big_64);
-            free(mem_sp_t_big_64);
-
             free(mem_slabs);
             free(mem_orbits);
-            //free(mem_ground_H);
-            free(mem_big_ground_H);
+            Xr.teardown();
             free(mem_base_H);
             free(mem_facets_base);
             free(mem_Minv);
@@ -364,6 +303,11 @@ int main () {
         facets.clear(); // we use a vector containing a single element
 
     }
+
+    // Cleanup for V-embeddings
+    for (auto pair : Vs) pair.second.teardown();
+    Vs.clear();
+
     // std::cerr << "Total #closed sets = " << tot_N_closed_sets << std::endl;
     return 0;
 
