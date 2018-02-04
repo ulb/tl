@@ -61,6 +61,7 @@ namespace emb {
 			final,
 			finalsize,
 			e1,
+			n_rows_big_64,
 			mem_ps,
 			ps,
 			mem_ps_comp,

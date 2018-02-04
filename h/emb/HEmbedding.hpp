@@ -13,6 +13,7 @@ namespace emb {
 			T **final;
 			const SIZE finalsize;
 			const SIZE e1;
+			const SIZE n_rows_big_64;
 
 			void * mem_ps;
 			T ** ps;
@@ -30,6 +31,7 @@ namespace emb {
 					T **final,
 					const SIZE finalsize,
 					const SIZE e1,
+					const SIZE n_rows_big_64,
 					void *mem_ps,
 					T **ps,
 					void *mem_ps_comp,
@@ -45,6 +47,7 @@ namespace emb {
 			final(final),
 			finalsize(finalsize),
 			e1(e1),
+			n_rows_big_64(n_rows_big_64),
 			mem_ps(mem_ps),
 			ps(ps),
 			mem_ps_comp(mem_ps_comp),

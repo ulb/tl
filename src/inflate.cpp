@@ -77,8 +77,7 @@ int main () {
 
         if ( !tl::load(std::cin, facets) ) break ;
 
-        auto& facet = facets[0]; // ugly we use a length-1 vector atm
-
+        auto& facet = facets[0]; // we use a length-1 vector
         int D = facet.dimension + 1;
 
         // use the characterization of simplicial 2-level polytopes
@@ -97,13 +96,11 @@ int main () {
                 tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
 
                 free(mem_S_new);
-
             }
-
         }
-
         // non simplicial case
         else {
+
             int num_rows_S(facet.rows);
             int num_cols_S(facet.columns);
 
@@ -163,7 +160,7 @@ int main () {
 
             // Create H-embedding
             auto X = emb::X(D,V,facets_base,num_facets_base,slabs,num_slabs,n_cols_64,Minv);
-            auto Xr = X;
+            // auto Xr = X;
 
             // It is possible to free the memory used for the mem_base_V, we will use the H-embedding
             free(mem_base_V);
@@ -190,10 +187,10 @@ int main () {
             array::pack64_matrix_triangular(incompatibility_adjM,incompatibility_adjM_64,X.finalsize);
 
             // Compute Xr
-            //auto Xr = emb::Xr(D, X, num_slabs, n_cols_64);
-            //X.teardown();
+            auto Xr = emb::Xr(D, X, num_slabs, n_cols_64);
+            X.teardown();
             const int n_rows_64 = linalg::div_ceil(Xr.finalsize, 64);
-            const int n_rows_big_64 = linalg::div_ceil(Xr.compsize, 64);
+            // const int n_rows_big_64 = linalg::div_ceil(Xr.compsize, 64);
 
             // Lauching Ganter's next-closure algorithm and checking 2-levelness
             int * A;
@@ -207,18 +204,17 @@ int main () {
             int * I;
             mem::alloc(I,Xr.finalsize);
 
-            int * CI_big;
-            mem::alloc(CI_big,Xr.compsize);
-            uint64_t * CI_big_64;
-            mem::alloc(CI_big_64,n_rows_big_64);
-
             int * CI;
             mem::alloc(CI,Xr.finalsize);
             uint64_t * CI_64;
             mem::alloc(CI_64,n_rows_64);
 
-            // special case for e_1 only
+            int * CI_big;
+            mem::alloc(CI_big,Xr.compsize);
+            uint64_t * CI_big_64;
+            mem::alloc(CI_big_64,Xr.n_rows_big_64);
 
+            // special case for e_1 only
             std::memset(A,0,Xr.finalsize * sizeof(int));
             A[0] = 1;
             std::fill(B,B+num_slabs,1);
@@ -234,16 +230,13 @@ int main () {
 
             while (true) {
                 int i = 1;
-
                 while (true) {
                     while(A[i] == 1) ++i;
-
                     st::inc(A,i,I,Xr.finalsize); // I = inc(A,i)
 
                     // BEGIN CLOSURE OPERATOR
-
                     //clops::discreteconvexhull_cl(I,B,CI,slab_points_sat,Xr.finalsize,num_slabs);
-                    clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, Xr.ps_64, Xr.sp_64_comp, Xr.finalsize, num_slabs, n_rows_big_64, n_cols_64);
+                    clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, Xr.ps_64, Xr.sp_64_comp, Xr.finalsize, num_slabs, Xr.n_rows_big_64, n_cols_64);
                     if ( !array::is_all_zeros_64(CI_big_64, Xr.e1) ) std::fill(CI,CI+Xr.finalsize,1);
                     else {
                         array::unpack64(CI_big+(Xr.e1/64)*64,Xr.compsize-(Xr.e1/64)*64,CI_big_64+(Xr.e1/64));
@@ -255,12 +248,10 @@ int main () {
                         }
                         else std::fill(CI,CI+Xr.finalsize,1);
                     }
-
                     // END CLOSURE OPERATOR
 
                     ++i;
                     if (st::is_sqsubseteq(I,CI,Xr.finalsize)) break;
-
                 }
                 array::unpack64(B,num_slabs,B_64);
                 int *tmp(A);
@@ -274,9 +265,7 @@ int main () {
                     tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
                     free(mem_S_new);
                 }
-
                 if ( array::is_all_ones(A,Xr.finalsize) ) break ;
-
             }
             // std::cerr << "OK" << std::endl ;
             free(I);
@@ -298,17 +287,14 @@ int main () {
             free(mem_facets_base);
             free(mem_Minv);
         }
-
         facet.teardown();
         facets.clear(); // we use a vector containing a single element
-
     }
 
     // Cleanup for V-embeddings
     for (auto pair : Vs) pair.second.teardown();
     Vs.clear();
-
-    // std::cerr << "Total #closed sets = " << tot_N_closed_sets << std::endl;
+    std::cerr << "Total #closed sets = " << tot_N_closed_sets << std::endl;
     return 0;
 
 }

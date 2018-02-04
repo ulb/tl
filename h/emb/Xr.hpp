@@ -15,7 +15,6 @@ namespace emb {
 	HEmbedding<T,SIZE,W> Xr (const SIZE D, const HEmbedding<T,SIZE,W>& X, const SIZE num_slabs, const SIZE n_cols_64) {
 
 		// final set stays the same we only reduce the size of X.comp
-
 		const SIZE finalsize(X.finalsize);
 
 		T *A;
@@ -45,6 +44,8 @@ namespace emb {
 		T ** final(comp+e1);
 		const SIZE compsize = e1 + finalsize;
 
+        const int n_rows_big_64 = linalg::div_ceil(compsize, 64);
+
 		// Check points versus slabs incidence
 		void * mem_ps;
 		T ** ps;
@@ -59,7 +60,6 @@ namespace emb {
 		SIZE i = 0;
 		for (; i < e1; ++i) {
 			std::memcpy(comp[i], X.comp[C[i]], D*sizeof(T));
-			std::memcpy(ps[i], X.ps[C[i]], num_slabs*sizeof(T));
 			std::memcpy(ps_comp[i], X.ps_comp[C[i]], num_slabs*sizeof(T));
 		}
 
@@ -67,7 +67,7 @@ namespace emb {
 
 		for (SIZE j = 0; j < finalsize; ++j) {
 			std::memcpy(comp[i], X.final[j], D*sizeof(T));
-			std::memcpy(ps[i], X.ps[j], num_slabs*sizeof(T));
+			std::memcpy(ps[j], X.ps[j], num_slabs*sizeof(T));
 			std::memcpy(ps_comp[i], X.ps_comp[X.e1+j], num_slabs*sizeof(T));
 			++i;
 		}
@@ -85,9 +85,8 @@ namespace emb {
 		linalg::transpose(ps_comp,sp_comp,compsize,num_slabs);
 
 		// Transpose-64 - BIG
-		const SIZE n_rows_big_64 = linalg::div_ceil(compsize, 64);
 		void * mem_sp_comp_64;
-		W ** sp_comp_64;
+		uint64_t ** sp_comp_64;
 		mem::alloc_matrix(mem_sp_comp_64,sp_comp_64,num_slabs,n_rows_big_64);
 		array::pack64_matrix(sp_comp,sp_comp_64,num_slabs,compsize,n_rows_big_64);
 
@@ -100,6 +99,7 @@ namespace emb {
 			final,
 			finalsize,
 			e1,
+			n_rows_big_64,
 			mem_ps,
 			ps,
 			mem_ps_comp,
