@@ -8,8 +8,8 @@
 namespace clops {
 	template <typename T,typename SIZE>
 		SIZE get_idx(T * char_v,const SIZE length,T *& ones,T *& zeros) {
-			alloc(ones,length,T);
-			alloc(zeros,length,T);
+			mem::alloc(ones,length);
+			mem::alloc(zeros,length);
 			SIZE nones = 0;
 			SIZE nzeros = 0;
 			for (SIZE i = 0; i < length; ++i)

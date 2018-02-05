@@ -55,7 +55,7 @@
 #include "st/inc.hpp"
 #include "st/is_sqsubseteq.hpp"
 
-//#include "clops/discreteconvexhull_cl.hpp"
+#include "clops/discreteconvexhull_cl.hpp"
 #include "clops/fast_discreteconvexhull_cl.hpp"
 #include "clops/compatibility_cl.hpp"
 #include "clops/lexmax_symmetric_cl.hpp"
@@ -235,7 +235,7 @@ int main () {
                     st::inc(A,i,I,Xr.finalsize); // I = inc(A,i)
 
                     // BEGIN CLOSURE OPERATOR
-                    //clops::discreteconvexhull_cl(I,B,CI,slab_points_sat,Xr.finalsize,num_slabs);
+                    //clops::discreteconvexhull_cl(I,B,CI,Xr.ps,Xr.finalsize,num_slabs);
                     clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, Xr.ps_64, Xr.sp_64_comp, Xr.finalsize, num_slabs, Xr.n_rows_big_64, n_cols_64);
                     if ( !array::is_all_zeros_64(CI_big_64, Xr.e1) ) std::fill(CI,CI+Xr.finalsize,1);
                     else {
@@ -267,6 +267,7 @@ int main () {
                 }
                 if ( array::is_all_ones(A,Xr.finalsize) ) break ;
             }
+
             // std::cerr << "OK" << std::endl ;
             free(I);
             free(B);

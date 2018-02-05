@@ -7,10 +7,10 @@ namespace clops {
 
 	// compatibility closure operator
 	template <typename T,typename SIZE>
-	bool compatibility_cl(T * A,T ** incompatibility_adjM,const SIZE length_A) {
-	    for (SIZE i = 1; i < length_A; ++i) {
+	bool compatibility_cl(T * A,T ** I, const SIZE n) {
+	    for (SIZE i = 1; i < n; ++i) {
 	        if (A[i] == 0) continue;
-			const auto B = incompatibility_adjM[i];
+			const auto B = I[i];
 	        for (SIZE j = 0; j < i; ++j) if (A[j] & B[j]) return false;
 	    }
 	    return true;
