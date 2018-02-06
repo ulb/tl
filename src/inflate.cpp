@@ -56,10 +56,7 @@
 #include "st/inc.hpp"
 #include "st/is_sqsubseteq.hpp"
 
-#include "clops/discreteconvexhull_cl.hpp"
-#include "clops/fast_discreteconvexhull_cl.hpp"
-#include "clops/compatibility_cl.hpp"
-#include "clops/lexmax_symmetric_cl.hpp"
+#include "clops/all.hpp"
 
 #include "simpl/slack_matrix_simplicial_2L.hpp"
 #include "simpl/push_simplicial_core.hpp"
@@ -171,16 +168,16 @@ int main () {
             free(mem_d_aut_collection);
 
             // Construct the incompatibility matrix
-            void * mem_incompatibility_adjM;
-            int ** incompatibility_adjM;
-            mem::alloc_triangular_matrix(mem_incompatibility_adjM,incompatibility_adjM,X.finalsize);
-            base::construct_incompatibility_adjM(incompatibility_adjM,X.final,facets_base,X.finalsize,num_facets_base,D);
+            void * mem_IM;
+            int ** IM;
+            mem::alloc_triangular_matrix(mem_IM,IM,X.finalsize);
+            base::construct_incompatibility_adjM(IM,X.final,facets_base,X.finalsize,num_facets_base,D);
 
             // Pack-64
-            void * mem_incompatibility_adjM_64;
-            uint64_t ** incompatibility_adjM_64;
-            mem::alloc_triangular_matrix_64(mem_incompatibility_adjM_64,incompatibility_adjM_64,X.finalsize);
-            array::pack64_matrix_triangular(incompatibility_adjM,incompatibility_adjM_64,X.finalsize);
+            void * mem_IM64;
+            uint64_t ** IM64;
+            mem::alloc_triangular_matrix_64(mem_IM64,IM64,X.finalsize);
+            array::pack64_matrix_triangular(IM,IM64,X.finalsize);
 
             // Compute Xr
             auto Xr = emb::Xs(D, X, slabs.rows, n_cols_64);
@@ -202,6 +199,9 @@ int main () {
 
             int * CI;
             mem::alloc(CI,Xr.finalsize);
+            int * CI_all_ones;
+            mem::alloc(CI_all_ones, Xr.finalsize);
+            std::fill(CI_all_ones,CI_all_ones+Xr.finalsize,1);
             uint64_t * CI_64;
             mem::alloc(CI_64,n_rows_64);
 
@@ -227,29 +227,14 @@ int main () {
             while (true) {
                 int i = 1;
                 while (true) {
-                    while(A[i] == 1) ++i;
+                    while ( A[i] == 1 ) ++i;
                     st::inc(A,i,I,Xr.finalsize); // I = inc(A,i)
-
-                    // BEGIN CLOSURE OPERATOR
-                    //clops::discreteconvexhull_cl(I,B,CI,Xr.ps,Xr.finalsize,slabs.rows);
-                    //clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, Xr.ps_64, Xr.sp_64_comp, Xr.finalsize, slabs.rows, Xr.n_rows_big_64, n_cols_64);
-                    clops::fast_discreteconvexhull_cl(I, B_64, CI_64, Xr.ps_64, Xr.sp_64_comp, Xr.finalsize, slabs.rows, Xr.n_rows_big_64, n_cols_64);
-                    //if ( !array::is_all_zeros_64(CI_big_64, Xr.e1) ) std::fill(CI,CI+Xr.finalsize,1);
-                    //else {
-                        array::unpack64(CI,Xr.finalsize,CI_64);
-                        //array::unpack64(CI_big+(Xr.e1/64)*64,Xr.compsize-(Xr.e1/64)*64,CI_big_64+(Xr.e1/64));
-                        //std::memcpy(CI,CI_big+Xr.e1,Xr.finalsize * sizeof(int));
-                        //array::pack64(CI,Xr.finalsize,CI_64,n_rows_64);
-                        if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, Xr.finalsize) ) {
-                        //if ( clops::compatibility_cl(CI,incompatibility_adjM,Xr.finalsize) ) {
-                            clops::lexmax_symmetric_cl(CI, Xr.finalsize, orbits, num_autom_base);
-                        }
-                        else std::fill(CI,CI+Xr.finalsize,1);
-                    //}
-                    // END CLOSURE OPERATOR
-
                     ++i;
-                    if (st::is_sqsubseteq(I,CI,Xr.finalsize)) break;
+
+                    if ( clops::all(I, B_64, CI_64, CI, IM64, Xr, slabs, n_cols_64, orbits, num_autom_base) ) {
+                        if (st::is_sqsubseteq(I,CI,Xr.finalsize)) break;
+                    }
+                    else if (st::is_sqsubseteq(I,CI_all_ones,Xr.finalsize)) break;
                 }
                 array::unpack64(B,slabs.rows,B_64);
                 int *tmp(A);
@@ -271,13 +256,14 @@ int main () {
             free(B);
             free(B_64);
             free(CI);
+            free(CI_all_ones);
             free(CI_big);
             free(CI_64);
             free(CI_big_64);
             free(A);
 
-            free(mem_incompatibility_adjM);
-            free(mem_incompatibility_adjM_64);
+            free(mem_IM);
+            free(mem_IM64);
 
             slabs.teardown();
             free(mem_orbits);
