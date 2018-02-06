@@ -20,7 +20,7 @@ int main () {
         if (subcl::is_cs(polytope)) ++n_cs;
 
         for (auto& polytope : polytopes) polytope.teardown();
-    	polytopes.clear();
+        polytopes.clear();
     }
 
     std::cout << n_cs << std::endl ;

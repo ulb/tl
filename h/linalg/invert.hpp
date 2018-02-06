@@ -4,14 +4,14 @@
 #include <cstring> // std::equal, std::memcpy, std::memset, std::fill
 
 #include "mem/alloc.hpp"
-#include "generate_id_matrix.hpp"
+#include "eye.hpp"
 
 namespace linalg {
 	// invert the DxD matrix M and put the result in Minv
 	template <typename T>
 	void invert(T ** M, T ** Minv, const T D) {
 	    // the code modifies M, since we do not need it anymore
-	    linalg::generate_id_matrix(D,Minv);
+	    linalg::eye(D,Minv);
 
 	    // Start Gaussian inversion
 	    for (int i=0; i<D; ++i) {

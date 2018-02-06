@@ -26,12 +26,12 @@ namespace clops {
 
 	// compute the lexmax symmetric copy of a set A
 	template <typename T,typename SIZE>
-	void lexmax_symmetric_cl(T *& A, const SIZE length_A,T ** orbits,const SIZE num_autom_base) {
+	void lexmax_symmetric_cl(T *& A, const SIZE length_A, T **orbits, const SIZE num_autom_base) {
 
-		T * A_indices;
+		T *A_indices;
 		const SIZE num_A_indices = array::get_ones(A,length_A,A_indices);
 
-		T * A_sym;
+		T *A_sym;
 		mem::alloc(A_sym,length_A);
 		A_sym[0] = 1;
 

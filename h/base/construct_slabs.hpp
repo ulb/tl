@@ -4,14 +4,14 @@
 #include <cstring> // std::memcpy, std::memset, std::fill
 
 #include "mem/alloc.hpp"
-#include "linalg/my_inner_prod.hpp"
+#include "linalg/innerprod.hpp"
 
 namespace base {
     template <typename T,typename SIZE>
     bool accept(T * normal_vector,T ** base_H,const SIZE num_cols_S,const T D) {
         T s;
         for (SIZE j = 0; j < num_cols_S; ++j) {
-            s = linalg::my_inner_prod(normal_vector,base_H[j],D);
+            s = linalg::innerprod(normal_vector,base_H[j],D);
             if ((s != 0) && (s != 1)) return false;
         }
         return true;

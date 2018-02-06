@@ -18,7 +18,7 @@ namespace clops {
 
 	// fast compatibility closure operator
 	template <typename T,typename SIZE>
-	bool fast_compatibility_cl(T* A, uint64_t* A64, uint64_t ** I64,const SIZE n) {
+	bool fast_compatibility_cl(T* A, uint64_t* A64, uint64_t ** I64, const SIZE n) {
 	    for (SIZE i = 1; i < n; ++i) {
 	        if (A[i] == 0) continue;
 			const auto B64 = I64[i];

@@ -4,7 +4,8 @@
 #include "mem/alloc.hpp"
 #include "mem/alloc_matrix.hpp"
 #include "array/get_ones.hpp"
-#include "linalg/my_inner_prod.hpp"
+#include "array/is_equal.hpp"
+#include "linalg/innerprod.hpp"
 #include "st/is_subseteq.hpp"
 
 namespace tl {
@@ -21,13 +22,6 @@ namespace tl {
 		while ( rows != ith ) if (is_subset(rowi,*(rows++),ncols)) return false;
 		++rows;
 		while ( rows != end ) if (is_subset(rowi,*(rows++),ncols)) return false;
-		return true;
-	}
-
-	// test function
-	template <typename T,typename SIZE>
-	bool accept(T* Sn, T* S,const SIZE d) {
-		for (SIZE j = 0; j < d; ++j) if (Sn[j] != S[j]) return false;
 		return true;
 	}
 
@@ -50,16 +44,16 @@ namespace tl {
 		for (SIZE i = 0; i < num_B_indices; ++i) {
 			T num_ones = 0;
 			T B_i = B_indices[i];
-			const T s1 = linalg::my_inner_prod(ground_H[0],slabs[B_i],D);
+			const T s1 = linalg::innerprod(ground_H[0],slabs[B_i],D);
 			temp_row[0] = s1;
 			num_ones += s1;
 			for (SIZE j = 0; j < num_cols_S; ++j) {
-				const T s2 = linalg::my_inner_prod(base_H[j],slabs[B_i],D);
+				const T s2 = linalg::innerprod(base_H[j],slabs[B_i],D);
 				temp_row[1+j] = s2;
 				num_ones += s2;
 			}
 			for (SIZE j = 1; j < num_A_indices; ++j) {
-				const T s2 = linalg::my_inner_prod(ground_H[A_indices[j]],slabs[B_i],D);
+				const T s2 = linalg::innerprod(ground_H[A_indices[j]],slabs[B_i],D);
 				temp_row[num_cols_S+j] = s2;
 				num_ones += s2;
 			}
@@ -112,7 +106,7 @@ namespace tl {
 		// rearranging rows of S_new
 		T n_row = 0;
 		for (SIZE i = n_row+1; (i < num_rows_S_new) && (n_row < D); ++i) {
-			if (accept(S_new[i]+1,S[n_row],num_cols_S)) {
+			if (array::is_equal(S_new[i]+1,S[n_row],num_cols_S)) {
 				std::memcpy(temp_row,S_new[i],num_cols_S_new * sizeof(T));
 				std::memcpy(S_new[i],S_new[n_row+1],num_cols_S_new * sizeof(T));
 				std::memcpy(S_new[n_row+1],temp_row,num_cols_S_new * sizeof(T));

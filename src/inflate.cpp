@@ -24,7 +24,6 @@
 #include "linalg/div_ceil.hpp"
 #include "linalg/transpose.hpp"
 
-#include "nt/my_pow.hpp"
 #include "nt/factor.hpp"
 
 #include "tl/load.hpp"

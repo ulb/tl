@@ -3,8 +3,8 @@
 
 namespace st {
 	template <typename T,typename SIZE>
-	T min_A_idx(const T * const A, const SIZE length) {
-	    for (SIZE i = 0; i < length; ++i) if (A[i] == 1) return i;
+	T min_A_idx(const T * const bits, const SIZE length) {
+	    for (SIZE i = 0; i < length; ++i) if (bits[i] == 1) return i;
 	    return length;
 	}
 }

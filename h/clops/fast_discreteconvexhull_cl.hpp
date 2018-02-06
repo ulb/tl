@@ -26,12 +26,12 @@ namespace clops {
 	void fast_discreteconvexhull_cl(T* A, W* B, W* C, SP sp, SP sp_t, const SIZE n_rows,const SIZE n_cols,const SIZE n_rows_64,const SIZE n_cols_64) {
 
 		SIZE *A_ones;
-		const SIZE A_nones = array::get_ones(A,n_rows,A_ones);
+		const SIZE A_nones(array::get_ones(A,n_rows,A_ones));
 		clops::max_col_sat(A_ones,B,sp,A_nones,n_cols_64);
 		free(A_ones);
 
 		SIZE *B_ones;
-		const SIZE B_nones = array::get_ones_64(B,n_cols,B_ones);
+		const SIZE B_nones(array::get_ones_64(B,n_cols,B_ones));
 		clops::max_col_sat(B_ones,C,sp_t,B_nones,n_rows_64);
 		free(B_ones);
 

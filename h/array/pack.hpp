@@ -22,19 +22,23 @@ namespace array {
 	template <typename T,typename SIZE>
 	void unpack64(T* v, const SIZE length, uint64_t* word) {
 
-		const auto k = length / 64;
-		const auto l = length % 64;
+		auto k = length / 64;
+		auto l = length % 64;
 
-		for (SIZE i = 0; i < k; ++i) {
-			auto w(word[i]);
+		while ( k-- != 0 ) {
+			auto w(*(word++));
 			for ( SIZE j = 0 ; j < 64 ; ++j) {
 				*(v++) = w & 1 ;
 				w >>= 1;
 			}
 		}
 
-		for (SIZE j = 0 ; j < l ; ++j) {
-			*(v++) = ( word[k] >> j ) & 1 ;
+		if ( l != 0 ) {
+			auto w(*word);
+			do {
+				*(v++) = w & 1 ;
+				w >>= 1;
+			} while ( --l != 0 ) ;
 		}
 
 	}

@@ -8,15 +8,15 @@
 namespace st {
 	// Check if A \sqsubsteq B
 	template <typename T, typename SIZE>
-	bool is_sqsubseteq( T * A, T * B, const SIZE length) {
-	    T min_A = st::min_A_idx(A,length);
+	bool is_sqsubseteq( const T * const A, const T * const B, const SIZE length) {
+	    T min_A(st::min_A_idx(A, length));
 	    return array::is_equal(B+min_A,A+min_A,length-min_A);
 	}
 
 	// Check if A \sqsubsteq 1111111111111111111
 	template <typename T, typename SIZE>
-	bool is_sqsubseteq_all_ones( T * A, const SIZE length) {
-	    T min_A = st::min_A_idx(A, length);
+	bool is_sqsubseteq_all_ones( const T * const A, const SIZE length) {
+	    T min_A(st::min_A_idx(A, length));
 	    return array::is_all_ones(A+min_A,length-min_A);
 	}
 

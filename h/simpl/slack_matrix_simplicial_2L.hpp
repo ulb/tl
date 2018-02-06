@@ -5,6 +5,7 @@
 
 #include "mem/alloc_matrix.hpp"
 #include "simpl/matrix_free_sum.hpp"
+#include "linalg/eye.hpp"
 
 namespace simpl {
 	template <typename T,typename SIZE>
@@ -13,7 +14,7 @@ namespace simpl {
 	    void * mem_Id;
 	    T ** Id;
 		mem::alloc_matrix(mem_Id,Id,h+1,h+1);
-	    linalg::generate_id_matrix(h+1,Id); // Id(h+1) is the slack matrix of the k-simplex Delta_k
+	    linalg::eye(h+1,Id); // Id(h+1) is the slack matrix of the k-simplex Delta_k
 
 	    num_r_M = h+1;
 	    num_c_M = h+1;
