@@ -20,12 +20,21 @@ namespace array {
 	}
 
 	template <typename T,typename SIZE>
-	void unpack64(T* v,const SIZE length, uint64_t* word) {
+	void unpack64(T* v, const SIZE length, uint64_t* word) {
 
-		for (SIZE k = 0; k < length; ++k) {
-			const auto i = k / 64 ;
-			const auto j = k % 64 ;
-			v[k] = ( word[i] >> j ) & 1 ;
+		const auto k = length / 64;
+		const auto l = length % 64;
+
+		for (SIZE i = 0; i < k; ++i) {
+			auto w(word[i]);
+			for ( SIZE j = 0 ; j < 64 ; ++j) {
+				*(v++) = w & 1 ;
+				w >>= 1;
+			}
+		}
+
+		for (SIZE j = 0 ; j < l ; ++j) {
+			*(v++) = ( word[k] >> j ) & 1 ;
 		}
 
 	}
