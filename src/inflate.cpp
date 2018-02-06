@@ -56,7 +56,7 @@
 #include "st/inc.hpp"
 #include "st/is_sqsubseteq.hpp"
 
-#include "clops/all.hpp"
+#include "clops/cl.hpp"
 
 #include "simpl/slack_matrix_simplicial_2L.hpp"
 #include "simpl/push_simplicial_core.hpp"
@@ -228,7 +228,7 @@ int main () {
                     st::inc(A, i, I, Xr.finalsize); // I = inc(A,i)
                     ++i;
 
-                    if ( clops::all(I, B_64, CI_64, CI, IM64, Xr, slabs, n_cols_64, orbits, num_autom_base) ) {
+                    if ( clops::cl(I, B_64, CI_64, CI, IM64, Xr, slabs, n_cols_64, orbits, num_autom_base) ) {
                         if (st::is_sqsubseteq(I, CI, Xr.finalsize)) break;
                     }
                     else if (st::is_sqsubseteq_all_ones(I, Xr.finalsize)) break;

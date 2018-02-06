@@ -1,5 +1,5 @@
-#ifndef H_CLOPS_ALL
-#define H_CLOPS_ALL
+#ifndef H_CLOPS_CL
+#define H_CLOPS_CL
 
 #include "array/pack.hpp"
 //#include "clops/discreteconvexhull_cl.hpp"
@@ -10,7 +10,7 @@
 namespace clops {
 
 	template<typename XT, typename S, typename T, typename W, typename SIZE>
-	bool all ( T *I, W *B64, W *CI64, T*& CI, W **IM64, XT& X, S& slabs, SIZE n_cols_64, T **orbits, SIZE num_autom_base ) {
+	bool cl ( T *I, W *B64, W *CI64, T*& CI, W **IM64, XT& X, S& slabs, SIZE n_cols_64, T **orbits, SIZE num_autom_base ) {
 
 		//clops::discreteconvexhull_cl(I,B,CI,X.ps,X.finalsize,slabs.rows);
 		//clops::fast_discreteconvexhull_cl(I, B64, CI_big_64, X.ps_64, X.sp_64_comp, X.finalsize, slabs.rows, X.n_rows_big_64, n_cols_64);
@@ -32,4 +32,4 @@ namespace clops {
 
 }
 
-#endif // H_CLOPS_ALL
+#endif // H_CLOPS_CL
