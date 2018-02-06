@@ -9,19 +9,14 @@
 #include "st/is_subseteq.hpp"
 
 namespace tl {
-	// Check if the indices of zeros in all_rows[i] is a subset of all_rows[j]s
-	template <typename T,typename SIZE>
-	bool is_subset(const T * const A, const T * const B, const SIZE n) {
-		return st::is_subseteq(B, A, n); // note that we work on the complement
-	}
 
 	// check maximality of zero sets of rows
 	template <typename T,typename SIZE>
 	bool is_maximal(T** rows, T** ith, T** end, const SIZE ncols) {
-		T* rowi = *ith;
-		while ( rows != ith ) if (is_subset(rowi,*(rows++),ncols)) return false;
+		T* rowi(*ith); // note that we work on the complement of the sets
+		while ( rows != ith ) if (st::is_subseteq(*(rows++),rowi,ncols)) return false;
 		++rows;
-		while ( rows != end ) if (is_subset(rowi,*(rows++),ncols)) return false;
+		while ( rows != end ) if (st::is_subseteq(*(rows++),rowi,ncols)) return false;
 		return true;
 	}
 
