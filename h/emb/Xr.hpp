@@ -1,5 +1,5 @@
-#ifndef H_EMB_Xreduced
-#define H_EMB_Xreduced
+#ifndef H_EMB_Xr
+#define H_EMB_Xr
 
 #include "linalg/div_ceil.hpp"
 #include "mem/alloc.hpp"
@@ -114,4 +114,4 @@ namespace emb {
 
 }
 
-#endif // H_EMB_Xreduced
+#endif // H_EMB_Xr

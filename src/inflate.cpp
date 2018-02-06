@@ -45,6 +45,7 @@
 #include "emb/V.hpp"
 #include "emb/X.hpp"
 #include "emb/Xr.hpp"
+#include "emb/Xs.hpp"
 #include "emb/VEmbedding.hpp"
 #include "emb/HEmbedding.hpp"
 
@@ -160,7 +161,6 @@ int main () {
 
             // Create H-embedding
             auto X = emb::X(D,V,facets_base,num_facets_base,slabs,num_slabs,n_cols_64,Minv);
-            // auto Xr = X;
 
             // It is possible to free the memory used for the mem_base_V, we will use the H-embedding
             free(mem_base_V);
@@ -187,7 +187,7 @@ int main () {
             array::pack64_matrix_triangular(incompatibility_adjM,incompatibility_adjM_64,X.finalsize);
 
             // Compute Xr
-            auto Xr = emb::Xr(D, X, num_slabs, n_cols_64);
+            auto Xr = emb::Xs(D, X, num_slabs, n_cols_64);
             X.teardown();
             const int n_rows_64 = linalg::div_ceil(Xr.finalsize, 64);
             // const int n_rows_big_64 = linalg::div_ceil(Xr.compsize, 64);
@@ -236,18 +236,20 @@ int main () {
 
                     // BEGIN CLOSURE OPERATOR
                     //clops::discreteconvexhull_cl(I,B,CI,Xr.ps,Xr.finalsize,num_slabs);
-                    clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, Xr.ps_64, Xr.sp_64_comp, Xr.finalsize, num_slabs, Xr.n_rows_big_64, n_cols_64);
-                    if ( !array::is_all_zeros_64(CI_big_64, Xr.e1) ) std::fill(CI,CI+Xr.finalsize,1);
-                    else {
-                        array::unpack64(CI_big+(Xr.e1/64)*64,Xr.compsize-(Xr.e1/64)*64,CI_big_64+(Xr.e1/64));
-                        std::memcpy(CI,CI_big+Xr.e1,Xr.finalsize * sizeof(int));
+                    //clops::fast_discreteconvexhull_cl(I, B_64, CI_big_64, Xr.ps_64, Xr.sp_64_comp, Xr.finalsize, num_slabs, Xr.n_rows_big_64, n_cols_64);
+                    clops::fast_discreteconvexhull_cl(I, B_64, CI_64, Xr.ps_64, Xr.sp_64_comp, Xr.finalsize, num_slabs, Xr.n_rows_big_64, n_cols_64);
+                    //if ( !array::is_all_zeros_64(CI_big_64, Xr.e1) ) std::fill(CI,CI+Xr.finalsize,1);
+                    //else {
+                        array::unpack64(CI,Xr.finalsize,CI_64);
+                        //array::unpack64(CI_big+(Xr.e1/64)*64,Xr.compsize-(Xr.e1/64)*64,CI_big_64+(Xr.e1/64));
+                        //std::memcpy(CI,CI_big+Xr.e1,Xr.finalsize * sizeof(int));
                         //array::pack64(CI,Xr.finalsize,CI_64,n_rows_64);
-                        //if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, Xr.finalsize) ) {
-                        if ( clops::compatibility_cl(CI,incompatibility_adjM,Xr.finalsize) ) {
+                        if ( clops::fast_compatibility_cl(CI, CI_64, incompatibility_adjM_64, Xr.finalsize) ) {
+                        //if ( clops::compatibility_cl(CI,incompatibility_adjM,Xr.finalsize) ) {
                             clops::lexmax_symmetric_cl(CI, Xr.finalsize, orbits, num_autom_base);
                         }
                         else std::fill(CI,CI+Xr.finalsize,1);
-                    }
+                    //}
                     // END CLOSURE OPERATOR
 
                     ++i;
