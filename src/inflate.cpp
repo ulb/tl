@@ -199,9 +199,6 @@ int main () {
 
             int * CI;
             mem::alloc(CI,Xr.finalsize);
-            int * CI_all_ones;
-            mem::alloc(CI_all_ones, Xr.finalsize);
-            std::fill(CI_all_ones,CI_all_ones+Xr.finalsize,1);
             uint64_t * CI_64;
             mem::alloc(CI_64,n_rows_64);
 
@@ -228,13 +225,13 @@ int main () {
                 int i = 1;
                 while (true) {
                     while ( A[i] == 1 ) ++i;
-                    st::inc(A,i,I,Xr.finalsize); // I = inc(A,i)
+                    st::inc(A, i, I, Xr.finalsize); // I = inc(A,i)
                     ++i;
 
                     if ( clops::all(I, B_64, CI_64, CI, IM64, Xr, slabs, n_cols_64, orbits, num_autom_base) ) {
-                        if (st::is_sqsubseteq(I,CI,Xr.finalsize)) break;
+                        if (st::is_sqsubseteq(I, CI, Xr.finalsize)) break;
                     }
-                    else if (st::is_sqsubseteq(I,CI_all_ones,Xr.finalsize)) break;
+                    else if (st::is_sqsubseteq_all_ones(I, Xr.finalsize)) break;
                 }
                 array::unpack64(B,slabs.rows,B_64);
                 int *tmp(A);
@@ -256,7 +253,6 @@ int main () {
             free(B);
             free(B_64);
             free(CI);
-            free(CI_all_ones);
             free(CI_big);
             free(CI_64);
             free(CI_big_64);
