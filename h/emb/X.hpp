@@ -8,8 +8,8 @@
 
 namespace emb {
 
-	template<typename T, typename SIZE>
-	HEmbedding<T,SIZE,uint64_t> X (const SIZE D, const VEmbedding<T,SIZE>& V, T **facets_base, const SIZE num_facets_base, T **slabs, const SIZE num_slabs, const SIZE n_cols_64, T **Minv) {
+	template<typename T, typename SIZE, typename S>
+	HEmbedding<T,SIZE,uint64_t> X (const SIZE D, const VEmbedding<T,SIZE>& V, T **facets_base, const SIZE num_facets_base, const S& slabs, const SIZE n_cols_64, T **Minv) {
 
 		void * mem;
 		T ** comp;
@@ -24,33 +24,33 @@ namespace emb {
 		// Check points versus slabs incidence
 		void * mem_ps;
 		T ** ps;
-		mem::alloc_matrix(mem_ps,ps,finalsize,num_slabs);
-		base::construct_slab_point_sat(ps,final,slabs,finalsize,num_slabs,D);
+		mem::alloc_matrix(mem_ps,ps,finalsize,slabs.rows);
+		base::construct_slab_point_sat(ps,final,slabs.matrix,finalsize,slabs.rows,D);
 
 		// Construct the block uint64_t
 		void * mem_ps_64;
 		uint64_t ** ps_64;
 		mem::alloc_matrix(mem_ps_64,ps_64,finalsize,n_cols_64);
-		array::pack64_matrix(ps,ps_64,finalsize,num_slabs,n_cols_64);
+		array::pack64_matrix(ps,ps_64,finalsize,slabs.rows,n_cols_64);
 
 		// BIG ONES
 		// Check points versus slabs incidence - BIG
 		void * mem_ps_comp;
 		T ** ps_comp;
-		mem::alloc_matrix(mem_ps_comp,ps_comp,compsize,num_slabs);
-		base::construct_slab_point_sat(ps_comp,comp,slabs,compsize,num_slabs,D);
+		mem::alloc_matrix(mem_ps_comp,ps_comp,compsize,slabs.rows);
+		base::construct_slab_point_sat(ps_comp,comp,slabs.matrix,compsize,slabs.rows,D);
 
 		// Transpose - BIG
 		void * mem_sp_comp;
 		T ** sp_comp;
-		mem::alloc_matrix(mem_sp_comp,sp_comp,num_slabs,compsize);
-		linalg::transpose(ps_comp,sp_comp,compsize,num_slabs);
+		mem::alloc_matrix(mem_sp_comp,sp_comp,slabs.rows,compsize);
+		linalg::transpose(ps_comp,sp_comp,compsize,slabs.rows);
 
 		// Transpose-64 - BIG
 		void * mem_sp_comp_64;
 		uint64_t ** sp_comp_64;
-		mem::alloc_matrix(mem_sp_comp_64,sp_comp_64,num_slabs,n_rows_big_64);
-		array::pack64_matrix(sp_comp,sp_comp_64,num_slabs,compsize,n_rows_big_64);
+		mem::alloc_matrix(mem_sp_comp_64,sp_comp_64,slabs.rows,n_rows_big_64);
+		array::pack64_matrix(sp_comp,sp_comp_64,slabs.rows,compsize,n_rows_big_64);
 
 		free(mem_sp_comp);
 

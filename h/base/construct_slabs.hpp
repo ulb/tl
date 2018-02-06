@@ -17,8 +17,8 @@ namespace base {
         return true;
     }
 
-	template <typename T,typename SIZE>
-	void construct_slabs(T ** slabs,T & num_slabs,const SIZE num_cols_S,T ** base_H,const T D) {
+    template <typename T,typename SIZE>
+    SIZE construct_slabs(T ** slabs,const SIZE num_cols_S,T ** base_H,const T D) {
         T * count;
         mem::alloc(count,D+1);
         // initialize count to e_1
@@ -26,7 +26,7 @@ namespace base {
         std::memset(count+1,0,D * sizeof(T));
         bool carry;
 
-        num_slabs = 0;
+        SIZE num_slabs = 0;
         T * normal_vector;
         mem::alloc(normal_vector,D);
         while (count[D] == 0) {
@@ -48,7 +48,8 @@ namespace base {
         }
         free(normal_vector);
         free(count);
-	}
+        return num_slabs;
+    }
 }
 
 #endif // H_BASE_CONSTRUCT_SLABS
