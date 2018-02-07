@@ -9,9 +9,8 @@
 namespace base {
     template <typename T,typename SIZE>
     bool accept(T * normal_vector,T ** base_H,const SIZE num_cols_S,const T D) {
-        T s;
         for (SIZE j = 0; j < num_cols_S; ++j) {
-            s = linalg::innerprod(normal_vector,base_H[j],D);
+            T s = linalg::innerprod(normal_vector,base_H[j],D);
             if ((s != 0) && (s != 1)) return false;
         }
         return true;
@@ -34,8 +33,7 @@ namespace base {
 
             // Add normal vector of slab to the list if it contains all points of the base
             if (accept(normal_vector,base_H,num_cols_S,D)) {
-                std::memcpy(slabs[num_slabs],normal_vector,D * sizeof(T));
-                num_slabs++;
+                std::memcpy(slabs[num_slabs++],normal_vector,D * sizeof(T));
             }
 
             // Increase counter, by performing mod-2 computations

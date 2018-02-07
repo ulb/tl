@@ -241,10 +241,10 @@ int main () {
                 // construct the slack matrix S with embedding transformation matrix in top left position
                 bool base_is_lex_max = tl::construct_slack_matrix(base_H,Xr.final,A,B,slabs.matrix,facet.matrix,mem_S_new,S_new,Xr.finalsize,slabs.rows,num_cols_S,num_rows_S_new,num_cols_S_new,D);
                 if ( base_is_lex_max ) {
-                    tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new,S_new);
+                    tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
                     free(mem_S_new);
                 }
-                if ( array::is_all_ones(A,Xr.finalsize) ) break ;
+                if ( array::is_all_ones(A, Xr.finalsize) ) break ;
             }
 
             // std::cerr << "OK" << std::endl ;

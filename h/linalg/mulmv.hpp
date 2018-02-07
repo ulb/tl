@@ -6,7 +6,7 @@
 namespace linalg {
 	// y = Mx
 	template <typename T,typename SIZE>
-	void mulmv(const T * const * const M, const T * const x, T * y, const SIZE rows, const SIZE cols) {
+	void mulmv(const T * const * const M, const T * const x, T * const y, const SIZE rows, const SIZE cols) {
 	    for (SIZE i = 0; i < rows; ++i) y[i] = innerprod(M[i], x, cols);
 	}
 }
