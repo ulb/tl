@@ -70,12 +70,12 @@ namespace tl {
 		T ** ground;
 		mem::alloc_matrix(mem_ground,ground,num_cols_S_new,D);
 
-		std::memcpy(ground[0],ground_H[0],D);
+		std::memcpy(ground[0],ground_H[0],D * sizeof(T));
 		for (SIZE j = 0; j < num_cols_S; ++j) {
-			std::memcpy(ground[1+j],base_H[j],D);
+			std::memcpy(ground[1+j],base_H[j],D * sizeof(T));
 		}
 		for (SIZE j = 1; j < num_A_indices; ++j) {
-			std::memcpy(ground[num_cols_S+j],ground_H[A_indices[j]],D);
+			std::memcpy(ground[num_cols_S+j],ground_H[A_indices[j]],D * sizeof(T));
 		}
 		free(A_indices);
 
