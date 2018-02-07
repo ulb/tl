@@ -9,7 +9,7 @@
 namespace base {
 
     template <typename T,typename SIZE>
-    void construct_orbits(T ** orbits, const SIZE num_autom_base, T ** base_H, T ** d_aut_collection, T ** ground_H, const SIZE size_ground_H, const T D) {
+    void construct_orbits(T ** orbits, const SIZE num_autom_base, const T * const * const base_Ht, const T * const * const d_aut_collection, const T * const * const ground_H, const SIZE size_ground_H, const T D) {
 
         for (SIZE j = 0; j < size_ground_H; ++j) orbits[0][j] = j ;
 
@@ -19,6 +19,7 @@ namespace base {
 
         for (SIZE i = 1; i < num_autom_base; ++i) {
             const auto d_aut_collection_i(d_aut_collection[i]);
+            const auto last(d_aut_collection_i[D-1]);
             const auto orbits_i(orbits[i]);
 
             orbits_i[0] = 0;
@@ -30,23 +31,33 @@ namespace base {
 
                 for (k = 1; k < D; ++k) {
 
-                    image[k] = 0;
+                    const auto * const base_Htk(base_Ht[k]);
+                    const auto lastk(base_Htk[last]);
+                    auto& imagek(image[k]);
 
+                    imagek = 0;
+
+                    const auto * pt(d_aut_collection_i);
                     for (SIZE h = 1; h < D; ++h) {
-                        image[k] += ground_H_j[h]*(base_H[d_aut_collection_i[h-1]][k] - base_H[d_aut_collection_i[D-1]][k]);
+                        imagek += ground_H_j[h]*(base_Htk[*(pt++)] - lastk);
                     }
 
-                    if (image[k] == 1) break;
-                    if (image[k] == -1) goto skip;
+                    if (imagek == 1) break;
+                    if (imagek == -1) goto skip;
 
                 }
 
                 for (++k; k < D; ++k) {
 
-                    image[k] = 0;
+                    const auto * const base_Htk(base_Ht[k]);
+                    const auto lastk(base_Htk[last]);
+                    auto& imagek(image[k]);
 
+                    imagek = 0;
+
+                    const auto * pt(d_aut_collection_i);
                     for (SIZE h = 1; h < D; ++h) {
-                        image[k] += ground_H_j[h]*(base_H[d_aut_collection_i[h-1]][k] - base_H[d_aut_collection_i[D-1]][k]);
+                        imagek += ground_H_j[h]*(base_Htk[*(pt++)] - lastk);
                     }
 
                 }

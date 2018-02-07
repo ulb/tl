@@ -158,10 +158,15 @@ int main () {
             free(mem_base_V);
 
             // Generating orbits of point of the ground set
+            void * mem_base_Ht;
+            int ** base_Ht;
+            mem::alloc_matrix(mem_base_Ht,base_Ht,D,num_cols_S);
+            linalg::transpose(base_H, base_Ht,num_cols_S,D);
             void * mem_orbits;
             int ** orbits;
             mem::alloc_matrix(mem_orbits,orbits,num_autom_base,X.finalsize);
-            base::construct_orbits(orbits,num_autom_base,base_H,d_aut_collection,X.final,X.finalsize,D);
+            base::construct_orbits(orbits,num_autom_base,base_Ht,d_aut_collection,X.final,X.finalsize,D);
+            free(mem_base_Ht);
 
             // Free mem_d_aut_collection, since we constructed the orbits
             free(mem_d_aut_collection);
