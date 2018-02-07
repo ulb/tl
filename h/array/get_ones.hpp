@@ -7,12 +7,13 @@ namespace array {
 	template <typename T,typename SIZE>
 	SIZE get_ones(const T * const bits, const SIZE length, T*& index) {
 		mem::alloc(index, length);
-		SIZE n = 0;
+		T* pt(index);
+		const T* bit(bits);
 		for (SIZE i = 0; i < length; ++i) {
-			index[n] = i;
-			n += bits[i];
+			*pt = i;
+			pt += *(bit++);
 		}
-		return n;
+		return pt - index;
 	}
 
 	template <typename SIZE,typename T>
