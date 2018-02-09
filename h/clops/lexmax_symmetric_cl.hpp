@@ -1,7 +1,7 @@
 #ifndef H_CLOPS_LEXMAX_SYMMETRIC_CL
 #define H_CLOPS_LEXMAX_SYMMETRIC_CL
 
-#include <cstring> // std::equal
+#include <cstring> // std::memset
 
 #include "mem/alloc.hpp"
 #include "array/is_equal.hpp"
