@@ -27,10 +27,12 @@ namespace clops {
 		mem::alloc(A_sym,length_A_sym);
 		mem::alloc(A_sym_tra,length_A);
 
+		A_sym_tra[0] = 1;
+
 		for (SIZE i = 0; i < num_autom_base; ++i) {
 			SIZE min_A_sym = clops::build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A_sym,X.e1,X.full_e1);
 			
-			for (SIZE j = 0; j < length_A; ++j) A_sym_tra[j] = (A_sym + min_A_sym)[X.list_accepted[j+X.e1]-X.full_e1];
+			for (SIZE j = 1; j < length_A; ++j) A_sym_tra[j] = (A_sym + min_A_sym)[X.list_accepted[j+X.e1]-X.full_e1];
 
 			if (st::precedes(A,A_sym_tra,length_A)) {
 				T* tmp(A);
