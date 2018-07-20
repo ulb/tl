@@ -18,7 +18,7 @@ variables
 if [ -e "$resume" ] ; then info "Resuming ..." ; else
 
 	# assumes no other manager is running
-	dangling="$(squeue -h -u "$USER" -o "%j %i" | grep -E "^new_tl-$d-[1-9][0-9]*" | cut -d' ' -f2)"
+	dangling="$(squeue -h -u "$USER" -o "%j %i" | grep -E "^tl-$d-[1-9][0-9]*" | cut -d' ' -f2)"
 	if [ "$dangling" != '' ] ; then scancel $dangling ; fi
 	rm -rf "$scratch"
 
@@ -55,7 +55,7 @@ function submit {
 			-e "s:#GLOBALSCRATCH:$GLOBALSCRATCH:g" \
 			"$template_job" > "$job"
 	fi
-	info "new_tl-$d-$base submission"
+	info "tl-$d-$base submission"
 	sbatch "$job" && touch "$running/$base" && rm "$queue/$base"
 }
 
@@ -70,7 +70,7 @@ while true ; do
 
 	for base in $(list "$running"); do
 		if [ -e "$done/$base" ] ; then
-			info "new_tl-$d-$base done"
+			info "tl-$d-$base done"
 			rm "$running/$base"
 		fi
 	done
