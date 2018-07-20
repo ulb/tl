@@ -17,9 +17,8 @@ namespace base {
     template <typename T,typename SIZE>
     void construct_incompatibility_adjM(T ** incompatibility_adjM, T ** ground_H, T ** facets_base, const SIZE size_ground_H, const SIZE num_facets_base, const T D) {
         for (SIZE i = 1; i < size_ground_H; ++i) {
-            for (SIZE j = 0; j < i; ++j) {
-                incompatibility_adjM[i][j] = is_incompat(ground_H[i],ground_H[j],facets_base,num_facets_base,D) ? 1 : 0 ;
-            }
+            for (SIZE j = 0; j < i; ++j)
+                incompatibility_adjM[i][j] = is_incompat(ground_H[i],ground_H[j],facets_base,num_facets_base,D) ? 1 : 0;
         }
     }
 }

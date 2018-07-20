@@ -11,9 +11,9 @@ namespace emb {
 	template<typename SIZE>
 	VEmbedding<int,SIZE> V (const SIZE d) {
 
-		const SIZE bigsize = nt::pow(3,d-2) * 2;
+		const SIZE bigsize = nt::pow(3,d-1);
+		const SIZE e1 = (nt::pow(3,d-1)-1) / 2 ;
 		const SIZE size = (nt::pow(3,d-1)+1) / 2;
-		const SIZE e1 = (nt::pow(3,d-2)-1) / 2;
 
 		void * mem;
 		int ** bigmatrix;

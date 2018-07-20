@@ -17,12 +17,11 @@ namespace array {
 
 	template<typename SIZE>
 	bool is_all_ones_64(const uint64_t * pt, const SIZE length) {
-		const auto k(length/64);
-		const auto l(length%64);
+		const auto k(length / 64);
+		const auto l(length % 64);
 	    const uint64_t * const end(pt + k);
 	    while (pt != end) {
-	        if (*pt != ~uint64_t(0)) return false;
-	        ++pt;
+	        if (*(pt++) != ~uint64_t(0)) return false;
 	    }
 		if ( l > 0 && (*end | (~uint64_t(0) << l)) != ~uint64_t(0)) return false;
 	    return true;

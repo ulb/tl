@@ -4,92 +4,45 @@
 #include <cstring> // std::memset
 
 #include "mem/alloc.hpp"
-#include "array/is_equal.hpp"
-#include "array/is_all_ones.hpp"
-#include "array/is_all_zeros.hpp"
 #include "array/get_ones.hpp"
 #include "st/precedes.hpp"
-#include "linalg/div_ceil.hpp"
 
 namespace clops {
 	template <typename T,typename SIZE>
-	bool is_inside_X(const T * const phi, const T * const A_indices, const SIZE num_A_indices, const SIZE length_A) {
-		for (SIZE j = 1; j < num_A_indices; ++j) if (phi[A_indices[j]] == length_A) return false;
-		return true;
-	}
-
-	template <typename T,typename SIZE>
-	void build_A_sym(const T * const phi, T * A_sym, const T * const A_indices, const SIZE num_A_indices, const SIZE length_A) {
-		std::memset(A_sym+1,0,(length_A-1) * sizeof(T));
-		for (SIZE j = 1; j < num_A_indices; ++j) A_sym[phi[A_indices[j]]] = 1;
+	SIZE build_A_sym(const T * const phi, T * A_sym, const T * const A_indices, const SIZE num_A_indices,const SIZE length_A_sym, const SIZE e1, const SIZE full_e1) {
+		std::memset(A_sym,0,length_A_sym * sizeof(T));
+		for (SIZE j = 0; j < num_A_indices; ++j) A_sym[phi[e1+A_indices[j]]] = 1;
+		return st::min_A_idx(A_sym, full_e1+1);
 	}
 
 	// compute the lexmax symmetric copy of a set A
-	template <typename T,typename SIZE>
-	void lexmax_symmetric_cl(T *& A, const SIZE length_A, T **orbits, const SIZE num_autom_base) {
-
-		T *A_indices;
+	template<typename XT, typename T,typename SIZE>
+	void lexmax_symmetric_cl(T *& A, XT& X, const T * const * const orbits, const SIZE num_autom_base) {
+		const SIZE length_A = X.finalsize;
+		const SIZE length_A_sym = X.fullsize;
+		T * A_indices;
 		const SIZE num_A_indices = array::get_ones(A,length_A,A_indices);
 
-		T *A_sym;
-		mem::alloc(A_sym,length_A);
-		A_sym[0] = 1;
+		T * A_sym, * A_sym_tra;
+		mem::alloc(A_sym,length_A_sym);
+		mem::alloc(A_sym_tra,length_A);
 
 		for (SIZE i = 0; i < num_autom_base; ++i) {
-			if (is_inside_X(orbits[i],A_indices,num_A_indices,length_A)) {
-				build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A);
-				if (st::precedes(A,A_sym,length_A)) {
-					T* tmp(A);
-					A = A_sym;
-					A_sym = tmp;
-				}
+			SIZE min_A_sym = clops::build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A_sym,X.e1,X.full_e1);
+			
+			for (SIZE j = 0; j < length_A; ++j) A_sym_tra[j] = (A_sym + min_A_sym)[X.list_accepted[j+X.e1]-X.full_e1];
+
+			if (st::precedes(A,A_sym_tra,length_A)) {
+				T* tmp(A);
+				A = A_sym_tra;
+				A_sym_tra = tmp;
 			}
 		}
-
-		free(A_sym);
 		free(A_indices);
+		free(A_sym);
+		free(A_sym_tra);
 	}
 
-	template <typename T,typename SIZE>
-	bool fast_is_outside_X(T* phi, uint64_t* candidate, T * ones,const SIZE nones,const SIZE n, const SIZE n64) {
-		for (SIZE j = 1; j < nones; ++j) if (phi[ones[j]] == n) return true;
-		candidate[0] &= uint64_t(1);
-		std::memset(candidate+1, 0, (n64-1) * sizeof(T));
-		for (SIZE j = 1; j < nones; ++j) {
-			const auto pos = phi[ones[j]];
-			const auto k = pos / 64;
-			const auto l = pos % 64;
-			candidate[k] |= ( uint64_t(1) << l ) ;
-		}
-		return false;
-	}
-
-	// compute the lexmax symmetric copy of a set A
-	template <typename T,typename SIZE>
-	void fast_lexmax_symmetric_cl(uint64_t *& A, const SIZE n, T ** orbits, const SIZE num_autom_base) {
-
-		T* ones;
-		SIZE nones = array::get_ones_64(A,n,ones);
-
-		SIZE n64(linalg::div_ceil(n,64));
-		uint64_t* B;
-		mem::alloc(B, n64);
-		B[0] = uint64_t(1);
-
-		for (SIZE i = 0; i < num_autom_base; ++i) {
-			if (!fast_is_outside_X(orbits[i], B, ones, nones, n, n64)) {
-				if (st::precedes_64(A, B, n64)) {
-					uint64_t* tmp = A;
-					A = B;
-					B = tmp;
-				}
-			}
-		}
-
-		free(B);
-		free(ones);
-
-	}
 
 }
 

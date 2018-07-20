@@ -1,24 +1,26 @@
 #!/bin/bash
 
-#SBATCH --time=0-05:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=3
-#SBATCH --job-name=tl-#d-#base
-#SBATCH -o #GLOBALSCRATCH/tl/#d/log/#base.out
-#SBATCH -e #GLOBALSCRATCH/tl/#d/log/#base.err
+#SBATCH --mem-per-cpu=5000
+#SBATCH --job-name=new_tl-#d-#base
+#SBATCH -o #GLOBALSCRATCH/new_tl/#d/log/#base.out
+#SBATCH -e #GLOBALSCRATCH/new_tl/#d/log/#base.err
+#SBATCH --partition=batch 
 
 d="#d"
 base="#base"
-workspace="$LOCALSCRATCH/.tl-$d-$base"
+workspace="$LOCALSCRATCH/.new_tl-$d-$base"
 run="$workspace/run"
 bases="$workspace/bases"
 polytopes="$workspace/polytopes"
-src_run="$CECIHOME/tl/run"
-src_bases="$CECIHOME/tl/db/src/$d"
-flag_fail="$GLOBALSCRATCH/tl/$d/fail/$base"
-flag_done="$GLOBALSCRATCH/tl/$d/done/$base"
-output="$GLOBALSCRATCH/tl/$d/out/$base"
-duration="$GLOBALSCRATCH/tl/$d/duration/$base"
+src_run="$CECIHOME/new_tl/run"
+src_bases="$CECIHOME/new_tl/db/src/$d"
+flag_fail="$GLOBALSCRATCH/new_tl/$d/fail/$base"
+flag_done="$GLOBALSCRATCH/new_tl/$d/done/$base"
+output="$GLOBALSCRATCH/new_tl/$d/out/$base"
+duration="$GLOBALSCRATCH/new_tl/$d/duration/$base"
 
 >&2 echo "d=$d"
 >&2 echo "base=$base"

@@ -4,7 +4,6 @@
 #include <algorithm> // lower bound
 #include "array/is_equal.hpp"
 #include "array/LexicographicOrder.hpp"
-#include "base/construct_ground_H.hpp"
 
 namespace array {
 	// returns the index of some vector in a collection of SORTED vectors

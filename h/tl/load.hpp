@@ -32,7 +32,7 @@ namespace tl {
 
 		array.emplace_back(dimension, rows, columns, data, matrix);
 
-		std::cerr << " OK" << std::endl;
+		std::cerr << std::endl;
 
 		return true;
 

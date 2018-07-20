@@ -35,7 +35,7 @@ namespace emb {
     T ** rec_ground(T ** begin, const SIZE d, const SIZE j) {
         if (j == 0) return begin+1;
 
-        auto end = rec_ground_2(begin, d, j-1);
+        auto end = rec_ground_3(begin, d, j-1);
         while (begin != end) *((*begin++)+d-j) = 1;
 
         return end;

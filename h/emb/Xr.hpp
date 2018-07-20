@@ -16,6 +16,8 @@ namespace emb {
 
 		// final set stays the same we only reduce the size of X.comp
 		const SIZE finalsize(X.finalsize);
+		const SIZE fullsize(X.fullsize);
+		const SIZE full_e1(X.full_e1);
 
 		T *A;
 		mem::alloc(A,finalsize);
@@ -44,7 +46,11 @@ namespace emb {
 		T ** final(comp+e1);
 		const SIZE compsize = e1 + finalsize;
 
-        const int n_rows_big_64 = linalg::div_ceil(compsize, 64);
+		const SIZE n_rows_64(X.n_rows_64);
+        const SIZE n_rows_big_64 = linalg::div_ceil(compsize, 64);
+
+        SIZE * list_accepted;
+		mem::alloc(list_accepted,compsize);
 
 		// Check points versus slabs incidence
 		void * mem_ps;
@@ -61,6 +67,7 @@ namespace emb {
 		for (; i < e1; ++i) {
 			std::memcpy(comp[i], X.comp[C[i]], D*sizeof(T));
 			std::memcpy(ps_comp[i], X.ps_comp[C[i]], num_slabs*sizeof(T));
+			list_accepted[i] = X.list_accepted[C[i]];
 		}
 
 		free(C);
@@ -69,6 +76,7 @@ namespace emb {
 			std::memcpy(comp[i], X.final[j], D*sizeof(T));
 			std::memcpy(ps[j], X.ps[j], num_slabs*sizeof(T));
 			std::memcpy(ps_comp[i], X.ps_comp[X.e1+j], num_slabs*sizeof(T));
+			list_accepted[i] = X.list_accepted[X.e1+j];
 			++i;
 		}
 
@@ -85,20 +93,24 @@ namespace emb {
 		linalg::transpose(ps_comp,sp_comp,compsize,num_slabs);
 
 		// Transpose-64 - BIG
-		void * mem_sp_comp_64;
-		uint64_t ** sp_comp_64;
-		mem::alloc_matrix(mem_sp_comp_64,sp_comp_64,num_slabs,n_rows_big_64);
-		array::pack64_matrix(sp_comp,sp_comp_64,num_slabs,compsize,n_rows_big_64);
+		void * mem_sp_64_comp;
+		uint64_t ** sp_64_comp;
+		mem::alloc_matrix(mem_sp_64_comp,sp_64_comp,num_slabs,n_rows_big_64);
+		array::pack64_matrix(sp_comp,sp_64_comp,num_slabs,compsize,n_rows_big_64);
 
 		free(mem_sp_comp);
 
 		return HEmbedding<T,SIZE,W>(
+			fullsize,
 			mem,
 			comp,
 			compsize,
+			list_accepted,
 			final,
 			finalsize,
+			full_e1,
 			e1,
+			n_rows_64,
 			n_rows_big_64,
 			mem_ps,
 			ps,
@@ -106,8 +118,8 @@ namespace emb {
 			ps_comp,
 			mem_ps_64,
 			ps_64,
-			mem_sp_comp_64,
-			sp_comp_64
+			mem_sp_64_comp,
+			sp_64_comp
 		);
 
 	}

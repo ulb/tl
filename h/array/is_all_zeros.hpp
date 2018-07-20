@@ -1,6 +1,9 @@
 #ifndef H_ARRAY_IS_ALL_ZEROS
 #define H_ARRAY_IS_ALL_ZEROS
 
+// #include "array/dump.hpp"
+// #include "nt/pow.hpp"
+
 namespace array {
 	// check if an int* is all ones
 	template <typename T,typename SIZE>
@@ -14,15 +17,14 @@ namespace array {
 	}
 
 	template <typename SIZE>
-	bool is_all_zeros_64(uint64_t *pt, SIZE length) {
-		const auto k(length/64);
-		const auto l(length%64);
-	    uint64_t* end = pt + k;
+	bool is_all_zeros_64(const uint64_t *pt,const SIZE length) {
+		const auto k(length / 64);
+		const auto l(length % 64);
+	    const uint64_t * const end(pt + k);
 	    while (pt != end) {
-	        if (*pt != uint64_t(0)) return false;
-	        ++pt;
+	        if (*(pt++) != uint64_t(0)) return false;
 	    }
-		if ( l > 0 && (*end & (uint64_t(0) << l)) != uint64_t(0)) return false;
+		if ( l > 0 && (*end & (~uint64_t(0) >> (64-l))) != uint64_t(0)) return false;
 	    return true;
 	}
 }
