@@ -51,8 +51,6 @@ namespace clops {
 		free(A_sym);
 		free(A_sym_tra);
 	}
-
-
 }
 
 #endif // H_CLOPS_LEXMAX_SYMMETRIC_CL
