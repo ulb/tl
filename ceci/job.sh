@@ -51,7 +51,7 @@ tail "-n+$base" "$bases" | head -n1 >&2
 START_TIME="$SECONDS"
 
 tail "-n+$base" "$bases" | head -n1 |
-"$run/inflate" |
+"$run/inflate" 2>/dev/null |
 "$run/dedup" 2>/dev/null |
 "$run/sift" 2>/dev/null "$bases" > "$polytopes"
 
