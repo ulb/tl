@@ -11,8 +11,13 @@ namespace clops {
 	template <typename T,typename SIZE>
 	SIZE build_A_sym(const T * const phi, T * A_sym, const T * const A_indices, const SIZE num_A_indices,const SIZE length_A_sym, const SIZE e1, const SIZE full_e1) {
 		std::memset(A_sym,0,length_A_sym * sizeof(T));
-		for (SIZE j = 0; j < num_A_indices; ++j) A_sym[phi[e1+A_indices[j]]] = 1;
-		return st::min_A_idx(A_sym, full_e1+1);
+		SIZE min_A_idx(full_e1);
+		for (SIZE j = 0; j < num_A_indices; ++j) {
+			const SIZE candidate_idx(phi[e1+A_indices[j]]);
+			A_sym[candidate_idx] = 1;
+			if (candidate_idx < min_A_idx) min_A_idx = candidate_idx;
+		}
+		return min_A_idx;
 	}
 
 	// compute the lexmax symmetric copy of a set A
@@ -30,9 +35,11 @@ namespace clops {
 		A_sym_tra[0] = 1;
 
 		for (SIZE i = 0; i < num_autom_base; ++i) {
-			SIZE min_A_sym = clops::build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A_sym,X.e1,X.full_e1);
+			const SIZE min_A_sym(clops::build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A_sym,X.e1,X.full_e1));
+			const T * const sym(A_sym + min_A_sym - X.full_e1);
+			const T* accepted(X.list_accepted+X.e1+1);
 			
-			for (SIZE j = 1; j < length_A; ++j) A_sym_tra[j] = (A_sym + min_A_sym)[X.list_accepted[j+X.e1]-X.full_e1];
+			for (SIZE j = 1; j < length_A; ++j) A_sym_tra[j] = sym[*(accepted++)];
 
 			if (st::precedes(A,A_sym_tra,length_A)) {
 				T* tmp(A);
