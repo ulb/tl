@@ -37,7 +37,7 @@ namespace clops {
 		for (SIZE i = 0; i < num_autom_base; ++i) {
 			const SIZE min_A_sym(clops::build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A_sym,X.e1,X.full_e1));
 			const T * const sym(A_sym + min_A_sym - X.full_e1);
-			const T* accepted(X.list_accepted+X.e1+1);
+			const T * accepted(X.list_accepted+X.e1+1);
 			
 			for (SIZE j = 1; j < length_A; ++j) A_sym_tra[j] = sym[*(accepted++)];
 
