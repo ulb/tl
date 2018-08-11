@@ -229,11 +229,13 @@ int main () {
                         break;
                     }
                 }
-                array::unpack64(B,slabs.n_rows,B_64);
                 int *tmp(A);
                 A = CI;
                 CI = tmp;
                 ++tot_N_closed_sets;
+
+                if ( array::is_all_ones(A, Xr.finalsize) ) break;
+                array::unpack64(B,slabs.n_rows,B_64);
 
                 // std::cerr << "A = ";
                 // array::dump(A,X.finalsize);
@@ -243,7 +245,7 @@ int main () {
                     tl::dump(std::cout, D, num_rows_S_new, num_cols_S_new, S_new);
                     free(mem_S_new);
                 }
-                if ( array::is_all_ones(A, Xr.finalsize) ) break ;
+                
             }
 
             free(I);
