@@ -9,7 +9,7 @@
 
 namespace base {
     template <typename T,typename XT,typename SIZE>
-    void jth_entry_orbit_i(const SIZE j, const T * const * const  base_Ht, const T img_origin,const T * const d_aut_collection_i, T * orbit_i, T * image, XT X, const T D) {
+    void jth_entry_orbit_i(const SIZE j, const T * const * const  base_Ht, const T img_origin,const T * const d_aut_collection_i, T * orbit_i, T * image, XT & X, const T D) {
         const auto ground_H_j(X.comp[j]);
         // array::dump(ground_H_j,D);
         for (SIZE k = 1; k < D; ++k) {
@@ -26,7 +26,7 @@ namespace base {
 
 
     template <typename T,typename XT,typename SIZE>
-    void construct_orbits(T ** orbits, const SIZE num_autom_base, const T * const * const base_Ht, const T * const * const d_aut_collection,XT X, const T D) {
+    void construct_orbits(T ** orbits, const SIZE num_autom_base, const T * const * const base_Ht, const T * const * const d_aut_collection,XT & X, const T D) {
 
         T * image;
         mem::alloc(image,D);
@@ -39,12 +39,10 @@ namespace base {
             const auto img_origin(d_aut_collection_i[D-1]);
             const auto orbit_i(orbits[i]);
 
-            orbit_i[X.e1] = X.full_e1;
             SIZE j = 0;
-            for (; j < X.e1; ++j) 
-                jth_entry_orbit_i(j,base_Ht,img_origin,d_aut_collection_i,orbit_i,image,X,D);
-            for (++j ; j < X.compsize; ++j) 
-                jth_entry_orbit_i(j,base_Ht,img_origin,d_aut_collection_i,orbit_i,image,X,D);
+            for (; j < X.e1; ++j) jth_entry_orbit_i(j,base_Ht,img_origin,d_aut_collection_i,orbit_i,image,X,D);
+            orbit_i[X.e1] = X.full_e1;
+            for (++j ; j < X.compsize; ++j) jth_entry_orbit_i(j,base_Ht,img_origin,d_aut_collection_i,orbit_i,image,X,D);
         }
         free(image);
     }
