@@ -11,8 +11,8 @@ CXXFLAGS := -std=c++14 -Wall -W
 
 HEADER_DIR := h
 
-#OBJS := $(NAUTYHOME)/nauty.a
-OBJS := $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)
+OBJS := $(NAUTYHOME)/nauty.a
+# OBJS := $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)
 HEADER_FILES := $(shell find $(HEADER_DIR) | grep '.hpp$$')
 
 SOURCES := $(shell find src -type f)
