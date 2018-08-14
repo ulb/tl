@@ -27,7 +27,7 @@ namespace clops {
 
 	// compute the lexmax symmetric copy of a set A
 	template<typename XT, typename T,typename SIZE>
-	void lexmax_symmetric_cl(T *& A, XT& X, const T * const * const orbits, const SIZE num_autom_base) {
+	void lexmax_symmetric_cl(T *& A, XT& X, const T * const * const & orbits, const SIZE num_autom_base) {
 		const SIZE length_A = X.finalsize;
 		const SIZE length_A_sym = X.fullsize;
 		T * A_indices;
@@ -41,6 +41,7 @@ namespace clops {
 			const T * const sym(A_sym + min_A_sym - X.full_e1);
 			const T * accepted(X.list_accepted + X.compsize);
 			T * a(A + length_A);
+			
 			if (clops::precedes(A,a,sym,accepted))
 				while (a != A+1) *(a--) = sym[*(accepted--)];
 		}
