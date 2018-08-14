@@ -41,7 +41,7 @@ namespace clops {
 			const T * const sym(A_sym + min_A_sym - X.full_e1);
 			const T * accepted(X.list_accepted + X.compsize);
 			T * a(A + length_A);
-			
+
 			if (clops::precedes(A,a,sym,accepted))
 				while (a != A+1) *(a--) = sym[*(accepted--)];
 		}
