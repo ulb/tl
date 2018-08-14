@@ -8,9 +8,9 @@
 
 namespace clops {
 	template <typename T>
-	bool precedes(const T const * A,const T * & a, const T * const b, const T * & accepted) {
-	    while (a != A) if (*(--a) != b[*(--accepted)]) return b[*accepted] == 1;
-	    return false;
+	bool precedes(const T * A,T * & a, const T * const sym, const T * & accepted) {
+	   while (a != A+1) if (*(--a) != sym[*(--accepted)]) return sym[*accepted] == 1;
+	   return false;
 	}
 
 	template <typename T,typename SIZE>
@@ -39,19 +39,13 @@ namespace clops {
 		for (SIZE i = 0; i < num_autom_base; ++i) {
 			const SIZE min_A_sym(clops::build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A_sym,X.e1,X.full_e1));
 			const T * const sym(A_sym + min_A_sym - X.full_e1);
-			const T * accepted(X.list_accepted+X.compsize);
-			const T * a(A + length_A);
-			if (clops::precedes(A,a,sym,accepted)) {
-				// const T * new_accepted(X.list_accepted+X.e1+1);
-				// for (SIZE j = 1; j != length_A; ++j) {
-				// 	A[j] = sym[*(new_accepted)];
-				// 	if ((new_accepted++) == accepted) break;
-				// }
+			const T * accepted(X.list_accepted + X.compsize);
+			T * a(A + length_A);
+			if (clops::precedes(A,a,sym,accepted))
 				while (a != A+1) *(a--) = sym[*(accepted--)];
-			}
 		}
-		free(A_indices);
 		free(A_sym);
+		free(A_indices);
 	}
 }
 
