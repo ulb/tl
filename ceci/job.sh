@@ -1,12 +1,13 @@
 #!/bin/bash
 
-#SBATCH --time=10-00:00:00
+#SBATCH --time=30-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=3
 #SBATCH --mem-per-cpu=5000
 #SBATCH --job-name=tl-#d-#base
 #SBATCH -o #GLOBALSCRATCH/tl/#d/log/#base.out
 #SBATCH -e #GLOBALSCRATCH/tl/#d/log/#base.err
+#SBATCH --partition=Long
 
 d="#d"
 base="#base"

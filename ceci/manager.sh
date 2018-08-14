@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 
-#SBATCH --time=10-00:00:00
+#SBATCH --time=30-00:00:00
 #SBATCH --nodes=1
-
+#SBATCH --partition=Long
 
 d="$1"
 
