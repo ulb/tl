@@ -5,9 +5,14 @@
 
 #include "mem/alloc.hpp"
 #include "array/get_ones.hpp"
-#include "st/precedes.hpp"
 
 namespace clops {
+	template <typename T>
+	bool precedes(const T const * A,const T * & a, const T * const b, const T * & accepted) {
+	    while (a != A) if (*(--a) != b[*(--accepted)]) return b[*accepted] == 1;
+	    return false;
+	}
+
 	template <typename T,typename SIZE>
 	SIZE build_A_sym(const T * const phi, T * A_sym, const T * const A_indices, const SIZE num_A_indices,const SIZE length_A_sym, const SIZE e1, const SIZE full_e1) {
 		std::memset(A_sym,0,length_A_sym * sizeof(T));
@@ -28,28 +33,25 @@ namespace clops {
 		T * A_indices;
 		const SIZE num_A_indices = array::get_ones(A,length_A,A_indices);
 
-		T * A_sym, * A_sym_tra;
+		T * A_sym;
 		mem::alloc(A_sym,length_A_sym);
-		mem::alloc(A_sym_tra,length_A);
-
-		A_sym_tra[0] = 1;
 
 		for (SIZE i = 0; i < num_autom_base; ++i) {
 			const SIZE min_A_sym(clops::build_A_sym(orbits[i],A_sym,A_indices,num_A_indices,length_A_sym,X.e1,X.full_e1));
 			const T * const sym(A_sym + min_A_sym - X.full_e1);
-			const T * accepted(X.list_accepted+X.e1+1);
-			
-			for (SIZE j = 1; j < length_A; ++j) A_sym_tra[j] = sym[*(accepted++)];
-
-			if (st::precedes(A,A_sym_tra,length_A)) {
-				T* tmp(A);
-				A = A_sym_tra;
-				A_sym_tra = tmp;
+			const T * accepted(X.list_accepted+X.compsize);
+			const T * a(A + length_A);
+			if (clops::precedes(A,a,sym,accepted)) {
+				// const T * new_accepted(X.list_accepted+X.e1+1);
+				// for (SIZE j = 1; j != length_A; ++j) {
+				// 	A[j] = sym[*(new_accepted)];
+				// 	if ((new_accepted++) == accepted) break;
+				// }
+				while (a != A+1) *(a--) = sym[*(accepted--)];
 			}
 		}
 		free(A_indices);
 		free(A_sym);
-		free(A_sym_tra);
 	}
 }
 
