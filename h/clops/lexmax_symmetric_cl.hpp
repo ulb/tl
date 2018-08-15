@@ -7,6 +7,10 @@
 #include "array/get_ones.hpp"
 
 namespace clops {
+
+	// check if sym is lexicographically greater than A
+	// if yes, it also returns the position of the pointers a and accepted
+	// accepted is a pointer to X.list_accepted  
 	template <typename T>
 	bool precedes(const T * A,T * & a, const T * const sym, const T * & accepted) {
 	   while (a != A+1) if (*(--a) != sym[*(--accepted)]) return sym[*accepted] == 1;
