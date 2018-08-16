@@ -11,6 +11,7 @@ namespace emb {
 			void *mem;
 			T **comp;
 			const SIZE compsize;
+			SIZE * list_indices;
 			SIZE * list_accepted;
 			T ** final;
 			const SIZE finalsize;
@@ -32,6 +33,7 @@ namespace emb {
 					void *mem,
 					T **comp,
 					const SIZE compsize,
+					SIZE * list_indices,
 					SIZE * list_accepted,
 					T **final,
 					const SIZE finalsize,
@@ -52,6 +54,7 @@ namespace emb {
 			mem(mem),
 			comp(comp),
 			compsize(compsize),
+			list_indices(list_indices),
 			list_accepted(list_accepted),
 			final(final),
 			finalsize(finalsize),
@@ -70,6 +73,7 @@ namespace emb {
 
 			void teardown(){
 				free(this->mem);
+				free(this->list_indices);
 				free(this->list_accepted);
 				free(this->mem_ps);
 				free(this->mem_ps_comp);

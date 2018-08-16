@@ -18,14 +18,16 @@ namespace emb {
 
 		SIZE * list_accepted;
 		mem::alloc(list_accepted,V.fullsize);
-		const SIZE compsize = emb::construct_ground_H(comp,V.full,V.fullsize,facets_base,list_accepted,num_facets_base,Minv,D);
+		SIZE * list_indices;
+		mem::alloc(list_indices,V.fullsize);
+		const SIZE compsize = emb::construct_ground_H(comp,V.full,V.fullsize,facets_base,list_accepted,list_indices,num_facets_base,Minv,D);
 		const SIZE fullsize(V.fullsize);
 		const SIZE e1 = (compsize-1)/2;
 		const SIZE full_e1 = (fullsize-1)/2;
 		T ** final(comp + e1);
 		const SIZE finalsize = e1+1;
 
-        const SIZE n_rows_64 = linalg::div_ceil(finalsize, 64);
+      const SIZE n_rows_64 = linalg::div_ceil(finalsize, 64);
 		const SIZE n_rows_big_64 = linalg::div_ceil(compsize, 64);
 
 		// Check points versus slabs incidence
@@ -67,6 +69,7 @@ namespace emb {
 			mem,
 			comp,
 			compsize,
+			list_indices,
 			list_accepted,
 			final,
 			finalsize,

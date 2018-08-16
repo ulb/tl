@@ -26,13 +26,18 @@ namespace emb {
 
 
 	template <typename T,typename SIZE>
-	SIZE construct_ground_H(T ** ground_H, T ** ground_V,const SIZE size_ground_V,T ** facets_base, SIZE * list_accepted,const SIZE num_facets_base,T ** Minv,const SIZE D) {
+	SIZE construct_ground_H(T ** ground_H, T ** ground_V,const SIZE size_ground_V,T ** facets_base, SIZE * list_accepted,SIZE * list_indices,const SIZE num_facets_base,T ** Minv,const SIZE D) {
             SIZE size_ground_H = 0;
+            auto pt(list_indices);
             for (SIZE i = 0; i < size_ground_V; ++i) {
                 T* point = ground_H[size_ground_H];
                 linalg::mulmv(Minv,ground_V[i],point,D,D);
 
-                if (accept(facets_base,num_facets_base,point,D)) list_accepted[size_ground_H++] = i;
+                if (accept(facets_base,num_facets_base,point,D)) {
+                    list_accepted[size_ground_H] = i;
+                    *(pt++) = size_ground_H++;
+                }
+                else *(pt++) = 0;
             }
             return size_ground_H;
 

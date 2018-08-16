@@ -47,10 +47,11 @@ namespace emb {
 		const SIZE compsize = e1 + finalsize;
 
 		const SIZE n_rows_64(X.n_rows_64);
-        const SIZE n_rows_big_64 = linalg::div_ceil(compsize, 64);
+      const SIZE n_rows_big_64 = linalg::div_ceil(compsize, 64);
 
-        SIZE * list_accepted;
-		mem::alloc(list_accepted,compsize);
+		SIZE * list_accepted, * list_indices; // they will not be used
+		mem::alloc(list_accepted,1);
+		mem::alloc(list_indices,1);
 
 		// Check points versus slabs incidence
 		void * mem_ps;
@@ -67,7 +68,7 @@ namespace emb {
 		for (; i < e1; ++i) {
 			std::memcpy(comp[i], X.comp[C[i]], D*sizeof(T));
 			std::memcpy(ps_comp[i], X.ps_comp[C[i]], num_slabs*sizeof(T));
-			list_accepted[i] = X.list_accepted[C[i]];
+			// list_accepted[i] = X.list_accepted[C[i]];
 		}
 
 		free(C);
@@ -76,7 +77,7 @@ namespace emb {
 			std::memcpy(comp[i], X.final[j], D*sizeof(T));
 			std::memcpy(ps[j], X.ps[j], num_slabs*sizeof(T));
 			std::memcpy(ps_comp[i], X.ps_comp[X.e1+j], num_slabs*sizeof(T));
-			list_accepted[i] = X.list_accepted[X.e1+j];
+			// list_accepted[i] = X.list_accepted[X.e1+j];
 			++i;
 		}
 
@@ -105,6 +106,7 @@ namespace emb {
 			mem,
 			comp,
 			compsize,
+			list_indices,
 			list_accepted,
 			final,
 			finalsize,
