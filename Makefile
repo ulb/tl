@@ -11,8 +11,8 @@ CXXFLAGS := -std=c++14 -Wall -W
 
 HEADER_DIR := h
 
-OBJS := $(NAUTYHOME)/nauty.a
-# OBJS := $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)
+NAUTY_LIB := $(NAUTYHOME)/nauty.a
+# NAUTY_LIBS := $(patsubst %.o,$(NAUTYHOME)/%.o,nautyL.o naurng.o nautil.o schreier.o naugraph.o naugroup.o)
 HEADER_FILES := $(shell find $(HEADER_DIR) | grep '.hpp$$')
 
 SOURCES := $(shell find src -type f)
@@ -26,14 +26,14 @@ runnables: run $(RUNNABLES)
 profilables: prof $(PROFILABLES)
 debugables: debug $(DEBUGABLES)
 
-run/%: src/%.cpp $(OBJS) $(HEADER_FILES)
-	$(CXX) $(CXXFLAGS) -O3 $< -o $@ $(OBJS) -I$(NAUTYHOME) -I$(HEADER_DIR)
+run/%: src/%.cpp $(NAUTY_LIB) $(HEADER_FILES)
+	$(CXX) $(CXXFLAGS) -O3 $< -o $@ $(NAUTY_LIB) -I$(NAUTYHOME) -I$(HEADER_DIR)
 
-prof/%: src/%.cpp $(OBJS) $(HEADER_FILES)
-	$(CXX) $(CXXFLAGS) -O3 -no-pie -pg $< -o $@ $(OBJS) -I$(NAUTYHOME) -I$(HEADER_DIR)
+prof/%: src/%.cpp $(NAUTY_LIB) $(HEADER_FILES)
+	$(CXX) $(CXXFLAGS) -O3 -no-pie -pg $< -o $@ $(NAUTY_LIB) -I$(NAUTYHOME) -I$(HEADER_DIR)
 
-debug/%: src/%.cpp $(OBJS) $(HEADER_FILES)
-	$(CXX) $(CXXFLAGS) -g $< -o $@ $(OBJS) -I$(NAUTYHOME) -I$(HEADER_DIR)
+debug/%: src/%.cpp $(NAUTY_LIB) $(HEADER_FILES)
+	$(CXX) $(CXXFLAGS) -g $< -o $@ $(NAUTY_LIB) -I$(NAUTYHOME) -I$(HEADER_DIR)
 
 run:
 	mkdir -p run
